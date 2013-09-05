@@ -11,11 +11,11 @@ import java.util.Properties;
 public class MethodeHealthCheck extends HealthCheck {
 
 	private final String methodeHostName;
-	private final String methodePort;
+	private final int methodePort;
 	private final String methodeUserName;
 	private final String methodePassword;
 
-	public MethodeHealthCheck(String methodeHostName, String methodePort, String methodeUserName, String methodePassword) {
+	public MethodeHealthCheck(String methodeHostName, int methodePort, String methodeUserName, String methodePassword) {
 		super("Methode Health Check");
 
 		this.methodeHostName = methodeHostName;

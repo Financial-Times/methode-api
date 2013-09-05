@@ -4,16 +4,19 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+
 public class MethodeConnectionConfiguration {
 
 	private final String methodeHostName;
-	private final String methodePort;
+	private final int methodePort;
 	private final String methodeUserName;
 	private final String methodePassword;
 
 	@JsonCreator
 	public MethodeConnectionConfiguration(@JsonProperty("hostName") @NotEmpty String methodeHostName,
-										  @JsonProperty("nsPort") @NotEmpty String methodePort,
+										  @JsonProperty("nsPort") @Min(1) @Max(65535) int methodePort,
 										  @JsonProperty("userName") @NotEmpty String methodeUserName,
 										  @JsonProperty("password") @NotEmpty String methodePassword) {
 		this.methodeHostName = methodeHostName;
@@ -26,7 +29,7 @@ public class MethodeConnectionConfiguration {
 		return methodeHostName;
 	}
 
-	public String getMethodePort() {
+	public int getMethodePort() {
 		return methodePort;
 	}
 
