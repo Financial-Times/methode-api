@@ -7,8 +7,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.ft.methodeapi.repository.ContentRepository;
-import com.ft.methodeapi.repository.ContentRepositoryFactory;
 import com.google.common.base.Optional;
 import com.yammer.metrics.annotation.Timed;
 
@@ -16,24 +14,17 @@ import com.yammer.metrics.annotation.Timed;
 @Produces(MediaType.APPLICATION_JSON)
 public class ContentResource {
 
-    private final ContentRepositoryFactory contentRepositoryFactory;
+    private final MethodeContentRepository methodeContentRepository;
 
-    public ContentResource(@NotNull ContentRepositoryFactory contentRepositoryFactory) {
-        this.contentRepositoryFactory = contentRepositoryFactory;
+    public ContentResource(@NotNull MethodeContentRepository methodeContentRepository) {
+        this.methodeContentRepository = methodeContentRepository;
     }
 
     @GET
     @Timed
     @Path("{uuid}")
     public Optional<Content> getContent(@PathParam("uuid") String uuid) {
-
-        ContentRepository contentRepository = contentRepositoryFactory.newRepository();
-        try {
-            return contentRepository.findContentByUuid(uuid);
-        } finally {
-            contentRepository.close();
-        }
-
+        return methodeContentRepository.findContentByUuid(uuid);
     }
 
 }

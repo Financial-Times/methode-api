@@ -3,7 +3,7 @@ package com.ft.methodeapi;
 import com.ft.methodeapi.healthcheck.MethodeLoginHealthcheck;
 import com.ft.methodeapi.healthcheck.MethodePingHealthCheck;
 import com.ft.methodeapi.service.ContentResource;
-import com.ft.methodeapi.service.MethodeContentRepositoryFactory;
+import com.ft.methodeapi.service.MethodeContentRepository;
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
@@ -25,15 +25,14 @@ public class MethodeApiService extends Service<MethodeApiConfiguation> {
     public void run(MethodeApiConfiguation configuration, Environment environment) {
         final MethodeConnectionConfiguration methodeConnectionConfiguration = configuration.getMethodeConnectionConfiguration();
 
-        final MethodeContentRepositoryFactory methodeContentRepositoryFactory = MethodeContentRepositoryFactory.builder()
+        final MethodeContentRepository methodeContentRepository = MethodeContentRepository.builder()
                 .withHost(methodeConnectionConfiguration.getMethodeHostName())
                 .withPort(methodeConnectionConfiguration.getMethodePort())
                 .withUsername(methodeConnectionConfiguration.getMethodeUserName())
                 .withPassword(methodeConnectionConfiguration.getMethodePassword())
                 .build();
 
-        environment.addResource(new ContentResource(methodeContentRepositoryFactory));
-
+        environment.addResource(new ContentResource(methodeContentRepository));
 
         environment.addHealthCheck(new MethodePingHealthCheck(methodeConnectionConfiguration.getMethodeHostName(),
                 methodeConnectionConfiguration.getMethodePort()));

@@ -13,18 +13,18 @@ import EOM.RepositoryError;
 import EOM.RepositoryHelper;
 import EOM.RepositoryPackage.InvalidLogin;
 import EOM.Session;
-import com.ft.methodeapi.repository.ContentRepository;
 import com.google.common.base.Optional;
 import com.yammer.metrics.annotation.Timed;
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
+import org.omg.CosNaming.NamingContextPackage.NotEmpty;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MethodeContentRepository implements ContentRepository, AutoCloseable {
+public class MethodeContentRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodeContentRepository.class);
 
@@ -33,12 +33,6 @@ public class MethodeContentRepository implements ContentRepository, AutoCloseabl
     private final String username;
     private final String password;
 
-    private ORB orb;
-    private Session session;
-
-    private boolean isOpen = false;
-    private boolean isClosed = false;
-
     public MethodeContentRepository(String hostname, int port, String username, String password) {
         this.hostname = hostname;
         this.port = port;
@@ -46,16 +40,24 @@ public class MethodeContentRepository implements ContentRepository, AutoCloseabl
         this.password = password;
     }
 
-    @Override
+    public MethodeContentRepository(Builder builder) {
+        this(builder.host, builder.port, builder.username, builder.password);
+    }
+
     @Timed
     public Optional<Content> findContentByUuid(String uuid) {
-        if (isClosed) {
-            throw new IllegalStateException("already closed");
-        } else if (!isOpen) {
-            open();
+        ORB orb = createOrb();
+        try {
+            return findContentByUuidWithOrb(uuid, orb);
+        } finally {
+            maybeCloseOrb(orb);
         }
+    }
 
-        FileSystemAdmin fileSystemAdmin = null;
+    private Optional<Content> findContentByUuidWithOrb(String uuid, ORB orb) {
+        Session session = createSession(orb);
+
+        FileSystemAdmin fileSystemAdmin;
         try {
             fileSystemAdmin = EOM.FileSystemAdminHelper.narrow(session.resolve_initial_references("FileSystemAdmin"));
         } catch (ObjectNotFound | RepositoryError | PermissionDenied e) {
@@ -65,68 +67,122 @@ public class MethodeContentRepository implements ContentRepository, AutoCloseabl
         String uri = "eom:/uuids/" + uuid;
 
         FileSystemObject fso;
+        Optional<Content> foundContent;
         try {
             fso = fileSystemAdmin.get_object_with_uri(uri);
             if (isContent(fso.get_type_name())) {
                 EOM.File eomFile = EOM.FileHelper.narrow(fso);
                 Content content = new Content(eomFile.read_all());
-                return Optional.of(content);
+                foundContent = Optional.of(content);
             } else {
-                return Optional.absent();
+                foundContent = Optional.absent();
             }
         } catch (InvalidURI invalidURI) {
             return Optional.absent();
         } catch (RepositoryError | PermissionDenied e) {
             throw new RuntimeException(e);
         }
+        return foundContent;
+    }
 
+    private Session createSession(ORB orb) {
+        Session session;
+        try {
+            Repository repository = createRepository(orb);
+            session = repository.login(username, password, "", null);
+        } catch (InvalidLogin | RepositoryError e) {
+            throw new RuntimeException(e);
+        }
+        return session;
+    }
+
+    private Repository createRepository(ORB orb) {
+        NamingContextExt namingService = null;
+        try {
+            namingService = NamingContextExtHelper.narrow(orb.resolve_initial_references("NS"));
+            return RepositoryHelper.narrow(namingService.resolve_str("EOM/Repositories/cms"));
+        } catch (org.omg.CORBA.ORBPackage.InvalidName
+                | org.omg.CosNaming.NamingContextPackage.InvalidName
+                | CannotProceed | NotFound e) {
+            throw new RuntimeException(e);
+//        } finally {
+//            // TODO is this safe? NO - so, do we need to clean up the naming service when we're finished?
+//            if (namingService != null) {
+//                try {
+//                    namingService.destroy();
+//                } catch (NotEmpty notEmpty) {
+//                    throw new RuntimeException(notEmpty);
+//                }
+//            }
+        }
+    }
+
+    private ORB createOrb() {
+        String[] orbInits = {"-ORBInitRef", String.format("NS=corbaloc:iiop:%s:%d/NameService", hostname, port)};
+        return ORB.init(orbInits, new Properties());
     }
 
     private boolean isContent(String type) {
         return "EOM::Story".equals(type) || "EOM::CompoundStory".equals(type);
     }
 
-    private void open() {
-        String[] orbInits = {"-ORBInitRef", String.format("NS=corbaloc:iiop:%s:%d/NameService", hostname, port)};
-        this.orb = ORB.init(orbInits, new Properties());
+    private void cleanupOrbAndSession(Session session, ORB orb) {
         try {
-            NamingContextExt namingService = NamingContextExtHelper.narrow(orb.resolve_initial_references("NS"));
-            Repository eomRepo = RepositoryHelper.narrow(namingService.resolve_str("EOM/Repositories/cms"));
-            this.session = eomRepo.login(username, password, "", null);
-        } catch (CannotProceed | InvalidLogin | NotFound
-                | org.omg.CORBA.ORBPackage.InvalidName
-                | org.omg.CosNaming.NamingContextPackage.InvalidName
-                | RepositoryError e) {
-            throw new RuntimeException(e);
-        }
-        isOpen = true;
-    }
-
-    @Override
-    public void close() {
-        isClosed = true;
-        try {
-            maybeCloseSession();
+            maybeCloseSession(session);
         } finally {
-            maybeCloseOrb();
+            maybeCloseOrb(orb);
         }
     }
 
-    private void maybeCloseSession() {
+    private void maybeCloseSession(Session session) {
         if (session != null) {
             try {
                 session.destroy();
             } catch (PermissionDenied | ObjectLocked | RepositoryError e) {
                 LOGGER.warn("failed to destroy EOM.Session", e);
-            } finally {
-                session = null;
             }
         }
     }
 
-    private void maybeCloseOrb() {
+    private void maybeCloseOrb(ORB orb) {
         if (orb != null) {
             orb.destroy();
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private String username;
+        private String password;
+        private String host;
+        private int port;
+
+        public Builder withUsername(String username) {
+            this.username = username;
+            return this;
+        }
+
+        public Builder withPassword(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public Builder withHost(String host) {
+            this.host = host;
+            return this;
+        }
+
+        public Builder withPort(int port) {
+            this.port = port;
+            return this;
+        }
+
+        public MethodeContentRepository build() {
+            return new MethodeContentRepository(this);
         }
     }
 }
