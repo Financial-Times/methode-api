@@ -1,6 +1,6 @@
 package com.ft.methodeApi;
 
-import com.ft.methodeApi.healthcheck.MethodeHealthCheck;
+import com.ft.methodeApi.healthcheck.MethodePingHealthCheck;
 import com.ft.methodeApi.service.ContentResource;
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;
@@ -21,8 +21,7 @@ public class MethodeApiService extends Service<MethodeApiConfiguation> {
         environment.addResource(new ContentResource());
 
 		final MethodeConnectionConfiguration methodeConnectionConfiguration = configuration.getMethodeConnectionConfiguration();
-		environment.addHealthCheck(new MethodeHealthCheck(methodeConnectionConfiguration.getMethodeHostName(),
-				methodeConnectionConfiguration.getMethodePort(), methodeConnectionConfiguration.getMethodeUserName(),
-				methodeConnectionConfiguration.getMethodePassword()));
+		environment.addHealthCheck(new MethodePingHealthCheck(methodeConnectionConfiguration.getMethodeHostName(),
+				methodeConnectionConfiguration.getMethodePort()));
     }
 }
