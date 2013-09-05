@@ -1,6 +1,5 @@
 package com.ft.methodeapi.service;
 
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -16,7 +15,7 @@ public class ContentResource {
 
     private final MethodeContentRepository methodeContentRepository;
 
-    public ContentResource(@NotNull MethodeContentRepository methodeContentRepository) {
+    public ContentResource(MethodeContentRepository methodeContentRepository) {
         this.methodeContentRepository = methodeContentRepository;
     }
 

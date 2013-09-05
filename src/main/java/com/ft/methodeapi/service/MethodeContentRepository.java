@@ -44,15 +44,6 @@ public class MethodeContentRepository {
     }
 
     @Timed
-    public Optional<Content> findContentByUuid(String uuid) {
-        ORB orb = createOrb();
-        try {
-            return findContentByUuidWithOrb(uuid, orb);
-        } finally {
-            maybeCloseOrb(orb);
-        }
-    }
-
     public void ping() {
         ORB orb = createOrb();
         try {
@@ -62,9 +53,26 @@ public class MethodeContentRepository {
         }
     }
 
+    @Timed
+    public Optional<Content> findContentByUuid(String uuid) {
+        ORB orb = createOrb();
+        try {
+            return findContentByUuidWithOrb(uuid, orb);
+        } finally {
+            maybeCloseOrb(orb);
+        }
+    }
+
     private Optional<Content> findContentByUuidWithOrb(String uuid, ORB orb) {
         Session session = createSession(orb);
+        try {
+            return findContentByUuidWithSession(uuid, session);
+        } finally {
+            maybeCloseSession(session);
+        }
+    }
 
+    private Optional<Content> findContentByUuidWithSession(String uuid, Session session) {
         FileSystemAdmin fileSystemAdmin;
         try {
             fileSystemAdmin = EOM.FileSystemAdminHelper.narrow(session.resolve_initial_references("FileSystemAdmin"));
@@ -132,14 +140,6 @@ public class MethodeContentRepository {
 
     private boolean isContent(String type) {
         return "EOM::Story".equals(type) || "EOM::CompoundStory".equals(type);
-    }
-
-    private void cleanupOrbAndSession(Session session, ORB orb) {
-        try {
-            maybeCloseSession(session);
-        } finally {
-            maybeCloseOrb(orb);
-        }
     }
 
     private void maybeCloseSession(Session session) {
