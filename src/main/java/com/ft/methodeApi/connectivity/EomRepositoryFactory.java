@@ -1,6 +1,7 @@
 package com.ft.methodeApi.connectivity;
 
 import EOM.Repository;
+import EOM.RepositoryHelper;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CosNaming.NamingContextExt;
@@ -26,7 +27,7 @@ public class EomRepositoryFactory implements AutoCloseable {
 	public Repository createRepository() throws InvalidName, org.omg.CosNaming.NamingContextPackage.InvalidName, NotFound, CannotProceed {
 		NamingContextExt namingService = NamingContextExtHelper.narrow(orb
 							.resolve_initial_references("NS"));
-		EOM.Repository eomRepo = EOM.RepositoryHelper.narrow(namingService
+		Repository eomRepo = RepositoryHelper.narrow(namingService
 				.resolve_str("EOM/Repositories/cms"));
 		return eomRepo;
 	}

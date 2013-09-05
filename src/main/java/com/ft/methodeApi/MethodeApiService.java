@@ -18,9 +18,11 @@ public class MethodeApiService extends Service<MethodeApiConfiguation> {
 
     @Override
     public void run(MethodeApiConfiguation configuration, Environment environment) throws Exception {
-        environment.addResource(new ContentResource());
-
 		final MethodeConnectionConfiguration methodeConnectionConfiguration = configuration.getMethodeConnectionConfiguration();
+
+		environment.addResource(new ContentResource(methodeConnectionConfiguration.getMethodeHostName(),
+						methodeConnectionConfiguration.getMethodePort(), methodeConnectionConfiguration.getMethodeUserName(),
+				methodeConnectionConfiguration.getMethodePassword()));
 		environment.addHealthCheck(new MethodePingHealthCheck(methodeConnectionConfiguration.getMethodeHostName(),
 				methodeConnectionConfiguration.getMethodePort()));
     }
