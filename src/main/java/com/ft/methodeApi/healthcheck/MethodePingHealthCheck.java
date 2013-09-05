@@ -1,11 +1,7 @@
 package com.ft.methodeApi.healthcheck;
 
+import com.ft.methodeApi.connectivity.EomRepositoryFactory;
 import com.yammer.metrics.core.HealthCheck;
-import org.omg.CORBA.ORB;
-import org.omg.CosNaming.NamingContextExt;
-import org.omg.CosNaming.NamingContextExtHelper;
-
-import java.util.Properties;
 
 public class MethodePingHealthCheck extends HealthCheck {
 
@@ -21,34 +17,9 @@ public class MethodePingHealthCheck extends HealthCheck {
 
 	@Override
 	protected Result check() throws Exception {
-		ORB orb = null;
-
-		try {
-			String corbaLocation = "corbaloc:iiop:"
-					+ methodeHostName + ":"
-					+ methodePort + "/NameService";
-
-			String[] orbInits = {"-ORBInitRef", "NS=" + corbaLocation};
-			orb = ORB.init(orbInits, new Properties());
-
-			NamingContextExt namingService = NamingContextExtHelper.narrow(orb
-					.resolve_initial_references("NS"));
-			EOM.Repository eomRepo = EOM.RepositoryHelper.narrow(namingService
-					.resolve_str("EOM/Repositories/cms"));
-
-			eomRepo.ping();
-
+		try (EomRepositoryFactory eomRepositoryFactory = new EomRepositoryFactory(methodeHostName, methodePort)) {
+			eomRepositoryFactory.createRepository().ping();
 			return Result.healthy();
-		} finally {
-			if (orb != null) {
-				close(orb);
-			}
 		}
-
-	}
-
-	private void close(ORB orb) {
-		orb.shutdown(true);
-		orb.destroy();
 	}
 }
