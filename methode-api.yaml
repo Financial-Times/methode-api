@@ -1,0 +1,5 @@
+methodeConnection:
+  hostName: preditor-methode-01.svc.ft.com
+  nsPort: 9092
+  userName: automate1
+  password: automate1
