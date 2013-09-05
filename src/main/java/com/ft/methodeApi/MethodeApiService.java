@@ -1,5 +1,6 @@
 package com.ft.methodeApi;
 
+import com.ft.methodeApi.healthcheck.MethodeLoginHealthcheck;
 import com.ft.methodeApi.healthcheck.MethodePingHealthCheck;
 import com.ft.methodeApi.service.ContentResource;
 import com.yammer.dropwizard.Service;
@@ -9,8 +10,8 @@ import com.yammer.dropwizard.config.Environment;
 public class MethodeApiService extends Service<MethodeApiConfiguation> {
 
     public static void main(String[] args) throws Exception {
-		System.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
-		System.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
+        System.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+        System.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
 
         new MethodeApiService().run(args);
     }
@@ -21,12 +22,15 @@ public class MethodeApiService extends Service<MethodeApiConfiguation> {
 
     @Override
     public void run(MethodeApiConfiguation configuration, Environment environment) throws Exception {
-		final MethodeConnectionConfiguration methodeConnectionConfiguration = configuration.getMethodeConnectionConfiguration();
+        final MethodeConnectionConfiguration methodeConnectionConfiguration = configuration.getMethodeConnectionConfiguration();
 
-		environment.addResource(new ContentResource(methodeConnectionConfiguration.getMethodeHostName(),
-						methodeConnectionConfiguration.getMethodePort(), methodeConnectionConfiguration.getMethodeUserName(),
-				methodeConnectionConfiguration.getMethodePassword()));
-		environment.addHealthCheck(new MethodePingHealthCheck(methodeConnectionConfiguration.getMethodeHostName(),
-				methodeConnectionConfiguration.getMethodePort()));
+        environment.addResource(new ContentResource(methodeConnectionConfiguration.getMethodeHostName(),
+                methodeConnectionConfiguration.getMethodePort(), methodeConnectionConfiguration.getMethodeUserName(),
+                methodeConnectionConfiguration.getMethodePassword()));
+        environment.addHealthCheck(new MethodePingHealthCheck(methodeConnectionConfiguration.getMethodeHostName(),
+                methodeConnectionConfiguration.getMethodePort()));
+        environment.addHealthCheck(new MethodeLoginHealthcheck(methodeConnectionConfiguration.getMethodeHostName(),
+                methodeConnectionConfiguration.getMethodePort(), methodeConnectionConfiguration.getMethodeUserName(),
+                methodeConnectionConfiguration.getMethodePassword()));
     }
 }

@@ -5,21 +5,21 @@ import com.yammer.metrics.core.HealthCheck;
 
 public class MethodePingHealthCheck extends HealthCheck {
 
-	private final String methodeHostName;
-	private final int methodePort;
+    private final String methodeHostName;
+    private final int methodePort;
 
-	public MethodePingHealthCheck(String methodeHostName, int methodePort) {
-		super("Methode Ping Health Check");
+    public MethodePingHealthCheck(String methodeHostName, int methodePort) {
+        super("methode ping");
 
-		this.methodeHostName = methodeHostName;
-		this.methodePort = methodePort;
-	}
+        this.methodeHostName = methodeHostName;
+        this.methodePort = methodePort;
+    }
 
-	@Override
-	protected Result check() throws Exception {
-		try (EomRepositoryFactory eomRepositoryFactory = new EomRepositoryFactory(methodeHostName, methodePort)) {
-			eomRepositoryFactory.createRepository().ping();
-			return Result.healthy();
-		}
-	}
+    @Override
+    protected Result check() throws Exception {
+        try (EomRepositoryFactory eomRepositoryFactory = new EomRepositoryFactory(methodeHostName, methodePort)) {
+            eomRepositoryFactory.createRepository().ping();
+            return Result.healthy();
+        }
+    }
 }
