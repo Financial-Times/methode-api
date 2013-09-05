@@ -33,9 +33,8 @@ public class MethodeApiService extends Service<MethodeApiConfiguation> {
                 .build();
 
         environment.addResource(new ContentResource(methodeContentRepository));
+        environment.addHealthCheck(new MethodePingHealthCheck(methodeContentRepository));
 
-        environment.addHealthCheck(new MethodePingHealthCheck(methodeConnectionConfiguration.getMethodeHostName(),
-                methodeConnectionConfiguration.getMethodePort()));
         environment.addHealthCheck(new MethodeLoginHealthcheck(methodeConnectionConfiguration.getMethodeHostName(),
                 methodeConnectionConfiguration.getMethodePort(), methodeConnectionConfiguration.getMethodeUserName(),
                 methodeConnectionConfiguration.getMethodePassword()));

@@ -1,25 +1,29 @@
 package com.ft.methodeapi.healthcheck;
 
-import com.ft.methodeapi.connectivity.EomRepositoryFactory;
+import java.util.concurrent.TimeUnit;
+
+import com.ft.methodeapi.service.MethodeContentRepository;
 import com.yammer.metrics.core.HealthCheck;
 
 public class MethodePingHealthCheck extends HealthCheck {
 
-    private final String methodeHostName;
-    private final int methodePort;
+    private final MethodeContentRepository methodeContentRepository;
 
-    public MethodePingHealthCheck(String methodeHostName, int methodePort) {
+    public MethodePingHealthCheck(MethodeContentRepository methodeContentRepository) {
         super("methode ping");
 
-        this.methodeHostName = methodeHostName;
-        this.methodePort = methodePort;
+        this.methodeContentRepository = methodeContentRepository;
     }
 
     @Override
     protected Result check() throws Exception {
-        try (EomRepositoryFactory eomRepositoryFactory = new EomRepositoryFactory(methodeHostName, methodePort)) {
-            eomRepositoryFactory.createRepository().ping();
-            return Result.healthy();
+        long startNanos = System.nanoTime();
+        methodeContentRepository.ping();
+        long durationNanos = System.nanoTime() - startNanos;
+        long durationMillis = TimeUnit.NANOSECONDS.toMillis(durationNanos);
+        if (durationMillis > 1) {
+            return Result.unhealthy("ping took too long %d ms", durationMillis);
         }
+        return Result.healthy();
     }
 }

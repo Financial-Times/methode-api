@@ -19,7 +19,6 @@ import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
-import org.omg.CosNaming.NamingContextPackage.NotEmpty;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +48,15 @@ public class MethodeContentRepository {
         ORB orb = createOrb();
         try {
             return findContentByUuidWithOrb(uuid, orb);
+        } finally {
+            maybeCloseOrb(orb);
+        }
+    }
+
+    public void ping() {
+        ORB orb = createOrb();
+        try {
+            createRepository(orb).ping();
         } finally {
             maybeCloseOrb(orb);
         }
