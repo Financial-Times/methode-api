@@ -22,17 +22,6 @@
             <version>${dw.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.yammer.dropwizard</groupId>
-            <artifactId>dropwizard-auth</artifactId>
-            <version>${dw.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.yammer.dropwizard</groupId>
-            <artifactId>dropwizard-testing</artifactId>
-            <version>${dw.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.eidosmedia.mps</groupId>
             <artifactId>emmethodelibs</artifactId>
             <version>2.0.1.21</version>
