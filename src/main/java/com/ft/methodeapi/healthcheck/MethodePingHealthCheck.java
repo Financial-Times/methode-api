@@ -23,9 +23,12 @@ public class MethodePingHealthCheck extends HealthCheck {
         methodeContentRepository.ping();
         long durationNanos = System.nanoTime() - startNanos;
         long durationMillis = TimeUnit.NANOSECONDS.toMillis(durationNanos);
+        Result result;
         if (durationMillis > maxPingMillis) {
-            return Result.unhealthy("ping took too long %dms, max allowed is %dms", durationMillis, maxPingMillis);
+            result = Result.unhealthy("ping took too long %dms, max allowed is %dms", durationMillis, maxPingMillis);
+        } else {
+            result = Result.healthy("ping took %dms, within max allowed %dms", durationMillis, maxPingMillis);
         }
-        return Result.healthy();
+        return result;
     }
 }
