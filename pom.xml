@@ -12,7 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <dw.version>0.7.0-SNAPSHOT</dw.version>
+        <dw.version>0.6.2</dw.version>
     </properties>
 
     <repositories>
@@ -28,27 +28,17 @@
     </repositories>
     <dependencies>
         <dependency>
-            <groupId>com.codahale.dropwizard</groupId>
+            <groupId>com.yammer.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
             <version>${dw.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.codahale.dropwizard</groupId>
+            <groupId>com.yammer.dropwizard</groupId>
             <artifactId>dropwizard-auth</artifactId>
             <version>${dw.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.codahale.dropwizard</groupId>
-            <artifactId>dropwizard-assets</artifactId>
-            <version>${dw.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.codahale.dropwizard</groupId>
-            <artifactId>dropwizard-views-mustache</artifactId>
-            <version>${dw.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.codahale.dropwizard</groupId>
+            <groupId>com.yammer.dropwizard</groupId>
             <artifactId>dropwizard-testing</artifactId>
             <version>${dw.version}</version>
             <scope>test</scope>
