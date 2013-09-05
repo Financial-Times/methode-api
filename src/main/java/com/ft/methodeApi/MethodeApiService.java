@@ -20,6 +20,6 @@ public class MethodeApiService extends Service<MethodeApiConfiguation> {
     public void run(MethodeApiConfiguation configuration, Environment environment) throws Exception {
         environment.addResource(new ContentResource());
 
-		environment.addHealthCheck(new MethodeHealthCheck());
+		environment.addHealthCheck(new MethodeHealthCheck("preditor-methode-01.svc.ft.com", "9092", "automate1", "automate1"));
     }
 }
