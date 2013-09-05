@@ -11,6 +11,8 @@ import EOM.FileSystemObject;
 import EOM.Repository;
 import EOM.Session;
 import com.ft.methodeApi.connectivity.EomRepositoryFactory;
+import com.ft.methodeApi.connectivity.EomSessionFactory;
+import com.ft.methodeApi.connectivity.EomSessionWrapper;
 import com.yammer.metrics.annotation.Timed;
 
 @Path("content")
@@ -33,10 +35,9 @@ public class ContentResource {
     @Timed
     @Path("{uuid}")
     public Content getContent(@PathParam("uuid") String uuid) throws Exception {
-		try (EomRepositoryFactory orbResource = new EomRepositoryFactory(methodeHostName, methodePort)) {
-			Repository eomRepo = orbResource.createRepository();
-			Session eomSession = eomRepo.login(methodeUserName,
-					methodePassword, "", null);
+		try (EomRepositoryFactory repositoryFactory = new EomRepositoryFactory(methodeHostName, methodePort);
+			 EomSessionWrapper sessionWrapper = new EomSessionFactory(methodeUserName, methodePassword, repositoryFactory.createRepository()).createSession()) {
+			Session eomSession = sessionWrapper.getSession();
 
 			FileSystemAdmin fileSystemAdmin = EOM.FileSystemAdminHelper
 					.narrow(eomSession
