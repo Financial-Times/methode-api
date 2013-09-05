@@ -9,7 +9,7 @@ public class MethodePingHealthCheck extends HealthCheck {
 	private final int methodePort;
 
 	public MethodePingHealthCheck(String methodeHostName, int methodePort) {
-		super("Methode Health Check");
+		super("Methode Ping Health Check");
 
 		this.methodeHostName = methodeHostName;
 		this.methodePort = methodePort;
