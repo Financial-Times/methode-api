@@ -1,5 +1,6 @@
 package com.ft.methodeApi;
 
+import com.ft.methodeApi.service.ContentResource;
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
@@ -16,5 +17,6 @@ public class MethodeApiService extends Service<MethodeApiConfiguation> {
 
     @Override
     public void run(MethodeApiConfiguation configuration, Environment environment) throws Exception {
+        environment.addResource(new ContentResource());
     }
 }
