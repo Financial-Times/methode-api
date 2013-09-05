@@ -91,22 +91,19 @@
                 <version>1.4</version>
                 <configuration>
                     <copyConfigurationDirectory>true</copyConfigurationDirectory>
-                    <!--<extraJvmArguments>-Ddw.http.port=$PORT -Ddw.http.adminPort=$PORT</extraJvmArguments>-->
                     <programs>
                         <program>
                             <mainClass>com.ft.methodeapi.MethodeApiService</mainClass>
+                            <name>methode-api-server</name>
                             <commandLineArguments>
                                 <commandLineArgument>server</commandLineArgument>
                                 <commandLineArgument>"$BASEDIR"/etc/methode-api.yaml</commandLineArgument>
                             </commandLineArguments>
-                            <name>methode-api-server</name>
                         </program>
                     </programs>
-                    <repositoryName>lib</repositoryName>
                 </configuration>
                 <executions>
                     <execution>
-                        <phase>package</phase>
                         <goals>
                             <goal>assemble</goal>
                         </goals>
