@@ -3,3 +3,5 @@ methodeConnection:
   nsPort: 9092
   userName: automate1
   password: automate1
+
+maxPingMillis: 100

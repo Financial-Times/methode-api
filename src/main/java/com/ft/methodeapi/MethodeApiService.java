@@ -33,7 +33,7 @@ public class MethodeApiService extends Service<MethodeApiConfiguation> {
                 .build();
 
         environment.addResource(new ContentResource(methodeContentRepository));
-        environment.addHealthCheck(new MethodePingHealthCheck(methodeContentRepository));
+        environment.addHealthCheck(new MethodePingHealthCheck(methodeContentRepository, configuration.getMaxPingMillis()));
         environment.addHealthCheck(new MethodeContentSearchHealthcheck(methodeContentRepository));
     }
 }
