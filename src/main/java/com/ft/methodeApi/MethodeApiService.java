@@ -9,6 +9,9 @@ import com.yammer.dropwizard.config.Environment;
 public class MethodeApiService extends Service<MethodeApiConfiguation> {
 
     public static void main(String[] args) throws Exception {
+		System.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+		System.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
+
         new MethodeApiService().run(args);
     }
 
