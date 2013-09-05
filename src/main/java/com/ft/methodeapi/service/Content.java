@@ -1,13 +1,15 @@
 package com.ft.methodeapi.service;
 
 public class Content {
-	private String value;
 
-	public Content(byte[] bytes) {
-		this.value = new String(bytes); //Approved by Garto.
-	}
+    private final byte[] fileContent;
 
-	public String getValue() {
-		return value;
-	}
+    public Content(byte[] fileContent) {
+//        this.fileContent = Arrays.copyOf(fileContent, fileContent.length);
+        this.fileContent = fileContent;
+    }
+
+    public byte[] getFileContent() {
+        return fileContent;
+    }
 }
