@@ -1,4 +1,4 @@
-package com.ft.methodeApi.service;
+package com.ft.methodeapi.service;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -8,11 +8,10 @@ import javax.ws.rs.core.MediaType;
 
 import EOM.FileSystemAdmin;
 import EOM.FileSystemObject;
-import EOM.Repository;
 import EOM.Session;
-import com.ft.methodeApi.connectivity.EomRepositoryFactory;
-import com.ft.methodeApi.connectivity.EomSessionFactory;
-import com.ft.methodeApi.connectivity.EomSessionWrapper;
+import com.ft.methodeapi.connectivity.EomRepositoryFactory;
+import com.ft.methodeapi.connectivity.EomSessionFactory;
+import com.ft.methodeapi.connectivity.EomSessionWrapper;
 import com.yammer.metrics.annotation.Timed;
 
 @Path("content")
@@ -41,7 +40,7 @@ public class ContentResource {
 
 			FileSystemAdmin fileSystemAdmin = EOM.FileSystemAdminHelper
 					.narrow(eomSession
-							.resolve_initial_references("FileSystemAdmin"));
+                            .resolve_initial_references("FileSystemAdmin"));
 
 			String uri = "eom:/uuids/" + uuid;
 

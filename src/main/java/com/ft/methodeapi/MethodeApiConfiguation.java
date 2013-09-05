@@ -1,4 +1,4 @@
-package com.ft.methodeApi;
+package com.ft.methodeapi;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

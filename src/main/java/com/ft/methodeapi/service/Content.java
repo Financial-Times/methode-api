@@ -1,4 +1,4 @@
-package com.ft.methodeApi.service;
+package com.ft.methodeapi.service;
 
 public class Content {
 	private String value;

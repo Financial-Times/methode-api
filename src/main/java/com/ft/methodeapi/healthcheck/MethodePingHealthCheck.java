@@ -1,6 +1,6 @@
-package com.ft.methodeApi.healthcheck;
+package com.ft.methodeapi.healthcheck;
 
-import com.ft.methodeApi.connectivity.EomRepositoryFactory;
+import com.ft.methodeapi.connectivity.EomRepositoryFactory;
 import com.yammer.metrics.core.HealthCheck;
 
 public class MethodePingHealthCheck extends HealthCheck {

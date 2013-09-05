@@ -1,8 +1,8 @@
-package com.ft.methodeApi;
+package com.ft.methodeapi;
 
-import com.ft.methodeApi.healthcheck.MethodeLoginHealthcheck;
-import com.ft.methodeApi.healthcheck.MethodePingHealthCheck;
-import com.ft.methodeApi.service.ContentResource;
+import com.ft.methodeapi.healthcheck.MethodeLoginHealthcheck;
+import com.ft.methodeapi.healthcheck.MethodePingHealthCheck;
+import com.ft.methodeapi.service.ContentResource;
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;

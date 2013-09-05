@@ -1,4 +1,4 @@
-package com.ft.methodeApi.connectivity;
+package com.ft.methodeapi.connectivity;
 
 import EOM.Session;
 

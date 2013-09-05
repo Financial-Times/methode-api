@@ -1,8 +1,8 @@
-package com.ft.methodeApi.healthcheck;
+package com.ft.methodeapi.healthcheck;
 
-import com.ft.methodeApi.connectivity.EomRepositoryFactory;
-import com.ft.methodeApi.connectivity.EomSessionFactory;
-import com.ft.methodeApi.connectivity.EomSessionWrapper;
+import com.ft.methodeapi.connectivity.EomRepositoryFactory;
+import com.ft.methodeapi.connectivity.EomSessionFactory;
+import com.ft.methodeapi.connectivity.EomSessionWrapper;
 import com.yammer.metrics.core.HealthCheck;
 
 public class MethodeLoginHealthcheck extends HealthCheck {

@@ -1,9 +1,8 @@
-package com.ft.methodeApi.connectivity;
+package com.ft.methodeapi.connectivity;
 
 import EOM.Repository;
 import EOM.RepositoryError;
 import EOM.RepositoryPackage.InvalidLogin;
-import EOM.Session;
 
 public class EomSessionFactory {
 
