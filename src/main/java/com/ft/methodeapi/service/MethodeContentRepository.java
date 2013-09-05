@@ -28,25 +28,22 @@ public class MethodeContentRepository implements ContentRepository, AutoCloseabl
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodeContentRepository.class);
 
-    private final ORB orb;
+    private final String hostname;
+    private final int port;
+    private final String username;
+    private final String password;
+
+    private ORB orb;
     private Session session;
 
+    private boolean isOpen = false;
     private boolean isClosed = false;
 
     public MethodeContentRepository(String hostname, int port, String username, String password) {
-
-        String[] orbInits = {"-ORBInitRef", String.format("NS=corbaloc:iiop:%s:%d/NameService", hostname, port)};
-        this.orb = ORB.init(orbInits, new Properties());
-        try {
-            NamingContextExt namingService = NamingContextExtHelper.narrow(orb.resolve_initial_references("NS"));
-            Repository eomRepo = RepositoryHelper.narrow(namingService.resolve_str("EOM/Repositories/cms"));
-            this.session = eomRepo.login(username, password, "", null);
-        } catch (CannotProceed | InvalidLogin | NotFound
-                | org.omg.CORBA.ORBPackage.InvalidName
-                | org.omg.CosNaming.NamingContextPackage.InvalidName
-                | RepositoryError e) {
-            throw new RuntimeException(e);
-        }
+        this.hostname = hostname;
+        this.port = port;
+        this.username = username;
+        this.password = password;
     }
 
     @Override
@@ -54,6 +51,8 @@ public class MethodeContentRepository implements ContentRepository, AutoCloseabl
     public Optional<Content> findContentByUuid(String uuid) {
         if (isClosed) {
             throw new IllegalStateException("already closed");
+        } else if (!isOpen) {
+            open();
         }
 
         FileSystemAdmin fileSystemAdmin = null;
@@ -87,18 +86,29 @@ public class MethodeContentRepository implements ContentRepository, AutoCloseabl
         return "EOM::Story".equals(type) || "EOM::CompoundStory".equals(type);
     }
 
+    private void open() {
+        String[] orbInits = {"-ORBInitRef", String.format("NS=corbaloc:iiop:%s:%d/NameService", hostname, port)};
+        this.orb = ORB.init(orbInits, new Properties());
+        try {
+            NamingContextExt namingService = NamingContextExtHelper.narrow(orb.resolve_initial_references("NS"));
+            Repository eomRepo = RepositoryHelper.narrow(namingService.resolve_str("EOM/Repositories/cms"));
+            this.session = eomRepo.login(username, password, "", null);
+        } catch (CannotProceed | InvalidLogin | NotFound
+                | org.omg.CORBA.ORBPackage.InvalidName
+                | org.omg.CosNaming.NamingContextPackage.InvalidName
+                | RepositoryError e) {
+            throw new RuntimeException(e);
+        }
+        isOpen = true;
+    }
+
+    @Override
     public void close() {
         isClosed = true;
         try {
             maybeCloseSession();
         } finally {
             maybeCloseOrb();
-        }
-    }
-
-    private void maybeCloseOrb() {
-        if (orb != null) {
-            orb.destroy();
         }
     }
 
@@ -111,6 +121,12 @@ public class MethodeContentRepository implements ContentRepository, AutoCloseabl
             } finally {
                 session = null;
             }
+        }
+    }
+
+    private void maybeCloseOrb() {
+        if (orb != null) {
+            orb.destroy();
         }
     }
 }

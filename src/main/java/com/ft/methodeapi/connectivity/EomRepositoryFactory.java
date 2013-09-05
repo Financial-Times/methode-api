@@ -16,11 +16,8 @@ public class EomRepositoryFactory implements AutoCloseable {
 	private final ORB orb;
 
 	public EomRepositoryFactory(String methodeHostName, int methodePort) {
-		String corbaLocation = "corbaloc:iiop:"
-				+ methodeHostName + ":"
-				+ methodePort + "/NameService";
 
-		String[] orbInits = {"-ORBInitRef", "NS=" + corbaLocation};
+        String[] orbInits = {"-ORBInitRef", String.format("NS=corbaloc:iiop:%s:%d/NameService", methodeHostName, methodePort)};
 		orb = ORB.init(orbInits, new Properties());
 	}
 
