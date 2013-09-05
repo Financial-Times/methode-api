@@ -33,7 +33,7 @@ public class EomRepositoryFactory implements AutoCloseable {
 	}
 
 	@Override
-	public void close() throws Exception {
+	public void close() {
 		if (orb != null) {
 			orb.shutdown(true);
 			orb.destroy();

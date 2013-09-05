@@ -3,6 +3,7 @@ package com.ft.methodeapi;
 import com.ft.methodeapi.healthcheck.MethodeLoginHealthcheck;
 import com.ft.methodeapi.healthcheck.MethodePingHealthCheck;
 import com.ft.methodeapi.service.ContentResource;
+import com.ft.methodeapi.service.MethodeContentRepositoryFactory;
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
@@ -21,12 +22,19 @@ public class MethodeApiService extends Service<MethodeApiConfiguation> {
     }
 
     @Override
-    public void run(MethodeApiConfiguation configuration, Environment environment) throws Exception {
+    public void run(MethodeApiConfiguation configuration, Environment environment) {
         final MethodeConnectionConfiguration methodeConnectionConfiguration = configuration.getMethodeConnectionConfiguration();
 
-        environment.addResource(new ContentResource(methodeConnectionConfiguration.getMethodeHostName(),
-                methodeConnectionConfiguration.getMethodePort(), methodeConnectionConfiguration.getMethodeUserName(),
-                methodeConnectionConfiguration.getMethodePassword()));
+        final MethodeContentRepositoryFactory methodeContentRepositoryFactory = MethodeContentRepositoryFactory.builder()
+                .withHost(methodeConnectionConfiguration.getMethodeHostName())
+                .withPort(methodeConnectionConfiguration.getMethodePort())
+                .withUsername(methodeConnectionConfiguration.getMethodeUserName())
+                .withPassword(methodeConnectionConfiguration.getMethodePassword())
+                .build();
+
+        environment.addResource(new ContentResource(methodeContentRepositoryFactory));
+
+
         environment.addHealthCheck(new MethodePingHealthCheck(methodeConnectionConfiguration.getMethodeHostName(),
                 methodeConnectionConfiguration.getMethodePort()));
         environment.addHealthCheck(new MethodeLoginHealthcheck(methodeConnectionConfiguration.getMethodeHostName(),
