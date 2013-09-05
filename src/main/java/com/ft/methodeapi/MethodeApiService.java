@@ -1,6 +1,6 @@
 package com.ft.methodeapi;
 
-import com.ft.methodeapi.healthcheck.MethodeLoginHealthcheck;
+import com.ft.methodeapi.healthcheck.MethodeContentSearchHealthcheck;
 import com.ft.methodeapi.healthcheck.MethodePingHealthCheck;
 import com.ft.methodeapi.service.ContentResource;
 import com.ft.methodeapi.service.MethodeContentRepository;
@@ -34,9 +34,6 @@ public class MethodeApiService extends Service<MethodeApiConfiguation> {
 
         environment.addResource(new ContentResource(methodeContentRepository));
         environment.addHealthCheck(new MethodePingHealthCheck(methodeContentRepository));
-
-        environment.addHealthCheck(new MethodeLoginHealthcheck(methodeConnectionConfiguration.getMethodeHostName(),
-                methodeConnectionConfiguration.getMethodePort(), methodeConnectionConfiguration.getMethodeUserName(),
-                methodeConnectionConfiguration.getMethodePassword()));
+        environment.addHealthCheck(new MethodeContentSearchHealthcheck(methodeContentRepository));
     }
 }
