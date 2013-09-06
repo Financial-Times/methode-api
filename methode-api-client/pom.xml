@@ -18,6 +18,7 @@
             <groupId>com.ft</groupId>
             <artifactId>methode-api-model</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.yammer.dropwizard</groupId>
             <artifactId>dropwizard-client</artifactId>
@@ -26,6 +27,16 @@
         <dependency>
             <groupId>com.ft</groupId>
             <artifactId>methode-api-service</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.yammer.dropwizard</groupId>
+            <artifactId>dropwizard-testing</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
