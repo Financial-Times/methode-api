@@ -13,6 +13,7 @@ import EOM.RepositoryError;
 import EOM.RepositoryHelper;
 import EOM.RepositoryPackage.InvalidLogin;
 import EOM.Session;
+import com.ft.methodeapi.model.EomFile;
 import com.google.common.base.Optional;
 import com.yammer.metrics.annotation.Timed;
 import org.omg.CORBA.ORB;
