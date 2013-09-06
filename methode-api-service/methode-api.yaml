@@ -1,3 +1,6 @@
+http:
+    port: 9080
+    adminPort: 9081
 methodeConnection:
   hostName: preditor-methode-01.svc.ft.com
   nsPort: 9092
