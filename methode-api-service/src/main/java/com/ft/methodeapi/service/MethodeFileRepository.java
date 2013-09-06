@@ -148,10 +148,6 @@ public class MethodeFileRepository {
         return ORB.init(orbInits, properties);
     }
 
-    private boolean isContent(String type) {
-        return "EOM::Story".equals(type) || "EOM::CompoundStory".equals(type);
-    }
-
     private void maybeCloseSession(Session session) {
         if (session != null) {
             try {
