@@ -27,9 +27,8 @@ public class MethodeApiService extends Service<MethodeApiConfiguation> {
                 .withPort(methodeConnectionConfiguration.getMethodePort())
                 .withUsername(methodeConnectionConfiguration.getMethodeUserName())
                 .withPassword(methodeConnectionConfiguration.getMethodePassword())
-                .withHost(methodeConnectionConfiguration.getOrbSingletonClass())
                 .withOrbClass(methodeConnectionConfiguration.getOrbClass())
-                .withOrbClass(methodeConnectionConfiguration.getOrbSingletonClass())
+                .withHost(methodeConnectionConfiguration.getOrbSingletonClass())
                 .build();
 
         environment.addResource(new ContentResource(methodeContentRepository));
