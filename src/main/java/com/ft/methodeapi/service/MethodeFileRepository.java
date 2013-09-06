@@ -31,16 +31,20 @@ public class MethodeFileRepository {
     private final int port;
     private final String username;
     private final String password;
+    private final String orbClass;
+    private final String orbSingletonClass;
 
-    public MethodeFileRepository(String hostname, int port, String username, String password) {
+    public MethodeFileRepository(String hostname, int port, String username, String password, String orbClass, String orbSingletonClass) {
         this.hostname = hostname;
         this.port = port;
         this.username = username;
         this.password = password;
+        this.orbClass = orbClass;
+        this.orbSingletonClass = orbSingletonClass;
     }
 
     public MethodeFileRepository(Builder builder) {
-        this(builder.host, builder.port, builder.username, builder.password);
+        this(builder.host, builder.port, builder.username, builder.password, builder.orbClass, builder.orbSingletonClass);
     }
 
     @Timed
@@ -87,10 +91,10 @@ public class MethodeFileRepository {
         try {
             fso = fileSystemAdmin.get_object_with_uri(uri);
 
-			EOM.File eomFile = EOM.FileHelper.narrow(fso);
+            EOM.File eomFile = EOM.FileHelper.narrow(fso);
 
-			EomFile content = new EomFile(uuid, fso.get_type_name(), eomFile.read_all());
-			foundContent = Optional.of(content);
+            EomFile content = new EomFile(uuid, fso.get_type_name(), eomFile.read_all());
+            foundContent = Optional.of(content);
 
         } catch (InvalidURI invalidURI) {
             return Optional.absent();
@@ -134,7 +138,13 @@ public class MethodeFileRepository {
 
     private ORB createOrb() {
         String[] orbInits = {"-ORBInitRef", String.format("NS=corbaloc:iiop:%s:%d/NameService", hostname, port)};
-        return ORB.init(orbInits, new Properties());
+        Properties properties = new Properties() {
+            {
+                setProperty("org.omg.CORBA.ORBClass", orbClass);
+                setProperty("org.omg.CORBA.ORBSingletonClass", orbSingletonClass);
+            }
+        };
+        return ORB.init(orbInits, properties);
     }
 
     private boolean isContent(String type) {
@@ -167,6 +177,8 @@ public class MethodeFileRepository {
         private String password;
         private String host;
         private int port;
+        private String orbClass;
+        private String orbSingletonClass;
 
         public Builder withUsername(String username) {
             this.username = username;
@@ -185,6 +197,16 @@ public class MethodeFileRepository {
 
         public Builder withPort(int port) {
             this.port = port;
+            return this;
+        }
+
+        public Builder withOrbClass(String orbClass) {
+            this.orbClass = orbClass;
+            return this;
+        }
+
+        public Builder withOrbSingletonClass(String orbSingletonClass) {
+            this.orbSingletonClass = orbSingletonClass;
             return this;
         }
 
