@@ -9,21 +9,21 @@ import javax.ws.rs.core.MediaType;
 import com.google.common.base.Optional;
 import com.yammer.metrics.annotation.Timed;
 
-@Path("content")
+@Path("eom-file")
 @Produces(MediaType.APPLICATION_JSON)
-public class ContentResource {
+public class EomFileResource {
 
-    private final MethodeContentRepository methodeContentRepository;
+    private final MethodeFileRepository methodeContentRepository;
 
-    public ContentResource(MethodeContentRepository methodeContentRepository) {
+    public EomFileResource(MethodeFileRepository methodeContentRepository) {
         this.methodeContentRepository = methodeContentRepository;
     }
 
     @GET
     @Timed
     @Path("{uuid}")
-    public Optional<Content> getContent(@PathParam("uuid") String uuid) {
-        return methodeContentRepository.findContentByUuid(uuid);
+    public Optional<EomFile> getByUuid(@PathParam("uuid") String uuid) {
+        return methodeContentRepository.findFileByUuid(uuid);
     }
 
 }

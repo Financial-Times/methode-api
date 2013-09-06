@@ -2,15 +2,15 @@ package com.ft.methodeapi.healthcheck;
 
 import java.util.concurrent.TimeUnit;
 
-import com.ft.methodeapi.service.MethodeContentRepository;
+import com.ft.methodeapi.service.MethodeFileRepository;
 import com.yammer.metrics.core.HealthCheck;
 
 public class MethodePingHealthCheck extends HealthCheck {
 
-    private final MethodeContentRepository methodeContentRepository;
+    private final MethodeFileRepository methodeContentRepository;
     private final long maxPingMillis;
 
-    public MethodePingHealthCheck(MethodeContentRepository methodeContentRepository, long maxPingMillis) {
+    public MethodePingHealthCheck(MethodeFileRepository methodeContentRepository, long maxPingMillis) {
         super("methode ping");
 
         this.methodeContentRepository = methodeContentRepository;

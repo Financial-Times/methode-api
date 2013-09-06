@@ -23,23 +23,23 @@ import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MethodeContentRepository {
+public class MethodeFileRepository {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MethodeContentRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodeFileRepository.class);
 
     private final String hostname;
     private final int port;
     private final String username;
     private final String password;
 
-    public MethodeContentRepository(String hostname, int port, String username, String password) {
+    public MethodeFileRepository(String hostname, int port, String username, String password) {
         this.hostname = hostname;
         this.port = port;
         this.username = username;
         this.password = password;
     }
 
-    public MethodeContentRepository(Builder builder) {
+    public MethodeFileRepository(Builder builder) {
         this(builder.host, builder.port, builder.username, builder.password);
     }
 
@@ -54,25 +54,25 @@ public class MethodeContentRepository {
     }
 
     @Timed
-    public Optional<Content> findContentByUuid(String uuid) {
+    public Optional<EomFile> findFileByUuid(String uuid) {
         ORB orb = createOrb();
         try {
-            return findContentByUuidWithOrb(uuid, orb);
+            return findFileByUuidWithOrb(uuid, orb);
         } finally {
             maybeCloseOrb(orb);
         }
     }
 
-    private Optional<Content> findContentByUuidWithOrb(String uuid, ORB orb) {
+    private Optional<EomFile> findFileByUuidWithOrb(String uuid, ORB orb) {
         Session session = createSession(orb);
         try {
-            return findContentByUuidWithSession(uuid, session);
+            return findFileByUuidWithSession(uuid, session);
         } finally {
             maybeCloseSession(session);
         }
     }
 
-    private Optional<Content> findContentByUuidWithSession(String uuid, Session session) {
+    private Optional<EomFile> findFileByUuidWithSession(String uuid, Session session) {
         FileSystemAdmin fileSystemAdmin;
         try {
             fileSystemAdmin = EOM.FileSystemAdminHelper.narrow(session.resolve_initial_references("FileSystemAdmin"));
@@ -83,16 +83,15 @@ public class MethodeContentRepository {
         String uri = "eom:/uuids/" + uuid;
 
         FileSystemObject fso;
-        Optional<Content> foundContent;
+        Optional<EomFile> foundContent;
         try {
             fso = fileSystemAdmin.get_object_with_uri(uri);
-            if (isContent(fso.get_type_name())) {
-                EOM.File eomFile = EOM.FileHelper.narrow(fso);
-                Content content = new Content(eomFile.read_all());
-                foundContent = Optional.of(content);
-            } else {
-                foundContent = Optional.absent();
-            }
+
+			EOM.File eomFile = EOM.FileHelper.narrow(fso);
+
+			EomFile content = new EomFile(uuid, fso.get_type_name(), eomFile.read_all());
+			foundContent = Optional.of(content);
+
         } catch (InvalidURI invalidURI) {
             return Optional.absent();
         } catch (RepositoryError | PermissionDenied e) {
@@ -189,8 +188,8 @@ public class MethodeContentRepository {
             return this;
         }
 
-        public MethodeContentRepository build() {
-            return new MethodeContentRepository(this);
+        public MethodeFileRepository build() {
+            return new MethodeFileRepository(this);
         }
     }
 }
