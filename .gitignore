@@ -2,3 +2,4 @@
 *.iml
 /.idea/
 /target/
+/methode-api-service/target/
