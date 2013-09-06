@@ -31,20 +31,16 @@ public class MethodeContentRepository {
     private final int port;
     private final String username;
     private final String password;
-    private final String orbClass;
-    private final String orbSingletonClass;
 
-    public MethodeContentRepository(String hostname, int port, String username, String password, String orbClass, String orbSingletonClass) {
+    public MethodeContentRepository(String hostname, int port, String username, String password) {
         this.hostname = hostname;
         this.port = port;
         this.username = username;
         this.password = password;
-        this.orbClass = orbClass;
-        this.orbSingletonClass = orbSingletonClass;
     }
 
     public MethodeContentRepository(Builder builder) {
-        this(builder.host, builder.port, builder.username, builder.password, builder.orbClass, builder.orbSingletonClass);
+        this(builder.host, builder.port, builder.username, builder.password);
     }
 
     @Timed
@@ -139,13 +135,7 @@ public class MethodeContentRepository {
 
     private ORB createOrb() {
         String[] orbInits = {"-ORBInitRef", String.format("NS=corbaloc:iiop:%s:%d/NameService", hostname, port)};
-        Properties properties = new Properties() {
-            {
-                setProperty("org.omg.CORBA.ORBClass", orbClass);
-                setProperty("org.omg.CORBA.ORBSingletonClass", orbSingletonClass);
-            }
-        };
-        return ORB.init(orbInits, properties);
+        return ORB.init(orbInits, new Properties());
     }
 
     private boolean isContent(String type) {
@@ -178,8 +168,6 @@ public class MethodeContentRepository {
         private String password;
         private String host;
         private int port;
-        private String orbClass;
-        private String orbSingletonClass;
 
         public Builder withUsername(String username) {
             this.username = username;
@@ -198,16 +186,6 @@ public class MethodeContentRepository {
 
         public Builder withPort(int port) {
             this.port = port;
-            return this;
-        }
-
-        public Builder withOrbClass(String orbClass) {
-            this.orbClass = orbClass;
-            return this;
-        }
-
-        public Builder withOrbSingletonClass(String orbSingletonClass) {
-            this.orbSingletonClass = orbSingletonClass;
             return this;
         }
 
