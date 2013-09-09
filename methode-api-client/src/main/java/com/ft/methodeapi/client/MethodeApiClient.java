@@ -8,8 +8,12 @@ import com.ft.methodeapi.model.EomFile;
 import com.sun.jersey.api.client.Client;
 import com.yammer.dropwizard.client.JerseyClientBuilder;
 import com.yammer.dropwizard.config.Environment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MethodeApiClient {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodeApiClient.class);
 
     private final Client jerseyClient;
     private final String apiHost;
@@ -30,8 +34,10 @@ public class MethodeApiClient {
     }
 
     public EomFile findFileByUuid(String uuid) {
+        final URI fileByUuidUri = findFileByUuidUri(uuid);
+        LOGGER.debug("making GET request to methode api {}", fileByUuidUri);
         return jerseyClient
-                .resource(findFileByUuidUri(uuid))
+                .resource(fileByUuidUri)
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(EomFile.class);
     }
