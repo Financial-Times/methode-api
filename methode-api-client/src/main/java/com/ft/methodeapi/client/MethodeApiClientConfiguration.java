@@ -1,6 +1,7 @@
 package com.ft.methodeapi.client;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
@@ -33,7 +34,7 @@ public class MethodeApiClientConfiguration {
     }
 
     @Valid
-    @NotEmpty
+    @NotNull
     public JerseyClientConfiguration getJerseyClientConfiguration() {
         return jerseyClientConfiguration;
     }

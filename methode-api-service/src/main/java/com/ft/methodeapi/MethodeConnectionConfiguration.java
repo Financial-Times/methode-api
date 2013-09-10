@@ -1,10 +1,8 @@
 package com.ft.methodeapi;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
+import com.yammer.dropwizard.validation.PortRange;
 import org.hibernate.validator.constraints.NotEmpty;
 
 public class MethodeConnectionConfiguration {
@@ -20,14 +18,14 @@ public class MethodeConnectionConfiguration {
                                           @JsonProperty("nsPort") int methodePort,
                                           @JsonProperty("userName") String methodeUserName,
                                           @JsonProperty("password") String methodePassword,
-                                          @JsonProperty( "orbClass") String orbClass,
-                                          @JsonProperty("orbSingletonClass") String orbSingletonClass) {
+                                          @JsonProperty("orbClass") Optional<String> orbClass,
+                                          @JsonProperty("orbSingletonClass") Optional<String> orbSingletonClass) {
         this.methodeHostName = methodeHostName;
         this.methodePort = methodePort;
         this.methodeUserName = methodeUserName;
         this.methodePassword = methodePassword;
-        this.orbClass = Optional.fromNullable(orbClass).or("org.jacorb.orb.ORB");
-        this.orbSingletonClass = Optional.fromNullable(orbSingletonClass).or("org.jacorb.orb.ORBSingleton");
+        this.orbClass = orbClass.or("org.jacorb.orb.ORB");
+        this.orbSingletonClass = orbSingletonClass.or("org.jacorb.orb.ORBSingleton");
     }
 
     @NotEmpty
@@ -35,7 +33,7 @@ public class MethodeConnectionConfiguration {
         return methodeHostName;
     }
 
-    @Min(1) @Max(65535)
+    @PortRange
     public int getMethodePort() {
         return methodePort;
     }
