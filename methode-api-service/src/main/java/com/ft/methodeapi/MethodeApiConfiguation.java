@@ -5,6 +5,7 @@ import javax.validation.constraints.Min;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yammer.dropwizard.config.Configuration;
+import org.hibernate.validator.constraints.NotEmpty;
 
 public class MethodeApiConfiguation extends Configuration {
 
@@ -18,6 +19,7 @@ public class MethodeApiConfiguation extends Configuration {
     }
 
     @Valid
+    @NotEmpty
     public MethodeConnectionConfiguration getMethodeConnectionConfiguration() {
         return methodeConnectionConfiguration;
     }

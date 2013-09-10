@@ -5,6 +5,8 @@ import javax.validation.Valid;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 import com.yammer.dropwizard.client.JerseyClientConfiguration;
+import com.yammer.dropwizard.validation.PortRange;
+import org.hibernate.validator.constraints.NotEmpty;
 
 public class MethodeApiClientConfiguration {
 
@@ -20,15 +22,18 @@ public class MethodeApiClientConfiguration {
         this.jerseyClientConfiguration = jerseyClientConfiguration.or(new JerseyClientConfiguration());
     }
 
+    @NotEmpty
     public String getMethodeApiHost() {
         return methodeApiHost;
     }
 
+    @PortRange
     public int getMethodeApiPort() {
         return methodeApiPort;
     }
 
     @Valid
+    @NotEmpty
     public JerseyClientConfiguration getJerseyClientConfiguration() {
         return jerseyClientConfiguration;
     }
