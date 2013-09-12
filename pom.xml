@@ -13,6 +13,12 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <parent>
+        <groupId>com.ft</groupId>
+        <artifactId>ft-dropwizard-parent</artifactId>
+        <version>0.0.1</version>
+    </parent>
+
     <modules>
         <module>methode-api-service</module>
         <module>methode-api-model</module>
