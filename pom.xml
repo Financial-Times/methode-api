@@ -16,7 +16,7 @@
     <parent>
         <groupId>com.ft</groupId>
         <artifactId>ft-dropwizard-parent</artifactId>
-        <version>0.2.2</version>
+        <version>0.2.4</version>
     </parent>
 
     <modules>
