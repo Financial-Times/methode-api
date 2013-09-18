@@ -1,5 +1,6 @@
 package com.ft.methodeapi;
 
+import com.ft.api.util.VersionResource;
 import com.ft.methodeapi.healthcheck.MethodeContentSearchHealthcheck;
 import com.ft.methodeapi.healthcheck.MethodePingHealthCheck;
 import com.ft.methodeapi.service.EomFileResource;
@@ -11,6 +12,10 @@ import com.yammer.dropwizard.config.Environment;
 public class MethodeApiService extends Service<MethodeApiConfiguation> {
 
     public static void main(String[] args) throws Exception {
+
+
+
+
         new MethodeApiService().run(args);
     }
 
@@ -32,6 +37,7 @@ public class MethodeApiService extends Service<MethodeApiConfiguation> {
                 .build();
 
         environment.addResource(new EomFileResource(methodeContentRepository));
+        environment.addResource( new VersionResource(MethodeApiService.class));
         environment.addHealthCheck(new MethodePingHealthCheck(methodeContentRepository, configuration.getMaxPingMillis()));
         environment.addHealthCheck(new MethodeContentSearchHealthcheck(methodeContentRepository));
     }

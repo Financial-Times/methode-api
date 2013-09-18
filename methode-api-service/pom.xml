@@ -104,6 +104,11 @@
             <groupId>logkit</groupId>
             <artifactId>logkit</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.ft</groupId>
+            <artifactId>jaxrs-version-resource</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 
 </project>
