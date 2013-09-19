@@ -12,10 +12,6 @@ import com.yammer.dropwizard.config.Environment;
 public class MethodeApiService extends Service<MethodeApiConfiguation> {
 
     public static void main(String[] args) throws Exception {
-
-
-
-
         new MethodeApiService().run(args);
     }
 

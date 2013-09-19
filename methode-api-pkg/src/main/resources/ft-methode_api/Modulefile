@@ -9,4 +9,4 @@ project_page 'UNKNOWN'
 
 ## Add dependencies, if any:
 # dependency 'username/name', '>= 1.2.0'
-dependency 'ft/runnablejar', '>= 0.0.1'
+dependency 'ft/runnablejar', '0.0.7'
