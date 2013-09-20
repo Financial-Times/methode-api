@@ -20,6 +20,7 @@ class methode_api {
         service_name => 'methode_api',
         service_description => 'Methode API',
         jar_name => 'methode-api-service-${project.version}.jar',
-        config_file_content => template('methode_api/config.yml.erb');
+        config_file_content => template('methode_api/config.yml.erb'),
+        status_check_url => "http://localhost:8080/build-info";
     }
 }
