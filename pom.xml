@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.ft</groupId>
         <artifactId>ft-dropwizard-parent</artifactId>
-        <version>0.2.4</version>
+        <version>0.3.6</version>
     </parent>
 
     <modules>
@@ -23,12 +23,9 @@
         <module>methode-api-model</module>
         <module>methode-api-client</module>
         <module>methode-api-pkg</module>
-  </modules>
+    </modules>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <dw.version>0.6.2</dw.version>
     </properties>
 
     <repositories>
@@ -76,6 +73,11 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>methode-api-service</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ft</groupId>
+                <artifactId>jaxrs-build-info-resource</artifactId>
+                <version>1.1</version>
             </dependency>
             <dependency>
                 <groupId>com.yammer.dropwizard</groupId>
@@ -126,6 +128,12 @@
     </dependencyManagement>
 
     <build>
+    	<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+    		</resource>
+    	</resources>
         <pluginManagement>
             <plugins>
                 <plugin>

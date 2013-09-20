@@ -1,7 +1,8 @@
-*~
+target
 *.iml
-/.idea/
+.idea
+.classpath
+.settings/
+.project
+/bin
 /target/
-/methode-api-service/target/
-/methode-api-model/target/
-/methode-api-client/target/

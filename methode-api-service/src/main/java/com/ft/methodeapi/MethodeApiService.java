@@ -1,6 +1,7 @@
 package com.ft.methodeapi;
 
 import com.ft.api.util.VersionResource;
+import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.methodeapi.service.methode.MethodeContentSearchHealthcheck;
 import com.ft.methodeapi.service.methode.MethodePingHealthCheck;
 import com.ft.methodeapi.service.http.EomFileResource;
@@ -34,7 +35,8 @@ public class MethodeApiService extends Service<MethodeApiConfiguation> {
                 .build();
 
         environment.addResource(new EomFileResource(methodeContentRepository));
-        environment.addResource( new VersionResource(MethodeApiService.class));
+        environment.addResource(new VersionResource(MethodeApiService.class));
+        environment.addResource(new BuildInfoResource());
         environment.addHealthCheck(new MethodePingHealthCheck(methodeContentRepository, configuration.getMaxPingMillis()));
         environment.addHealthCheck(new MethodeContentSearchHealthcheck(methodeContentRepository));
     }

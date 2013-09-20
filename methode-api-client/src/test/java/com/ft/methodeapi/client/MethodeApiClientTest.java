@@ -6,8 +6,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.ft.methodeapi.model.EomFile;
-import com.ft.methodeapi.service.EomFileResource;
-import com.ft.methodeapi.service.MethodeFileRepository;
+import com.ft.methodeapi.service.http.EomFileResource;
+import com.ft.methodeapi.service.methode.MethodeFileRepository;
 import com.google.common.base.Optional;
 import com.yammer.dropwizard.testing.ResourceTest;
 import org.junit.Test;
