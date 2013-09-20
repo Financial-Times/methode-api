@@ -1,10 +1,11 @@
 package com.ft.methodeapi;
 
 import com.ft.api.util.VersionResource;
-import com.ft.methodeapi.healthcheck.MethodeContentSearchHealthcheck;
-import com.ft.methodeapi.healthcheck.MethodePingHealthCheck;
-import com.ft.methodeapi.service.EomFileResource;
-import com.ft.methodeapi.service.MethodeFileRepository;
+import com.ft.methodeapi.service.methode.MethodeContentSearchHealthcheck;
+import com.ft.methodeapi.service.methode.MethodePingHealthCheck;
+import com.ft.methodeapi.service.http.EomFileResource;
+import com.ft.methodeapi.service.methode.MethodeFileRepository;
+import com.ft.methodeapi.service.methode.MethodeConnectionConfiguration;
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;

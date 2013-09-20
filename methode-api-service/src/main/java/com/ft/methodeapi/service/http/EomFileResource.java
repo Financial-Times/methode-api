@@ -1,4 +1,4 @@
-package com.ft.methodeapi.service;
+package com.ft.methodeapi.service.http;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -7,6 +7,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.ft.methodeapi.model.EomFile;
+import com.ft.methodeapi.service.methode.MethodeFileRepository;
 import com.google.common.base.Optional;
 import com.yammer.metrics.annotation.Timed;
 

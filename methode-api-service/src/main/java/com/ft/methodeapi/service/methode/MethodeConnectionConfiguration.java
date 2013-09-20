@@ -1,4 +1,4 @@
-package com.ft.methodeapi;
+package com.ft.methodeapi.service.methode;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;

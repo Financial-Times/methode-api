@@ -1,6 +1,5 @@
-package com.ft.methodeapi.healthcheck;
+package com.ft.methodeapi.service.methode;
 
-import com.ft.methodeapi.service.MethodeFileRepository;
 import com.yammer.metrics.core.HealthCheck;
 
 public class MethodeContentSearchHealthcheck extends HealthCheck {

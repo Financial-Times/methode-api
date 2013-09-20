@@ -1,4 +1,4 @@
-package com.ft.methodeapi.service;
+package com.ft.methodeapi.service.methode;
 
 import java.util.Properties;
 
@@ -117,7 +117,7 @@ public class MethodeFileRepository {
     }
 
     private Repository createRepository(ORB orb) {
-        NamingContextExt namingService = null;
+        NamingContextExt namingService;
         try {
             namingService = NamingContextExtHelper.narrow(orb.resolve_initial_references("NS"));
             return RepositoryHelper.narrow(namingService.resolve_str("EOM/Repositories/cms"));

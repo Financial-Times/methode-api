@@ -1,8 +1,7 @@
-package com.ft.methodeapi.healthcheck;
+package com.ft.methodeapi.service.methode;
 
 import java.util.concurrent.TimeUnit;
 
-import com.ft.methodeapi.service.MethodeFileRepository;
 import com.yammer.metrics.core.HealthCheck;
 
 public class MethodePingHealthCheck extends HealthCheck {
