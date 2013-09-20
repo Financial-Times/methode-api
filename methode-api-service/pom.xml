@@ -81,6 +81,10 @@
             <artifactId>methode-api-model</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.ft</groupId>
+            <artifactId>jaxrs-build-info-resource</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.yammer.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
         </dependency>
