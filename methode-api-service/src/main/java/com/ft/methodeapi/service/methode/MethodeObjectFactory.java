@@ -68,12 +68,7 @@ public class MethodeObjectFactory {
 
     public void maybeCloseNamingService(NamingContextExt namingService) {
         if (namingService != null) {
-            //try {
-                //namingService.destroy();
-                namingService._release();
-            //} catch (NotEmpty notEmpty) {
-            //    throw new MethodeException(notEmpty);
-            //}
+            namingService._release();
         }
     }
 
