@@ -19,14 +19,20 @@ public class MethodeApiClient {
     private final String apiHost;
     private final int apiPort;
 
-    private final UriBuilder findFileByUuidUriBuilder;
-
     public MethodeApiClient(Client jerseyClient, String apiHost, int apiPort) {
         this.jerseyClient = jerseyClient;
         this.apiHost = apiHost;
         this.apiPort = apiPort;
 
-        this.findFileByUuidUriBuilder = UriBuilder.fromPath("eom-file")
+    }
+
+    /** It looks like build(...) isn't safe for concurrent use
+    /* so this method can be used to create fresh instances for
+     * use in a single thread.
+     */
+    private UriBuilder fileUrlBuilder() {
+
+        return UriBuilder.fromPath("eom-file")
                 .path("{uuid}")
                 .scheme("http")
                 .host(apiHost)
@@ -34,16 +40,12 @@ public class MethodeApiClient {
     }
 
     public EomFile findFileByUuid(String uuid) {
-        final URI fileByUuidUri = findFileByUuidUri(uuid);
+        final URI fileByUuidUri = fileUrlBuilder().build(uuid);
         LOGGER.debug("making GET request to methode api {}", fileByUuidUri);
         return jerseyClient
                 .resource(fileByUuidUri)
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(EomFile.class);
-    }
-
-    private URI findFileByUuidUri(String uuid) {
-        return findFileByUuidUriBuilder.clone().build(uuid); // It looks like build(...) isn't safe for concurrent use, but clone() is
     }
 
     public static Builder builder() {
