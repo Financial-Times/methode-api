@@ -26,7 +26,8 @@ public class MethodeApiClientTest extends ResourceTest {
     public void canRetrieveEomFile() {
 
         final byte[] fileBytes = "blah, blah, blah".getBytes();
-        when(methodeFileRepository.findFileByUuid(any(String.class))).thenReturn(Optional.of(new EomFile("asdf", "someType", fileBytes)));
+        final String attributes = "whatever";
+        when(methodeFileRepository.findFileByUuid(any(String.class))).thenReturn(Optional.of(new EomFile("asdf", "someType", fileBytes, attributes)));
 
         EomFile eomFile = new MethodeApiClient(client(), "localhost", 1234).findFileByUuid("asdsfgdg");
 

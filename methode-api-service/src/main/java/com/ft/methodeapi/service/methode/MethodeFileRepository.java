@@ -3,6 +3,7 @@ package com.ft.methodeapi.service.methode;
 import EOM.FileSystemAdmin;
 import EOM.FileSystemObject;
 import EOM.InvalidURI;
+import EOM.ObjectInfo;
 import EOM.ObjectNotFound;
 import EOM.PermissionDenied;
 import EOM.Repository;
@@ -62,8 +63,10 @@ public class MethodeFileRepository {
                     fso = fileSystemAdmin.get_object_with_uri(uri);
 
                     EOM.File eomFile = EOM.FileHelper.narrow(fso);
+                    ObjectInfo objectInfo = eomFile.get_object_info();
+                    String attributes = objectInfo.attributes;
 
-                    EomFile content = new EomFile(uuid, fso.get_type_name(), eomFile.read_all());
+                    EomFile content = new EomFile(uuid, fso.get_type_name(), eomFile.read_all(), attributes);
                     foundContent = Optional.of(content);
 
                     eomFile._release();
