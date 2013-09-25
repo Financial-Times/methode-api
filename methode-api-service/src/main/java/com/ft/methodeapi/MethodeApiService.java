@@ -2,6 +2,9 @@ package com.ft.methodeapi;
 
 import com.ft.api.util.VersionResource;
 import com.ft.api.util.buildinfo.BuildInfoResource;
+import com.ft.methodeapi.service.http.CorbaSystemExceptionMapper;
+import com.ft.methodeapi.service.http.MethodeExceptionMapper;
+import com.ft.methodeapi.service.http.RuntimeExceptionMapper;
 import com.ft.methodeapi.service.methode.MethodeContentSearchHealthcheck;
 import com.ft.methodeapi.service.methode.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.MethodePingHealthCheck;
@@ -43,5 +46,8 @@ public class MethodeApiService extends Service<MethodeApiConfiguation> {
         environment.addResource(new BuildInfoResource());
         environment.addHealthCheck(new MethodePingHealthCheck(methodeContentRepository, configuration.getMaxPingMillis()));
         environment.addHealthCheck(new MethodeContentSearchHealthcheck(methodeContentRepository));
+        environment.addProvider(new MethodeExceptionMapper());
+        environment.addProvider(new CorbaSystemExceptionMapper());
+        environment.addProvider(new RuntimeExceptionMapper());
     }
 }
