@@ -44,7 +44,7 @@ public class EomFile {
             return this;
         }
 
-        public Builder withValue(byte[] bytes) {
+        public Builder withValue(byte[] value) {
             this.value = value;
             return this;
         }
