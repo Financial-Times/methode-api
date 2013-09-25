@@ -63,7 +63,10 @@ public class MethodeFileRepository {
 
                     EOM.File eomFile = EOM.FileHelper.narrow(fso);
 
-                    EomFile content = new EomFile(uuid, fso.get_type_name(), eomFile.read_all());
+                    final String typeName = eomFile.get_type_name();
+                    final byte[] bytes = eomFile.read_all();
+                    final String attributes = eomFile.get_attributes();
+                    EomFile content = new EomFile(uuid, typeName, bytes, attributes);
                     foundContent = Optional.of(content);
 
                     eomFile._release();
