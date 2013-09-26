@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.ft</groupId>
+        <groupId>com.ft.methode-api</groupId>
         <artifactId>methode-api</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
@@ -64,7 +64,7 @@
                             <rules>
                                 <requireReleaseDeps>
                                     <excludes>
-                                        <exclude>com.ft:methode-api-model</exclude>
+                                        <exclude>${project.groupId}:*</exclude>
                                     </excludes>
                                 </requireReleaseDeps>
                             </rules>
@@ -77,7 +77,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.ft</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>methode-api-model</artifactId>
         </dependency>
         <dependency>

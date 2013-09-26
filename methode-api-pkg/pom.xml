@@ -2,17 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
-        <groupId>com.ft</groupId>
+        <groupId>com.ft.methode-api</groupId>
         <artifactId>methode-api</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-
     <artifactId>methode-api-pkg</artifactId>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
-    <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -20,7 +19,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>methode-api-service</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -50,8 +48,7 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/ft-methode_api/files
-                            </outputDirectory>
+                            <outputDirectory>${project.build.directory}/ft-methode_api/files</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -90,8 +87,7 @@
                             <rules>
                                 <requireReleaseDeps>
                                     <excludes>
-                                        <exclude>com.ft:methode-api-model</exclude>
-                                        <exclude>com.ft:methode-api-service</exclude>
+                                        <exclude>${project.groupId}:*</exclude>
                                     </excludes>
                                 </requireReleaseDeps>
                             </rules>
