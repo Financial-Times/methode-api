@@ -2,10 +2,7 @@ package com.ft.methodeapi.service.methode;
 
 import EOM.PermissionDenied;
 import com.ft.methodeapi.model.EomFile;
-import com.ft.methodeapi.service.http.CorbaSystemExceptionMapper;
 import com.ft.methodeapi.service.http.EomFileResource;
-import com.ft.methodeapi.service.http.MethodeExceptionMapper;
-import com.ft.methodeapi.service.http.RuntimeExceptionMapper;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.yammer.dropwizard.testing.ResourceTest;
 import org.junit.Test;
@@ -32,9 +29,6 @@ public class MethodeOutageTest extends ResourceTest {
     protected void setUpResources() throws Exception {
         methodeFileRepository = mock(MethodeFileRepository.class);
         addResource(new EomFileResource(methodeFileRepository));
-        addProvider(new MethodeExceptionMapper());
-        addProvider(new CorbaSystemExceptionMapper());
-        addProvider(new RuntimeExceptionMapper());
     }
 
 

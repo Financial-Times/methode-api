@@ -6,10 +6,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.methodeapi.model.EomFile;
+import com.ft.methodeapi.service.methode.MethodeException;
 import com.ft.methodeapi.service.methode.MethodeFileRepository;
 import com.google.common.base.Optional;
 import com.yammer.metrics.annotation.Timed;
+import org.omg.CORBA.SystemException;
 
 @Path("eom-file")
 @Produces(MediaType.APPLICATION_JSON)
@@ -25,7 +28,11 @@ public class EomFileResource {
     @Timed
     @Path("{uuid}")
     public Optional<EomFile> getByUuid(@PathParam("uuid") String uuid) {
-        return methodeContentRepository.findFileByUuid(uuid);
+        try {
+            return methodeContentRepository.findFileByUuid(uuid);
+        } catch(MethodeException | SystemException ex) {
+            throw ServerError.status(503).error("error accessing upstream system").exception(ex);
+        }
     }
 
 }
