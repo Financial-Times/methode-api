@@ -155,6 +155,18 @@
                         <target>1.7</target>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>com.ft.maven.plugins</groupId>
+                    <artifactId>ft-build-info-maven-plugin</artifactId>
+                    <version>1.0</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>generate-build-info</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>            
             </plugins>
         </pluginManagement>
         <plugins>
