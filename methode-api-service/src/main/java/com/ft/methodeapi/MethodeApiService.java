@@ -1,5 +1,6 @@
 package com.ft.methodeapi;
 
+import com.ft.api.jaxrs.errors.RuntimeExceptionMapper;
 import com.ft.api.util.VersionResource;
 import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.methodeapi.service.methode.MethodeContentSearchHealthcheck;
@@ -43,5 +44,6 @@ public class MethodeApiService extends Service<MethodeApiConfiguation> {
         environment.addResource(new BuildInfoResource());
         environment.addHealthCheck(new MethodePingHealthCheck(methodeContentRepository, configuration.getMaxPingMillis()));
         environment.addHealthCheck(new MethodeContentSearchHealthcheck(methodeContentRepository));
+        environment.addProvider(new RuntimeExceptionMapper());
     }
 }
