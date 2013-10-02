@@ -81,9 +81,9 @@
                 <version>1.1</version>
             </dependency>
             <dependency>
-                <groupId>com.ft</groupId>
-                <artifactId>jaxrs-error-handling</artifactId>
-                <version>1.0.0</version>
+                <groupId>com.ft.jaxrs-error-handling</groupId>
+                <artifactId>jaxrs-error-handling-builder</artifactId>
+                <version>1.0.1</version>
             </dependency>
             <dependency>
                 <groupId>com.yammer.dropwizard</groupId>

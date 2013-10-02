@@ -1,8 +1,8 @@
 package com.ft.methodeapi;
 
+import com.ft.api.jaxrs.errors.RuntimeExceptionMapper;
 import com.ft.api.util.VersionResource;
 import com.ft.api.util.buildinfo.BuildInfoResource;
-import com.ft.methodeapi.service.http.RuntimeExceptionMapper;
 import com.ft.methodeapi.service.methode.MethodeContentSearchHealthcheck;
 import com.ft.methodeapi.service.methode.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.MethodePingHealthCheck;
