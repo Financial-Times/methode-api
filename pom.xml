@@ -27,6 +27,7 @@
 
     <properties>
         <hamcrest.version>1.3</hamcrest.version>
+        <jaxrs.errorhandling.version>1.0.2</jaxrs.errorhandling.version>
     </properties>
 
     <repositories>
@@ -83,7 +84,12 @@
             <dependency>
                 <groupId>com.ft.jaxrs-error-handling</groupId>
                 <artifactId>jaxrs-error-handling-builder</artifactId>
-                <version>1.0.1</version>
+                <version>${jaxrs.errorhandling.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ft.jaxrs-error-handling</groupId>
+                <artifactId>jaxrs-error-handling-model</artifactId>
+                <version>${jaxrs.errorhandling.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.yammer.dropwizard</groupId>
