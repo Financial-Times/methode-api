@@ -1,11 +1,14 @@
 package com.ft.methodeapi.client;
 
+import java.io.IOException;
 import java.net.URI;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
+import com.ft.api.jaxrs.client.exceptions.ApiNetworkingException;
 import com.ft.methodeapi.model.EomFile;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientHandlerException;
 import com.yammer.dropwizard.client.JerseyClientBuilder;
 import com.yammer.dropwizard.config.Environment;
 import org.slf4j.Logger;
@@ -42,10 +45,18 @@ public class MethodeApiClient {
     public EomFile findFileByUuid(String uuid) {
         final URI fileByUuidUri = fileUrlBuilder().build(uuid);
         LOGGER.debug("making GET request to methode api {}", fileByUuidUri);
-        return jerseyClient
-                .resource(fileByUuidUri)
-                .accept(MediaType.APPLICATION_JSON_TYPE)
-                .get(EomFile.class);
+        try {
+            return jerseyClient
+                    .resource(fileByUuidUri)
+                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .get(EomFile.class);
+        } catch (ClientHandlerException che) {
+            Throwable cause = che.getCause();
+            if(cause instanceof IOException) {
+                throw new ApiNetworkingException(fileByUuidUri,"GET");
+            }
+            throw che;
+        }
     }
 
     public static Builder builder() {
