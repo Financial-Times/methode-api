@@ -1,5 +1,7 @@
 package com.ft.methodeapi.service.methode;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,6 +17,11 @@ public class MethodeObjectFactoryTest {
     @Before
     public void setupFactory() {
         methodeObjectFactory = MethodeObjectFactory.builder().build();
+    }
+
+    @Test
+    public void failingTest() {
+        assertTrue(false);
     }
 
     @Test
