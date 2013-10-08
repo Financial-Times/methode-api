@@ -10,7 +10,7 @@ import org.junit.Test;
  *
  * @author Simon.Gibbs
  */
-public class MethodeObjectFactoryTest {
+public class MethodeObje ctFactoryTest {
 
     private MethodeObjectFactory methodeObjectFactory;
 
