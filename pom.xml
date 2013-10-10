@@ -27,7 +27,7 @@
 
     <properties>
         <hamcrest.version>1.3</hamcrest.version>
-        <jaxrs.errorhandling.version>1.0.2</jaxrs.errorhandling.version>
+        <jaxrs.errorhandling.version>1.0.3</jaxrs.errorhandling.version>
     </properties>
 
     <repositories>

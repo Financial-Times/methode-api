@@ -53,7 +53,7 @@ public class MethodeApiClient {
         } catch (ClientHandlerException che) {
             Throwable cause = che.getCause();
             if(cause instanceof IOException) {
-                throw new ApiNetworkingException(fileByUuidUri,"GET");
+                throw new ApiNetworkingException(fileByUuidUri,"GET",che);
             }
             throw che;
         }
