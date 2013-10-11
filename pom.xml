@@ -64,6 +64,21 @@
         </repository>
     </repositories>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>ft-releases</id>
+            <url>http://anthill.svc.ft.com:8081/nexus/content/groups/public</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+
+
+
     <dependencyManagement>
         <dependencies>
             <dependency>
