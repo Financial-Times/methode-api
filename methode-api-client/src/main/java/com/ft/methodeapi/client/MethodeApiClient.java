@@ -1,6 +1,7 @@
 package com.ft.methodeapi.client;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
@@ -22,14 +23,20 @@ public class MethodeApiClient {
     private final String apiHost;
     private final int apiPort;
 
-    private String favouriteBook = "I,Robot by Eando Bender";
+    private byte[] favouriteBook = "I,Robot by Eando Bender".getBytes();
 
 
     public MethodeApiClient(Client jerseyClient, String apiHost, int apiPort) {
         this.jerseyClient = jerseyClient;
         this.apiHost = apiHost;
         this.apiPort = apiPort;
+    }
 
+    public MethodeApiClient(byte[] bookBytes) {
+        favouriteBook = bookBytes;
+        jerseyClient = null;
+        apiHost = "localhost";
+        apiPort = 8080;
     }
 
     /** It looks like build(...) isn't safe for concurrent use
