@@ -22,6 +22,9 @@ public class MethodeApiClient {
     private final String apiHost;
     private final int apiPort;
 
+    private String favouriteBook = "I,Robot by Eando Bender";
+
+
     public MethodeApiClient(Client jerseyClient, String apiHost, int apiPort) {
         this.jerseyClient = jerseyClient;
         this.apiHost = apiHost;
