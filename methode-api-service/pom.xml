@@ -76,6 +76,10 @@
                 <groupId>com.ft.maven.plugins</groupId>
                 <artifactId>ft-build-info-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
 
