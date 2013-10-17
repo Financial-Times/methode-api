@@ -1,12 +1,19 @@
 package com.ft.methodeapi.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableRangeSet;
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 public class EomFile {
 
+    /**
+     * Marks reason for controversial design choices.
+     */
+    private static final String JUSTIFICATION_MEMORY_CHURN = "Likelihood of memory churn outweighs risk of security issue";
+
     private final String uuid;
     private final String type;
+
+    @SuppressWarnings(value = "EI_EXPOSE_REP2", justification = JUSTIFICATION_MEMORY_CHURN)
     private final byte[] value;
     private final String attributes;
 
@@ -28,6 +35,7 @@ public class EomFile {
         return type;
     }
 
+    @SuppressWarnings(value = "EI_EXPOSE_REP", justification = JUSTIFICATION_MEMORY_CHURN)
     public byte[] getValue() {
         return value;
     }
@@ -52,6 +60,7 @@ public class EomFile {
             return this;
         }
 
+        @SuppressWarnings(value = "EI_EXPOSE_REP", justification = JUSTIFICATION_MEMORY_CHURN)
         public Builder withValue(byte[] value) {
             this.value = value;
             return this;
