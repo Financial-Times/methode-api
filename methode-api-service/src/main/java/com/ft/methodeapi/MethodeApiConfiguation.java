@@ -27,6 +27,6 @@ public class MethodeApiConfiguation extends Configuration {
 
     @Min(1L)
     public long getMaxPingMillis() {
-        return maxPingWillis;
+        return maxPingMillis;
     }
 }
