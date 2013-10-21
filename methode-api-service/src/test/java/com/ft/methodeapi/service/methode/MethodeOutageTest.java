@@ -53,7 +53,7 @@ public class MethodeOutageTest extends ResourceTest {
         try {
             client().resource("/eom-file/").path(UUID.randomUUID().toString()).accept(MediaType.APPLICATION_JSON_TYPE).get(EomFile.class);
         } catch(UniformInterfaceException uie) {
-            assertThat(uie.getResponse().getStatus(),is(503));
+            assertThat(uie.getResponse().getStatus(),is(504));
         }
 
     }
