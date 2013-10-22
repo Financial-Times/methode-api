@@ -7,4 +7,4 @@ methodeConnection:
   userName: automate1
   password: automate1
 
-maxPingMillis: 100
+maxPingMillis: 500
