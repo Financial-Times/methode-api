@@ -2,9 +2,9 @@ http:
     port: 8080
     adminPort: 8081
 methodeConnection:
-  hostName: preditor-methode-01.svc.ft.com
-  nsPort: 9092
+  hostName: <%=scope.function_hiera('methodeHostName')%>
+  nsPort: <%=scope.function_hiera('methodeNameServicePort')%>
   userName: automate1
-  password: automate1
+  password: <%=scope.function_hiera('methodeApiPassword')%>
 
 maxPingMillis: 500
