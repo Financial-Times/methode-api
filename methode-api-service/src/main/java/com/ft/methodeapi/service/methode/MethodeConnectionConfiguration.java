@@ -1,6 +1,7 @@
 package com.ft.methodeapi.service.methode;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.yammer.dropwizard.validation.PortRange;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -56,5 +57,17 @@ public class MethodeConnectionConfiguration {
     @NotEmpty
     public String getOrbSingletonClass() {
         return orbSingletonClass;
+    }
+    
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("methodeHostName", methodeHostName)
+                .add("methodePort", methodePort)
+                .add("methodeUserName", methodeUserName)
+                .add("methodePassword", methodePassword)
+                .add("orbClass", orbClass)
+                .add("orbSingletonClass", orbSingletonClass)
+                .toString();
     }
 }

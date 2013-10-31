@@ -4,7 +4,7 @@ http:
 methodeConnection:
   hostName: <%=scope.function_hiera('methodeHostName')%>
   nsPort: <%=scope.function_hiera('methodeNameServicePort')%>
-  userName: automate1
-  password: <%=scope.function_hiera('methodeApiPassword')%>
+  userName: <%=scope.function_hiera('methodeUsername')%>
+  password: <%=scope.function_hiera('methodePassword')%>
 
 maxPingMillis: 500
