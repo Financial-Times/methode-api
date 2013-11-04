@@ -1,8 +1,10 @@
 package com.ft.methodeapi.service.methode;
 
 import EOM.FileSystemAdmin;
+import EOM.FileSystemAdminHelper;
 import EOM.FileSystemObject;
 import EOM.InvalidURI;
+import EOM.ObjectLocked;
 import EOM.ObjectNotFound;
 import EOM.PermissionDenied;
 import EOM.Repository;
@@ -19,6 +21,7 @@ import org.slf4j.LoggerFactory;
 public class MethodeFileRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodeFileRepository.class);
+
     private final MethodeObjectFactory client;
 
 
@@ -28,10 +31,46 @@ public class MethodeFileRepository {
 
     @Timed
     public void ping() {
-        new MethodeRepositoryOperationTemplate<>(client).doOperation(new MethodeRepositoryOperationTemplate.RepositoryCallback<Object>() {
+        new MethodeRepositoryOperationTemplate<>(client).doOperation(new MethodeRepositoryOperationTemplate.RepositoryCallback<Void>() {
             @Override
-            public Object doOperation(Repository repository) {
+            public Void doOperation(Repository repository) {
                 repository.ping();
+                return null;
+            }
+        });
+    }
+
+    public void deleteFileByUuid(final String uuid) {
+        final MethodeSessionOperationTemplate<Void> template = new MethodeSessionOperationTemplate<>(client);
+        template.doOperation(new MethodeSessionOperationTemplate.SessionCallback<Void>() {
+            @Override
+            public Void doOperation(Session session, Repository repository) {
+                final FileSystemAdmin fileSystemAdmin;
+                try {
+                    fileSystemAdmin = FileSystemAdminHelper.narrow(session.resolve_initial_references("FileSystemAdmin"));
+                } catch (ObjectNotFound | RepositoryError | PermissionDenied e) {
+                    throw new MethodeException(e);
+                }
+
+                final String uri = "eom:/uuids/" + uuid;
+
+                final FileSystemObject fso;
+                try {
+                    fso = fileSystemAdmin.get_object_with_uri(uri);
+                    try {
+                        EOM.File eomFile = EOM.FileHelper.narrow(fso);
+                        eomFile.discard();
+                    } finally {
+                        fso._release();
+                    }
+                } catch (InvalidURI e) {
+                    throw new NotFoundException(uuid);
+                } catch (PermissionDenied | RepositoryError | ObjectLocked e) {
+                    throw new MethodeException(e);
+                } finally {
+                    fileSystemAdmin._release();
+                }
+
                 return null;
             }
         });

@@ -21,7 +21,7 @@ public class MethodeRepositoryOperationTemplate<T> {
         this.client = client;
     }
 
-    public T doOperation(RepositoryCallback<T> callback) {
+    public T doOperation(RepositoryCallback<? extends T> callback) {
 
         ORB orb = client.createOrb();
         try {
@@ -32,7 +32,7 @@ public class MethodeRepositoryOperationTemplate<T> {
         }
     }
 
-    private T doOperationWithOrb(ORB orb, RepositoryCallback<T> callback) {
+    private T doOperationWithOrb(ORB orb, RepositoryCallback<? extends T> callback) {
         NamingContextExt namingService = client.createNamingService(orb);
         try {
             return doOperationWithNamingService(namingService, callback);
@@ -41,7 +41,7 @@ public class MethodeRepositoryOperationTemplate<T> {
         }
     }
 
-    private T doOperationWithNamingService(NamingContextExt namingService, RepositoryCallback<T> callback) {
+    private T doOperationWithNamingService(NamingContextExt namingService, RepositoryCallback<? extends T> callback) {
         Repository repository = client.createRepository(namingService);
         try {
 

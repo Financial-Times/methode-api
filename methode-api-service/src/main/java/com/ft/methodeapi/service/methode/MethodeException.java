@@ -7,6 +7,10 @@ package com.ft.methodeapi.service.methode;
  */
 public class MethodeException extends RuntimeException {
 
+    public MethodeException(String message) {
+        super(message);
+    }
+
     public MethodeException(Throwable cause) {
         super(cause);
     }
