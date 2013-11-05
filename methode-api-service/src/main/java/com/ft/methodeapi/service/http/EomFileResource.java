@@ -40,9 +40,9 @@ public class EomFileResource {
         }
     }
 
-    @DELETE
-    @Timed
-    @Path("{uuid}")
+//    @DELETE
+//    @Timed
+//    @Path("{uuid}")
     public void deleteByUuid(@PathParam("uuid") String uuid) {
         try {
             methodeContentRepository.deleteFileByUuid(uuid);
