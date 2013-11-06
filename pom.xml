@@ -22,12 +22,15 @@
         <module>methode-api-service</module>
         <module>methode-api-model</module>
         <module>methode-api-client</module>
+        <module>methode-api-acceptance</module>
         <module>methode-api-pkg</module>
     </modules>
 
     <properties>
         <hamcrest.version>1.3</hamcrest.version>
         <jaxrs.errorhandling.version>1.0.3</jaxrs.errorhandling.version>
+        <cucumber.version>1.1.5</cucumber.version>
+        <restassured.version>1.8.1</restassured.version>
     </properties>
 
     <repositories>
@@ -118,6 +121,21 @@
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>info.cukes</groupId>
+                <artifactId>cucumber-junit</artifactId>
+                <version>${cucumber.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>info.cukes</groupId>
+                <artifactId>cucumber-java</artifactId>
+                <version>${cucumber.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jayway.restassured</groupId>
+                <artifactId>rest-assured</artifactId>
+                <version>${restassured.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.eidosmedia.mps</groupId>
                 <artifactId>emmethodelibs</artifactId>
                 <version>2.0.1.21</version>
@@ -193,7 +211,22 @@
                             </goals>
                         </execution>
                     </executions>
-                </plugin>            
+                </plugin>
+                <plugin>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <configuration>
+                        <rules>
+                            <requireReleaseDeps>
+                                <excludes>
+                                    <exclude>${project.groupId}:*</exclude>
+                                </excludes>
+                            </requireReleaseDeps>
+                            <requirePluginVersions>
+                                <unCheckedPluginList>org.jacoco:jacoco-maven-plugin</unCheckedPluginList>
+                            </requirePluginVersions>
+                        </rules>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>

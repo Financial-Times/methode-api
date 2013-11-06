@@ -1,0 +1,19 @@
+readApi:
+  host: ftlnx01831-lvpr-uk-int
+  port: 8080
+  adminPort: 8081
+
+writeApi:
+  host: ftlnx01830-lvpr-uk-int
+  port: 8080
+  adminPort: 8081
+
+methodeApi:
+  host: ftlnx01829-lvpr-uk-int
+  port: 8080
+  adminPort: 8081
+
+methodeBridge:
+  host: ftlnx01828-lvpr-uk-int
+  port: 8080
+  adminPort: 8081
