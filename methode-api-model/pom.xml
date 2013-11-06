@@ -15,10 +15,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.yammer.dropwizard</groupId>
-            <artifactId>dropwizard-core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.ft.jaxrs-error-handling</groupId>
             <artifactId>jaxrs-error-handling-model</artifactId>
         </dependency>
