@@ -25,6 +25,7 @@ import static com.jayway.restassured.config.DecoderConfig.decoderConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static com.jayway.restassured.path.json.JsonPath.from;
 
 public class StepDefs {
 	
@@ -34,6 +35,7 @@ public class StepDefs {
 	private AcceptanceTestConfiguration acceptanceTestConfiguration;
 
 	private Response theResponse;
+    private String theResponseEntity;
     private UUID theUuid;
 
     private List<UUID> createdArticles;
@@ -54,8 +56,11 @@ public class StepDefs {
     @After
     public void cleanUpCreatedArticles() {
         for(UUID uuid : createdArticles) {
+
+            String deleteUrl = acceptanceTestConfiguration.getMethodeApiServiceUrl() + uuid;
+            LOGGER.info("Calling DELETE to clean up url={}",deleteUrl);
             expect().statusCode(either(is(204)).or(is(404)))
-                    .when().delete(acceptanceTestConfiguration.getMethodeApiServiceUrl() + uuid);
+                    .when().delete(deleteUrl);
         }
     }
 
@@ -71,12 +76,12 @@ public class StepDefs {
 
         theExpectedArticle = new EomFile("","EOM::CompoundStory",
                 readBytesFromFile("exampleArticleData.txt"),
-                readFromFile("exampleArticleAtributes.txt")
+                readFromFile("exampleArticleAttributes.txt")
             );
 
         // TODO stamp the build info
 
-		LOGGER.info("Calling MethodeBridge publish: url=" + acceptanceTestConfiguration.getMethodeApiServiceUrl()
+		LOGGER.info("Calling Methode API: url=" + acceptanceTestConfiguration.getMethodeApiServiceUrl()
 				+ " with data=" + theExpectedArticle);
 
         Response response =
@@ -97,7 +102,7 @@ public class StepDefs {
 	@Then("^I attempt to access the article$")
 	public void i_attempt_to_access_the_article() throws Throwable {
 		String url = acceptanceTestConfiguration.getMethodeApiServiceUrl() + theUuid.toString();
-		LOGGER.info("Calling ContentStore Read API: url=" + url);
+		LOGGER.info("Calling Methode API: url=" + url);
 		theResponse =
 			given()
 				.contentType(ContentType.JSON)
@@ -105,21 +110,23 @@ public class StepDefs {
 				.log().ifError()
 			.when()
 				.get(url);
+
+        theResponseEntity = theResponse.asString();
 	}
 	
 	@Then("^the article should be available from the MethodeAPI$")
 	public void the_article_should_be_available_from_the_MethodeAPI() throws Throwable {
-        assertThat("no body returned", theResponse.asString(),notNullValue());
+        assertThat("no body returned", theResponseEntity, notNullValue());
 	}
 	
 	@Then("^the article should have the expected metadata$")
 	public void the_article_should_have_the_expected_metadata() throws Throwable {
-		assertThat("uuid didn't match", theResponse.jsonPath().getString("uuid"), equalTo(theUuid.toString()));
+		assertThat("uuid didn't match", from(theResponseEntity).getString("uuid"), equalTo(theUuid.toString()));
 	}
 	
 	@Then("^the article should have the expected content$")
 	public void the_article_should_have_the_expected_content() throws Throwable {
-        byte[] retreivedContent = theResponse.as(EomFile.class).getValue();
+        byte[] retreivedContent =  from(theResponseEntity).getObject("", EomFile.class).getValue();
         assertThat("bytes in file differed", retreivedContent, equalTo(theExpectedArticle.getValue()));
 	}
 

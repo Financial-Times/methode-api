@@ -42,18 +42,18 @@ public class EomFileResource {
         }
     }
 
-//    @POST
-//    @Timed
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    @Produces(MediaType.APPLICATION_JSON)
+    @POST
+    @Timed
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public EomFile newFile(final EomFile eomFile) {
         final String filename = "test-file-" + System.currentTimeMillis() + ".xml";
         return methodeContentRepository.createNewFile(filename, eomFile);
     }
 
-//    @DELETE
-//    @Timed
-//    @Path("{uuid}")
+    @DELETE
+    @Timed
+    @Path("{uuid}")
     public void deleteByUuid(@PathParam("uuid") String uuid) {
         try {
             methodeContentRepository.deleteFileByUuid(uuid);

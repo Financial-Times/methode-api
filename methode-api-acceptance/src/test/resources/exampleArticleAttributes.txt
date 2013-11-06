@@ -1,0 +1,265 @@
+<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE ObjectMetadata SYSTEM \"/SysConfig/Classify/FTStories/classify.dtd\"><ObjectMetadata><EditorialDisplayIndexing><DILeadCompanies/>
+<DITemporaryCompanies><DITemporaryCompany><DICoTempCode/>
+<DICoTempDescriptor/>
+<DICoTickerCode/>
+</DITemporaryCompany>
+</DITemporaryCompanies>
+<DIFTSEGlobalClassifications/>
+<DIStockExchangeIndices/>
+<DIHotTopics/>
+<DIHeadlineCopy>Eurozone collapses ...! Kaboom.</DIHeadlineCopy>
+<DIBylineCopy>By</DIBylineCopy>
+<DIFTNPSections/>
+</EditorialDisplayIndexing>
+<OutputChannels><DIFTN><DIFTNPublicationDate/>
+<DIFTNZoneEdition/>
+<DIFTNPage/>
+<DIFTNTimeEdition/>
+<DIFTNFronts>Front</DIFTNFronts>
+</DIFTN>
+<DIFTcom><DIFTcomWebType>story</DIFTcomWebType>
+<DIFTcomDisplayCodes><DIFTcomDisplayCodeRank1><DIFTcomDisplayCode title=\"World - Brussels - Economy\"><DIFTcomDisplayCodeFTCode>WBEC</DIFTcomDisplayCodeFTCode>
+<DIFTcomDisplayCodeDescriptor>World - Brussels - Economy</DIFTcomDisplayCodeDescriptor>
+<DIFTcomDisplayCodeNewsInDepth>True</DIFTcomDisplayCodeNewsInDepth>
+<DIFTcomDisplayCodeSite>FTcom</DIFTcomDisplayCodeSite>
+<DIFTcomDisplayCodeArticleType>News</DIFTcomDisplayCodeArticleType>
+<DIFTcomDisplayCodeArticleBrand/>
+<DIFTcomDisplayCodeEditorsTag>EU Economy</DIFTcomDisplayCodeEditorsTag>
+</DIFTcomDisplayCode>
+</DIFTcomDisplayCodeRank1>
+<DIFTcomDisplayCodeRank2><DIFTcomDisplayCode title=\"World\"><DIFTcomDisplayCodeFTCode>WNIP</DIFTcomDisplayCodeFTCode>
+<DIFTcomDisplayCodeDescriptor>World</DIFTcomDisplayCodeDescriptor>
+<DIFTcomDisplayCodeNewsInDepth>True</DIFTcomDisplayCodeNewsInDepth>
+<DIFTcomDisplayCodeSite>FTcom</DIFTcomDisplayCodeSite>
+<DIFTcomDisplayCodeArticleType>News</DIFTcomDisplayCodeArticleType>
+<DIFTcomDisplayCodeArticleBrand/>
+<DIFTcomDisplayCodeEditorsTag/>
+</DIFTcomDisplayCode>
+<DIFTcomDisplayCode title=\"Companies\"><DIFTcomDisplayCodeFTCode>BNIP</DIFTcomDisplayCodeFTCode>
+<DIFTcomDisplayCodeDescriptor>Companies</DIFTcomDisplayCodeDescriptor>
+<DIFTcomDisplayCodeNewsInDepth>True</DIFTcomDisplayCodeNewsInDepth>
+<DIFTcomDisplayCodeSite>FTcom</DIFTcomDisplayCodeSite>
+<DIFTcomDisplayCodeArticleType>News</DIFTcomDisplayCodeArticleType>
+<DIFTcomDisplayCodeArticleBrand/>
+<DIFTcomDisplayCodeEditorsTag/>
+</DIFTcomDisplayCode>
+<DIFTcomDisplayCode title=\"World - Europe\"><DIFTcomDisplayCodeFTCode>WNEU</DIFTcomDisplayCodeFTCode>
+<DIFTcomDisplayCodeDescriptor>World - Europe</DIFTcomDisplayCodeDescriptor>
+<DIFTcomDisplayCodeNewsInDepth>True</DIFTcomDisplayCodeNewsInDepth>
+<DIFTcomDisplayCodeSite>FTcom</DIFTcomDisplayCodeSite>
+<DIFTcomDisplayCodeArticleType>News</DIFTcomDisplayCodeArticleType>
+<DIFTcomDisplayCodeArticleBrand/>
+<DIFTcomDisplayCodeEditorsTag/>
+</DIFTcomDisplayCode>
+<DIFTcomDisplayCode title=\"Financials - Banks\"><DIFTcomDisplayCodeFTCode>B08K</DIFTcomDisplayCodeFTCode>
+<DIFTcomDisplayCodeDescriptor>Financials - Banks</DIFTcomDisplayCodeDescriptor>
+<DIFTcomDisplayCodeNewsInDepth>True</DIFTcomDisplayCodeNewsInDepth>
+<DIFTcomDisplayCodeSite>FTcom</DIFTcomDisplayCodeSite>
+<DIFTcomDisplayCodeArticleType>News</DIFTcomDisplayCodeArticleType>
+<DIFTcomDisplayCodeArticleBrand/>
+<DIFTcomDisplayCodeEditorsTag>Banks</DIFTcomDisplayCodeEditorsTag>
+</DIFTcomDisplayCode>
+<DIFTcomDisplayCode title=\"Financials\"><DIFTcomDisplayCodeFTCode>NDFS</DIFTcomDisplayCodeFTCode>
+<DIFTcomDisplayCodeDescriptor>Financials</DIFTcomDisplayCodeDescriptor>
+<DIFTcomDisplayCodeNewsInDepth>True</DIFTcomDisplayCodeNewsInDepth>
+<DIFTcomDisplayCodeSite>FTcom</DIFTcomDisplayCodeSite>
+<DIFTcomDisplayCodeArticleType>News</DIFTcomDisplayCodeArticleType>
+<DIFTcomDisplayCodeArticleBrand/>
+<DIFTcomDisplayCodeEditorsTag>Financials</DIFTcomDisplayCodeEditorsTag>
+</DIFTcomDisplayCode>
+<DIFTcomDisplayCode title=\"World - Global Economy\"><DIFTcomDisplayCodeFTCode>WNIE</DIFTcomDisplayCodeFTCode>
+<DIFTcomDisplayCodeDescriptor>World - Global Economy</DIFTcomDisplayCodeDescriptor>
+<DIFTcomDisplayCodeNewsInDepth>True</DIFTcomDisplayCodeNewsInDepth>
+<DIFTcomDisplayCodeSite>FTcom</DIFTcomDisplayCodeSite>
+<DIFTcomDisplayCodeArticleType>News</DIFTcomDisplayCodeArticleType>
+<DIFTcomDisplayCodeArticleBrand/>
+<DIFTcomDisplayCodeEditorsTag>International Economy</DIFTcomDisplayCodeEditorsTag>
+</DIFTcomDisplayCode>
+<DIFTcomDisplayCode title=\"World - Brussels\"><DIFTcomDisplayCodeFTCode>WNBB</DIFTcomDisplayCodeFTCode>
+<DIFTcomDisplayCodeDescriptor>World - Brussels</DIFTcomDisplayCodeDescriptor>
+<DIFTcomDisplayCodeNewsInDepth>True</DIFTcomDisplayCodeNewsInDepth>
+<DIFTcomDisplayCodeSite>FTcom</DIFTcomDisplayCodeSite>
+<DIFTcomDisplayCodeArticleType>News</DIFTcomDisplayCodeArticleType>
+<DIFTcomDisplayCodeArticleBrand/>
+<DIFTcomDisplayCodeEditorsTag/>
+</DIFTcomDisplayCode>
+<DIFTcomDisplayCode title=\"Companies by region - Europe\"><DIFTcomDisplayCodeFTCode>BNEU</DIFTcomDisplayCodeFTCode>
+<DIFTcomDisplayCodeDescriptor>Companies by region - Europe</DIFTcomDisplayCodeDescriptor>
+<DIFTcomDisplayCodeNewsInDepth>True</DIFTcomDisplayCodeNewsInDepth>
+<DIFTcomDisplayCodeSite>FTcom</DIFTcomDisplayCodeSite>
+<DIFTcomDisplayCodeArticleType>News</DIFTcomDisplayCodeArticleType>
+<DIFTcomDisplayCodeArticleBrand/>
+<DIFTcomDisplayCodeEditorsTag/>
+</DIFTcomDisplayCode>
+</DIFTcomDisplayCodeRank2>
+</DIFTcomDisplayCodes>
+<DIFTcomSubscriptionLevel>2</DIFTcomSubscriptionLevel>
+<DIFTcomUpdateTimeStamp>False</DIFTcomUpdateTimeStamp>
+<DIFTcomIndexAndSynd>false</DIFTcomIndexAndSynd>
+<DIFTcomSafeToSyndicate>True</DIFTcomSafeToSyndicate>
+<DIFTcomInitialPublication>20120330182918</DIFTcomInitialPublication>
+<DIFTcomLastPublication>20130927100343</DIFTcomLastPublication>
+<DIFTcomSuppresInlineAds>False</DIFTcomSuppresInlineAds>
+<DIFTcomMap>True</DIFTcomMap>
+<DIFTcomDisplayStyle>Normal</DIFTcomDisplayStyle>
+<DIFTcomMarkDeleted>False</DIFTcomMarkDeleted>
+<DIFTcomMakeUnlinkable>False</DIFTcomMakeUnlinkable>
+<isBestStory>0</isBestStory>
+<DIFTcomCMRId>2097711</DIFTcomCMRId>
+<DIFTcomCMRHint/>
+<DIFTcomCMR><DIFTcomCMRPrimarySection>EU Economy</DIFTcomCMRPrimarySection>
+<DIFTcomCMRPrimarySectionId>MTA4-U2VjdGlvbnM=</DIFTcomCMRPrimarySectionId>
+<DIFTcomCMRPrimaryTheme>Euro in crisis</DIFTcomCMRPrimaryTheme>
+<DIFTcomCMRPrimaryThemeId>OTZhMTRiZDItYjI2ZS00NGMzLTg1MjAtNjlkNzVmZjk2NTI1-VG9waWNz</DIFTcomCMRPrimaryThemeId>
+<DIFTcomCMRBrand/>
+<DIFTcomCMRBrandId/>
+<DIFTcomCMRGenre>News</DIFTcomCMRGenre>
+<DIFTcomCMRGenreId>Nw==-R2VucmVz</DIFTcomCMRGenreId>
+<DIFTcomCMRMediaType>Text</DIFTcomCMRMediaType>
+<DIFTcomCMRMediaTypeId>ZjMwY2E2NjctMDA1Ni00ZTk4LWI0MWUtZjk5MTk2ZTMyNGVm-TWVkaWFUeXBlcw==</DIFTcomCMRMediaTypeId>
+</DIFTcomCMR>
+<DIFTcomECPositionInText>Default</DIFTcomECPositionInText>
+<DIFTcomHideECLevel1>False</DIFTcomHideECLevel1>
+<DIFTcomHideECLevel2>False</DIFTcomHideECLevel2>
+<DIFTcomHideECLevel3>False</DIFTcomHideECLevel3>
+<DIFTcomDiscussion>True</DIFTcomDiscussion>
+<DIFTcomArticleImage>Article size</DIFTcomArticleImage>
+</DIFTcom>
+<DISyndication><DISyndBeenCopied>False</DISyndBeenCopied>
+<DISyndEdition>USA</DISyndEdition>
+<DISyndStar>01</DISyndStar>
+<DISyndChannel/>
+<DISyndArea/>
+<DISyndCategory/>
+</DISyndication>
+</OutputChannels>
+<EditorialNotes><Language>English</Language>
+<Author>steenm</Author>
+<Guides/>
+<Editor/>
+<Sources><Source title=\"Financial Times\"><SourceCode>FT</SourceCode>
+<SourceDescriptor>Financial Times</SourceDescriptor>
+<SourceOnlineInclusion>True</SourceOnlineInclusion>
+<SourceCanBeSyndicated>True</SourceCanBeSyndicated>
+</Source>
+</Sources>
+<WordCount>543</WordCount>
+<CreationDate>20120329210000</CreationDate>
+<EmbargoDate/>
+<ExpiryDate>20120329210000</ExpiryDate>
+<ObjectLocation>/FT/Content/World News/Stories/Live/eurozone warning outsider WO 30.xml</ObjectLocation>
+<OriginatingStory/>
+<CCMS><CCMSCommissionRefNo/>
+<CCMSContributorRefNo/>
+<CCMSContributorFullName/>
+<CCMSContributorInclude>Staff</CCMSContributorInclude>
+<CCMSContributorRights>3</CCMSContributorRights>
+<CCMSFilingDate/>
+<CCMSProposedPublishingDate/>
+</CCMS>
+</EditorialNotes>
+<WiresIndexing><category/>
+<Keyword/>
+<char_count/>
+<priority/>
+<basket/>
+<title/>
+<Version/>
+<story_num/>
+<file_name/>
+<serviceid/>
+<entry_date/>
+<ref_field/>
+<take_num/>
+</WiresIndexing>
+<DataFactoryIndexing><ADRIS_MetaData><IndexSuccess>yes</IndexSuccess>
+<StartTime>Fri Sep 27 10:03:49 GMT 2013</StartTime>
+<EndTime>Fri Sep 27 10:03:49 GMT 2013</EndTime>
+</ADRIS_MetaData>
+<DFMajorCompanies><DFMajorCompany><DFCoMajScore>100</DFCoMajScore>
+<DFCoMajDescriptor>European_Union</DFCoMajDescriptor>
+<DFCoMajFTCode>EUEUU00000</DFCoMajFTCode>
+<Version>1</Version>
+<DFCoMajTickerSymbol/>
+<DFCoMajTickerExchangeCountry/>
+<DFCoMajTickerExchangeCode/>
+<DFCoMajFTMWTickercode/>
+<DFCoMajSEDOL/>
+<DFCoMajISIN/>
+<DFCoMajCOFlag>O</DFCoMajCOFlag>
+</DFMajorCompany>
+</DFMajorCompanies>
+<DFMinorCompanies/>
+<DFNAICS><DFNAIC><DFNAICSFTCode>N52</DFNAICSFTCode>
+<DFNAICSDescriptor>Finance_&amp;_Insurance</DFNAICSDescriptor>
+<Version>1997</Version>
+</DFNAIC>
+<DFNAIC><DFNAICSFTCode>N52111</DFNAICSFTCode>
+<DFNAICSDescriptor>Monetary_Authorities_-_Central_Bank</DFNAICSDescriptor>
+<Version>1997</Version>
+</DFNAIC>
+<DFNAIC><DFNAICSFTCode>N92</DFNAICSFTCode>
+<DFNAICSDescriptor>Public_Admin</DFNAICSDescriptor>
+<Version>1997</Version>
+</DFNAIC>
+<DFNAIC><DFNAICSFTCode>N9211</DFNAICSFTCode>
+<DFNAICSDescriptor>General_Government_Administration</DFNAICSDescriptor>
+<Version>1997</Version>
+</DFNAIC>
+<DFNAIC><DFNAICSFTCode>N92111</DFNAICSFTCode>
+<DFNAICSDescriptor>Executive_Offices</DFNAICSDescriptor>
+<Version>1997</Version>
+</DFNAIC>
+<DFNAIC><DFNAICSFTCode>N92113</DFNAICSFTCode>
+<DFNAICSDescriptor>Public_Finance_Activities</DFNAICSDescriptor>
+<Version>1997</Version>
+</DFNAIC>
+</DFNAICS>
+<DFWPMIndustries/>
+<DFFTSEGlobalClassifications/>
+<DFStockExchangeIndices/>
+<DFSubjects><DFSubject><DFSUFTCode>GN09</DFSUFTCode>
+<DFSUDescriptor>Government_Budgets</DFSUDescriptor>
+<Version>1</Version>
+</DFSubject>
+<DFSubject><DFSUFTCode>GN</DFSUFTCode>
+<DFSUDescriptor>Government_News</DFSUDescriptor>
+<Version>1</Version>
+</DFSubject>
+<DFSubject><DFSUFTCode>GN11</DFSUFTCode>
+<DFSUDescriptor>National_Income_&amp;_Expenditure</DFSUDescriptor>
+<Version>1</Version>
+</DFSubject>
+<DFSubject><DFSUFTCode>GN15</DFSUFTCode>
+<DFSUDescriptor>Summits_&amp;_Talks</DFSUDescriptor>
+<Version>1</Version>
+</DFSubject>
+</DFSubjects>
+<DFCountries><DFCountry><DFCtryISO3166FTCode>DK</DFCtryISO3166FTCode>
+<DFCtryISO3166Descriptor>Denmark</DFCtryISO3166Descriptor>
+<Version>1</Version>
+</DFCountry>
+<DFCountry><DFCtryISO3166FTCode>ES</DFCtryISO3166FTCode>
+<DFCtryISO3166Descriptor>Spain</DFCtryISO3166Descriptor>
+<Version>1</Version>
+</DFCountry>
+</DFCountries>
+<DFRegions><DFRegion><DFRegFTCode>XG</DFRegFTCode>
+<DFRegDescriptor>Europe</DFRegDescriptor>
+<Version>1</Version>
+</DFRegion>
+<DFRegion><DFRegFTCode>XJ</DFRegFTCode>
+<DFRegDescriptor>Western_Europe</DFRegDescriptor>
+<Version>1</Version>
+</DFRegion>
+</DFRegions>
+<DFWPMRegions/>
+<DFProvinces/>
+<DFFTcomDisplayCodes/>
+<DFFTSections/>
+<DFWebRegions>
+
+<DFWebRegion><DFWebRegFTCode>EU</DFWebRegFTCode><DFWebRegDescriptor>Europe</DFWebRegDescriptor></DFWebRegion><DFWebRegion><DFWebRegFTCode>EU</DFWebRegFTCode><DFWebRegDescriptor>Europe</DFWebRegDescriptor></DFWebRegion></DFWebRegions>
+</DataFactoryIndexing>
+</ObjectMetadata>
