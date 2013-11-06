@@ -2,8 +2,10 @@ package com.ft.methodeapi.service.http;
 
 import static java.lang.String.format;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -20,7 +22,6 @@ import com.yammer.metrics.annotation.Timed;
 import org.omg.CORBA.SystemException;
 
 @Path("eom-file")
-@Produces(MediaType.APPLICATION_JSON)
 public class EomFileResource {
 
     private final MethodeFileRepository methodeContentRepository;
@@ -32,12 +33,22 @@ public class EomFileResource {
     @GET
     @Timed
     @Path("{uuid}")
+    @Produces(MediaType.APPLICATION_JSON)
     public Optional<EomFile> getByUuid(@PathParam("uuid") String uuid) {
         try {
             return methodeContentRepository.findFileByUuid(uuid);
         } catch(MethodeException | SystemException ex) {
             throw ServerError.status(503).error("error accessing upstream system").exception(ex);
         }
+    }
+
+//    @POST
+//    @Timed
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    @Produces(MediaType.APPLICATION_JSON)
+    public EomFile newFile(final EomFile eomFile) {
+        final String filename = "test-file-" + System.currentTimeMillis() + ".xml";
+        return methodeContentRepository.createNewFile(filename, eomFile);
     }
 
 //    @DELETE
