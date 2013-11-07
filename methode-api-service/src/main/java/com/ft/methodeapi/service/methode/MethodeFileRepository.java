@@ -139,7 +139,7 @@ public class MethodeFileRepository {
     }
 
     private boolean folderIsAncestor(String[] ancestor, String[] descendant) {
-        if(ancestor.length < descendant.length) {
+        if(ancestor.length > descendant.length) {
             return false;
         }
         for(int i=0; i<ancestor.length; i++) {
