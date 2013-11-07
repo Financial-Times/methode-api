@@ -1,15 +1,12 @@
 package com.ft.methodeapi.service.methode;
 
+import EOM.File;
 import EOM.FileSystemAdmin;
 import EOM.FileSystemAdminHelper;
 import EOM.FileSystemObject;
-import EOM.FileSystemObjectsHelper;
-import EOM.Folder;
-import EOM.FolderHelper;
 import EOM.InvalidURI;
 import EOM.ObjectLocked;
 import EOM.ObjectNotFound;
-import EOM.ObjectTypeHelper;
 import EOM.PermissionDenied;
 import EOM.Repository;
 import EOM.RepositoryError;
@@ -20,15 +17,10 @@ import com.ft.methodeapi.service.methode.templates.MethodeRepositoryOperationTem
 import com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate;
 import com.google.common.base.Optional;
 import com.yammer.metrics.annotation.Timed;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MethodeFileRepository {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MethodeFileRepository.class);
-
     private final MethodeObjectFactory client;
-
 
     public MethodeFileRepository(MethodeObjectFactory client) {
         this.client = client;
@@ -92,15 +84,16 @@ public class MethodeFileRepository {
        return template.doOperation(callback);
     }
 
-    private static final String FOLDER = "/FT Website Production/Z_Test/dyn_pub_test";
+    private static final String TEST_FOLDER = "/FT Website Production/Z_Test/dyn_pub_test";
+    private static final String[] PATH_TO_TEST_FOLDER = Utils.stringToPath(TEST_FOLDER);
 
-    public EomFile createNewFile(final String filename, final EomFile eomFile) {
+    public EomFile createNewTestFile(final String filename, final EomFile eomFile) {
         final MethodeSessionOperationTemplate<EomFile> template = new MethodeSessionOperationTemplate<>(client);
-        final EomFile createdEomFile = template.doOperation(new CreateFileCallback(FOLDER, filename, eomFile));
+        final EomFile createdEomFile = template.doOperation(new CreateFileCallback(TEST_FOLDER, filename, eomFile));
         return createdEomFile;
     }
 
-    public void deleteFileByUuid(final String uuid) {
+    public void deleteTestFileByUuid(final String uuid) {
         final MethodeSessionOperationTemplate<Void> template = new MethodeSessionOperationTemplate<>(client);
         template.doOperation(new MethodeSessionOperationTemplate.SessionCallback<Void>() {
             @Override
@@ -118,8 +111,15 @@ public class MethodeFileRepository {
                 try {
                     fso = fileSystemAdmin.get_object_with_uri(uri);
                     try {
-                        EOM.File eomFile = EOM.FileHelper.narrow(fso);
-                        eomFile.discard();
+                        final File eomFile = EOM.FileHelper.narrow(fso);
+                        final String[] pathToFile = eomFile.get_path();
+
+                        if(folderIsAncestor(PATH_TO_TEST_FOLDER, pathToFile)) {
+                            eomFile.discard();
+                        } else {
+                            throw new ActionNotPermittedException(String.format("cannot delete %s, it's not in the test folder %s", uuid, TEST_FOLDER));
+                        }
+
                     } finally {
                         fso._release();
                     }
@@ -134,6 +134,18 @@ public class MethodeFileRepository {
                 return null;
             }
         });
+    }
+
+    private boolean folderIsAncestor(String[] ancestor, String[] descendant) {
+        if(ancestor.length < descendant.length) {
+            return false;
+        }
+        for(int i=0; i<ancestor.length; i++) {
+            if(! ancestor[i].equals(descendant[i])) {
+                return false;
+            }
+        }
+        return true;
     }
 
 

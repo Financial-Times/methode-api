@@ -30,7 +30,7 @@ public class EomFileResourceDeleteTest extends ResourceTest {
     public void deleteShouldReturn404WhenNotFound() {
 
         final String uuid = UUID.randomUUID().toString();
-        doThrow(new NotFoundException(uuid)).when(methodeFileRepository).deleteFileByUuid(uuid);
+        doThrow(new NotFoundException(uuid)).when(methodeFileRepository).deleteTestFileByUuid(uuid);
 
         final ClientResponse clientResponse = client().resource("/eom-file/").path(uuid).delete(ClientResponse.class);
 
