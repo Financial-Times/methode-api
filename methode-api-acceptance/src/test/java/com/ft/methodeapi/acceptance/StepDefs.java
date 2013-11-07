@@ -2,6 +2,7 @@ package com.ft.methodeapi.acceptance;
 
 import com.ft.methodeapi.model.EomFile;
 import com.google.common.base.Charsets;
+import com.google.common.base.Objects;
 import com.google.common.io.Resources;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
@@ -28,11 +29,12 @@ import static org.junit.Assert.assertThat;
 import static com.jayway.restassured.path.json.JsonPath.from;
 
 public class StepDefs {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(StepDefs.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(StepDefs.class);
+    public static final String HEADLINE_FROM_TEST_FILE = "Eurozone collapses ...! Kaboom.";
 
 
-	private AcceptanceTestConfiguration acceptanceTestConfiguration;
+    private AcceptanceTestConfiguration acceptanceTestConfiguration;
 
 	private Response theResponse;
     private String theResponseEntity;
@@ -71,15 +73,10 @@ public class StepDefs {
 	}
 
 
-	@When("^an article exists in Methode$")
+	@Given("^an article exists in Methode$")
 	public void an_article_exists_in_Methode() throws Throwable {
 
-        theExpectedArticle = new EomFile("","EOM::CompoundStory",
-                readBytesFromFile("exampleArticleData.txt"),
-                readFromFile("exampleArticleAttributes.txt")
-            );
-
-        // TODO stamp the build info
+        prepareTheArticle();
 
 		LOGGER.info("Calling Methode API: url=" + acceptanceTestConfiguration.getMethodeApiServiceUrl()
 				+ " with data=" + theExpectedArticle);
@@ -98,8 +95,28 @@ public class StepDefs {
 
         createdArticles.add(theUuid);
 	}
-	
-	@Then("^I attempt to access the article$")
+
+    private void prepareTheArticle() throws IOException {
+        String exampleArticleXml = readFromFile("exampleArticleData.txt");
+        String attributesXml = readFromFile("exampleArticleAttributes.txt");
+
+        String stampedHeadline = String.format("Proudly tested with robotic consistency [Build %s]", buildNo());
+        exampleArticleXml = exampleArticleXml.replace(HEADLINE_FROM_TEST_FILE,stampedHeadline);
+        attributesXml = attributesXml.replace(HEADLINE_FROM_TEST_FILE,stampedHeadline);
+
+        LOGGER.debug("Test article headline={}, articleXml={}, attributeXml={}",stampedHeadline, exampleArticleXml,attributesXml);
+
+        theExpectedArticle = new EomFile("","EOM::CompoundStory",
+                exampleArticleXml.getBytes(Charsets.UTF_8),
+                attributesXml
+            );
+    }
+
+    private String buildNo() {
+        return Objects.firstNonNull(System.getProperty("BUILD_NUMBER"),"LOCAL BUILD");
+    }
+
+    @Then("^I attempt to access the article$")
 	public void i_attempt_to_access_the_article() throws Throwable {
 		String url = acceptanceTestConfiguration.getMethodeApiServiceUrl() + theUuid.toString();
 		LOGGER.info("Calling Methode API: url=" + url);
@@ -122,6 +139,8 @@ public class StepDefs {
 	@Then("^the article should have the expected metadata$")
 	public void the_article_should_have_the_expected_metadata() throws Throwable {
 		assertThat("uuid didn't match", from(theResponseEntity).getString("uuid"), equalTo(theUuid.toString()));
+        // TODO this needs uncommenting, or replacing with something more subtle.
+        //assertThat("text in attributes differed", from(theResponseEntity).getString("attributes"), equalTo(theExpectedArticle.getAttributes()));
 	}
 	
 	@Then("^the article should have the expected content$")
