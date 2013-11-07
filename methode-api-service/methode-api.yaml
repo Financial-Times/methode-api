@@ -6,5 +6,10 @@ methodeConnection:
   nsPort: 9092
   userName: automate1
   password: automate1
+methodeTestConnection:
+  hostName: preditor-methode-01.svc.ft.com
+  nsPort: 9092
+  userName: dynpubtest
+  password: dynpubtest
 
 maxPingMillis: 500

@@ -6,5 +6,10 @@ methodeConnection:
   nsPort: <%=scope.function_hiera('methodeNameServicePort')%>
   userName: <%=scope.function_hiera('methodeUsername')%>
   password: <%=scope.function_hiera('methodePassword')%>
+methodeTestConnection:
+  hostName: <%=scope.function_hiera('methodeHostName')%>
+  nsPort: <%=scope.function_hiera('methodeNameServicePort')%>
+  userName: <%=scope.function_hiera('methodeTestUsername', 'app-methodeAPI')%>
+  password: <%=scope.function_hiera('methodeTestPassword', 'methodeapi')%>
 
 maxPingMillis: 500
