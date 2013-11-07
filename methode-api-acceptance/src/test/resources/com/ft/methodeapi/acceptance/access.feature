@@ -3,6 +3,7 @@ Feature: Access
   Background: 
     Given the MethodeAPI service is running and connected to Methode
 
+  @smoke
   Scenario: An Article can be successfully retrieved
     Given an article exists in Methode
     When I attempt to access the article

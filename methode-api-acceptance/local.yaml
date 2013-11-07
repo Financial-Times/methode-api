@@ -1,19 +1,4 @@
-readApi:
-  host: localhost
-  port: 6080
-  adminPort: 6081
-
-writeApi:
-  host: localhost
-  port: 7080
-  adminPort: 7081
-
 methodeApi:
   host: localhost
   port: 9080
   adminPort: 9081
-
-methodeBridge:
-  host: localhost
-  port: 10080
-  adminPort: 10081
