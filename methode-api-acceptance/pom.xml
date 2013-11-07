@@ -13,6 +13,11 @@
 
     <artifactId>methode-api-acceptance</artifactId>
 
+    <properties>
+        <tests.type>Acceptance</tests.type>
+    </properties>
+
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -116,7 +121,7 @@
                         </executions>
                         <configuration>
                             <includes>
-                                <include>com/ft/methodeapi/acceptance/**/*Test.java</include>
+                                <include>com/ft/methodeapi/acceptance/**/${tests.type}TestsTest.java</include>
                             </includes>
                         </configuration>
                     </plugin>
