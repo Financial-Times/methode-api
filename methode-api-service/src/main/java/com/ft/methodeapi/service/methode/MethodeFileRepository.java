@@ -21,9 +21,11 @@ import com.yammer.metrics.annotation.Timed;
 public class MethodeFileRepository {
 
     private final MethodeObjectFactory client;
+    private final MethodeObjectFactory testClient;
 
-    public MethodeFileRepository(MethodeObjectFactory client) {
+    public MethodeFileRepository(MethodeObjectFactory client, MethodeObjectFactory testClient) {
         this.client = client;
+        this.testClient = testClient;
     }
 
     @Timed
@@ -88,13 +90,13 @@ public class MethodeFileRepository {
     private static final String[] PATH_TO_TEST_FOLDER = Utils.stringToPath(TEST_FOLDER);
 
     public EomFile createNewTestFile(final String filename, final EomFile eomFile) {
-        final MethodeSessionOperationTemplate<EomFile> template = new MethodeSessionOperationTemplate<>(client);
+        final MethodeSessionOperationTemplate<EomFile> template = new MethodeSessionOperationTemplate<>(testClient);
         final EomFile createdEomFile = template.doOperation(new CreateFileCallback(TEST_FOLDER, filename, eomFile));
         return createdEomFile;
     }
 
     public void deleteTestFileByUuid(final String uuid) {
-        final MethodeSessionOperationTemplate<Void> template = new MethodeSessionOperationTemplate<>(client);
+        final MethodeSessionOperationTemplate<Void> template = new MethodeSessionOperationTemplate<>(testClient);
         template.doOperation(new MethodeSessionOperationTemplate.SessionCallback<Void>() {
             @Override
             public Void doOperation(Session session, Repository repository) {

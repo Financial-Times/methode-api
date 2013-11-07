@@ -33,17 +33,10 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
     	LOGGER.info("running with configuration: {}", configuration);
         final MethodeConnectionConfiguration methodeConnectionConfiguration = configuration.getMethodeConnectionConfiguration();
 
-        final MethodeObjectFactory methodeObjectFactory = MethodeObjectFactory.builder()
-                .withHost(methodeConnectionConfiguration.getMethodeHostName())
-                .withPort(methodeConnectionConfiguration.getMethodePort())
-                .withUsername(methodeConnectionConfiguration.getMethodeUserName())
-                .withPassword(methodeConnectionConfiguration.getMethodePassword())
-                .withOrbClass(methodeConnectionConfiguration.getOrbClass())
-                .withOrbSingletonClass(methodeConnectionConfiguration.getOrbSingletonClass())
-                .build();
+        final MethodeObjectFactory methodeObjectFactory = createMethodeObjectFactory(methodeConnectionConfiguration);
+        final MethodeObjectFactory testMethodeObjectFactory = createMethodeObjectFactory(configuration.getMethodeTestConnectionConfiguration());
 
-
-        final MethodeFileRepository methodeContentRepository = new MethodeFileRepository(methodeObjectFactory);
+        final MethodeFileRepository methodeContentRepository = new MethodeFileRepository(methodeObjectFactory, testMethodeObjectFactory);
 
         environment.addResource(new EomFileResource(methodeContentRepository));
         environment.addResource(new VersionResource(MethodeApiService.class));
@@ -51,5 +44,16 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
         environment.addHealthCheck(new MethodePingHealthCheck(methodeContentRepository, configuration.getMaxPingMillis()));
         environment.addHealthCheck(new MethodeContentSearchHealthcheck(methodeContentRepository));
         environment.addProvider(new RuntimeExceptionMapper());
+    }
+
+    private MethodeObjectFactory createMethodeObjectFactory(MethodeConnectionConfiguration methodeConnectionConfiguration) {
+        return MethodeObjectFactory.builder()
+                    .withHost(methodeConnectionConfiguration.getMethodeHostName())
+                    .withPort(methodeConnectionConfiguration.getMethodePort())
+                    .withUsername(methodeConnectionConfiguration.getMethodeUserName())
+                    .withPassword(methodeConnectionConfiguration.getMethodePassword())
+                    .withOrbClass(methodeConnectionConfiguration.getOrbClass())
+                    .withOrbSingletonClass(methodeConnectionConfiguration.getOrbSingletonClass())
+                    .build();
     }
 }

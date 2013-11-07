@@ -12,17 +12,26 @@ import com.yammer.dropwizard.config.Configuration;
 public class MethodeApiConfiguration extends Configuration {
 
     private final MethodeConnectionConfiguration methodeConnectionConfiguration;
+    private final MethodeConnectionConfiguration methodeTestConnectionConfiguration;
     private final long maxPingMillis;
 
     public MethodeApiConfiguration(@JsonProperty("methodeConnection") MethodeConnectionConfiguration methodeConnectionConfiguration,
+                                   @JsonProperty("methodeTestConnection") MethodeConnectionConfiguration methodeTestConnectionConfiguration,
                                   @JsonProperty("maxPingMillis") long maxPingMillis) {
         this.methodeConnectionConfiguration = methodeConnectionConfiguration;
+        this.methodeTestConnectionConfiguration = methodeTestConnectionConfiguration;
         this.maxPingMillis = maxPingMillis;
     }
 
     @Valid
     @NotNull
     public MethodeConnectionConfiguration getMethodeConnectionConfiguration() {
+        return methodeConnectionConfiguration;
+    }
+
+    @Valid
+    @NotNull
+    public MethodeConnectionConfiguration getMethodeTestConnectionConfiguration() {
         return methodeConnectionConfiguration;
     }
 
