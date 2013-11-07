@@ -45,31 +45,14 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
             file.check_in("", keepCheckedOut);
 
             return new EomFile(file.get_uuid_string(), file.get_type_name(), file.read_all(), file.get_attributes());
-        } catch (TypeNotFound typeNotFound) {
-            typeNotFound.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (RepositoryError repositoryError) {
-            repositoryError.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (PermissionDenied permissionDenied) {
-            permissionDenied.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (InvalidName invalidName) {
-            invalidName.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (InvalidForContainer invalidForContainer) {
-            invalidForContainer.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (ObjectLocked objectLocked) {
-            objectLocked.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (DuplicatedName duplicatedName) {
-            duplicatedName.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (InvalidType invalidType) {
-            invalidType.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (ObjectNotLocked objectNotLocked) {
-            objectNotLocked.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (InvalidAttributes invalidAttributes) {
-            invalidAttributes.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (ObjectNotCheckedOut objectNotCheckedOut) {
-            objectNotCheckedOut.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
 
-        return null;
+        } catch (TypeNotFound | RepositoryError | PermissionDenied | InvalidName | InvalidForContainer | ObjectLocked
+                | DuplicatedName | ObjectNotLocked | ObjectNotCheckedOut e) {
+            throw new MethodeException(e);
+
+        } catch (InvalidAttributes | InvalidType e) {
+            throw new InvalidEomFileException("cannot create requested file", e);
+        }
 
     }
 

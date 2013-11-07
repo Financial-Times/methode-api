@@ -14,6 +14,8 @@ import javax.ws.rs.core.MediaType;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.methodeapi.model.EomFile;
+import com.ft.methodeapi.service.methode.ActionNotPermittedException;
+import com.ft.methodeapi.service.methode.InvalidEomFileException;
 import com.ft.methodeapi.service.methode.MethodeException;
 import com.ft.methodeapi.service.methode.MethodeFileRepository;
 import com.ft.methodeapi.service.methode.NotFoundException;
@@ -46,9 +48,13 @@ public class EomFileResource {
     @Timed
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public EomFile newFile(final EomFile eomFile) {
+    public EomFile newTestFile(final EomFile eomFile) {
         final String filename = "test-file-" + System.currentTimeMillis() + ".xml";
-        return methodeContentRepository.createNewFile(filename, eomFile);
+        try {
+            return methodeContentRepository.createNewTestFile(filename, eomFile);
+        } catch (InvalidEomFileException e) {
+            throw ClientError.status(422).exception(e);
+        }
     }
 
     @DELETE
@@ -56,9 +62,11 @@ public class EomFileResource {
     @Path("{uuid}")
     public void deleteByUuid(@PathParam("uuid") String uuid) {
         try {
-            methodeContentRepository.deleteFileByUuid(uuid);
+            methodeContentRepository.deleteTestFileByUuid(uuid);
         } catch (NotFoundException e) {
             throw ClientError.status(404).error(format("%s not found", uuid)).exception();
+        } catch (ActionNotPermittedException e) {
+            throw ClientError.status(403).error(format("not allowed to delete %s", uuid)).exception(e);
         } catch (MethodeException | SystemException e) {
             throw ServerError.status(503).error("error accessing upstream system").exception(e);
         }
