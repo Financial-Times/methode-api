@@ -6,9 +6,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
 import com.ft.api.jaxrs.client.exceptions.ApiNetworkingException;
+import com.ft.api.jaxrs.client.exceptions.RemoteApiException;
+import com.ft.api.jaxrs.errors.ErrorEntity;
 import com.ft.methodeapi.model.EomFile;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
+import com.sun.jersey.api.client.ClientResponse;
 import com.yammer.dropwizard.client.JerseyClientBuilder;
 import com.yammer.dropwizard.config.Environment;
 import org.slf4j.Logger;
@@ -45,11 +48,14 @@ public class MethodeApiClient {
     public EomFile findFileByUuid(String uuid) {
         final URI fileByUuidUri = fileUrlBuilder().build(uuid);
         LOGGER.debug("making GET request to methode api {}", fileByUuidUri);
+
+        ClientResponse clientResponse;
+
         try {
-            return jerseyClient
+            clientResponse = jerseyClient
                     .resource(fileByUuidUri)
                     .accept(MediaType.APPLICATION_JSON_TYPE)
-                    .get(EomFile.class);
+                    .get(ClientResponse.class);
         } catch (ClientHandlerException che) {
             Throwable cause = che.getCause();
             if(cause instanceof IOException) {
@@ -57,6 +63,24 @@ public class MethodeApiClient {
             }
             throw che;
         }
+
+        int responseStatusCode = clientResponse.getStatus();
+        int responseStatusFamily = responseStatusCode / 100;
+
+        if (responseStatusFamily == 2) {
+            // SUCCESS!
+            return clientResponse.getEntity(EomFile.class);
+        }
+
+        LOGGER.error("received a {} status code when making a GET request to {}", responseStatusCode, fileByUuidUri);
+        ErrorEntity entity = null;
+        try {
+            entity = clientResponse.getEntity(ErrorEntity.class);
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to parse ErrorEntity when handling API transaction failure",t);
+        }
+        throw new RemoteApiException(fileByUuidUri,"GET",responseStatusCode,entity);
+
     }
 
     public static Builder builder() {
