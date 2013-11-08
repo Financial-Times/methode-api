@@ -1,5 +1,7 @@
 package com.ft.methodeapi.service.methode;
 
+import static com.ft.methodeapi.service.methode.PathHelper.folderIsAncestor;
+
 import EOM.File;
 import EOM.FileSystemAdmin;
 import EOM.FileSystemAdminHelper;
@@ -136,18 +138,6 @@ public class MethodeFileRepository {
                 return null;
             }
         });
-    }
-
-    private boolean folderIsAncestor(String[] ancestor, String[] descendant) {
-        if(ancestor.length < descendant.length) {
-            return false;
-        }
-        for(int i=0; i<ancestor.length; i++) {
-            if(! ancestor[i].equals(descendant[i])) {
-                return false;
-            }
-        }
-        return true;
     }
 
 
