@@ -4,14 +4,14 @@ http:
 
 methodeConnection:
   hostName: preditor-methode-01.svc.ft.com
-  nsPort: 9092
+  nsPort: 9091 #WRONG
   userName: automate1
   password: automate1
   connectTimeout: 2000
 
 methodeTestConnection:
   hostName: preditor-methode-01.svc.ft.com
-  nsPort: 9092
+  nsPort: 9091 #WRONG
   userName: dynpubtest
   password: dynpubtest
   connectTimeout: 2000

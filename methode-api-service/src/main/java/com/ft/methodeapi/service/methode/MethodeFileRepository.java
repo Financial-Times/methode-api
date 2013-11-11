@@ -51,37 +51,37 @@ public class MethodeFileRepository {
         callback=new MethodeSessionOperationTemplate.SessionCallback<Optional<EomFile>>() {
             @Override
             public Optional<EomFile> doOperation(Session session, Repository repository) {
-                final FileSystemAdmin fileSystemAdmin;
-                try {
-                    fileSystemAdmin = EOM.FileSystemAdminHelper.narrow(session.resolve_initial_references("FileSystemAdmin"));
-                } catch (ObjectNotFound | RepositoryError | PermissionDenied e) {
-                    throw new MethodeException(e);
-                }
+				final FileSystemAdmin fileSystemAdmin;
+				try {
+					fileSystemAdmin = EOM.FileSystemAdminHelper.narrow(session.resolve_initial_references("FileSystemAdmin"));
+				} catch (ObjectNotFound | RepositoryError | PermissionDenied e) {
+					throw new MethodeException(e);
+				}
 
-                String uri = "eom:/uuids/" + uuid;
+				String uri = "eom:/uuids/" + uuid;
 
-                FileSystemObject fso;
-                Optional<EomFile> foundContent;
-                try {
-                    fso = fileSystemAdmin.get_object_with_uri(uri);
+				FileSystemObject fso;
+				Optional<EomFile> foundContent;
+				try {
+					fso = fileSystemAdmin.get_object_with_uri(uri);
 
-                    EOM.File eomFile = EOM.FileHelper.narrow(fso);
+					EOM.File eomFile = EOM.FileHelper.narrow(fso);
 
-                    final String typeName = eomFile.get_type_name();
-                    final byte[] bytes = eomFile.read_all();
-                    final String attributes = eomFile.get_attributes();
-                    EomFile content = new EomFile(uuid, typeName, bytes, attributes);
-                    foundContent = Optional.of(content);
+					final String typeName = eomFile.get_type_name();
+					final byte[] bytes = eomFile.read_all();
+					final String attributes = eomFile.get_attributes();
+					EomFile content = new EomFile(uuid, typeName, bytes, attributes);
+					foundContent = Optional.of(content);
 
-                    eomFile._release();
-                    fileSystemAdmin._release();
+					eomFile._release();
+					fileSystemAdmin._release();
 
-                } catch (InvalidURI invalidURI) {
-                    return Optional.absent();
-                } catch (RepositoryError | PermissionDenied e) {
-                    throw new MethodeException(e);
-                }
-                return foundContent;
+				} catch (InvalidURI invalidURI) {
+					return Optional.absent();
+				} catch (RepositoryError | PermissionDenied e) {
+					throw new MethodeException(e);
+				}
+				return foundContent;
             }
         };
 
@@ -141,4 +141,7 @@ public class MethodeFileRepository {
     }
 
 
+	public String getClientRepositoryInfo() {
+		return String.format("hostname: %s, nsPort: %d, userName: %s", client.getHostname(), client.getPort(), client.getUsername());
+	}
 }

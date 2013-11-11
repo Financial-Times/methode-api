@@ -10,7 +10,7 @@ public class MethodePingHealthCheck extends HealthCheck {
     private final long maxPingMillis;
 
     public MethodePingHealthCheck(MethodeFileRepository methodeContentRepository, long maxPingMillis) {
-        super("methode ping");
+        super(String.format("methode ping [%s]", methodeContentRepository.getClientRepositoryInfo()));
 
         this.methodeContentRepository = methodeContentRepository;
         this.maxPingMillis = maxPingMillis;
