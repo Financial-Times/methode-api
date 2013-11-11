@@ -31,4 +31,11 @@ public class PathHelperTest {
         assertTrue(folderIsAncestor(path, child));
     }
 
+    @Test
+    public void folderIsNotAncestorIfItIsAChild() {
+        final String[] path = {"asdf", "foo"};
+        final String[] child = {"asdf", "foo", "bar"};
+        assertFalse(folderIsAncestor(child,path)); // <-- reversed
+    }
+
 }
