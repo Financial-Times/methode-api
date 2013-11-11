@@ -141,4 +141,7 @@ public class MethodeFileRepository {
     }
 
 
+	public String getClientRepositoryInfo() {
+		return String.format("hostname: %s, nsPort: %d, userName: %s", client.getHostname(), client.getPort(), client.getUsername());
+	}
 }

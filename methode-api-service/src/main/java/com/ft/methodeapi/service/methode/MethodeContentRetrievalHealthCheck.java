@@ -2,12 +2,12 @@ package com.ft.methodeapi.service.methode;
 
 import com.yammer.metrics.core.HealthCheck;
 
-public class MethodeContentSearchHealthcheck extends HealthCheck {
+public class MethodeContentRetrievalHealthCheck extends HealthCheck {
 
     private final MethodeFileRepository methodeContentRepository;
 
-    public MethodeContentSearchHealthcheck(MethodeFileRepository methodeContentRepository) {
-        super("methode login");
+    public MethodeContentRetrievalHealthCheck(MethodeFileRepository methodeContentRepository) {
+        super(String.format("methode content retrieval [%s]", methodeContentRepository.getClientRepositoryInfo()));
         this.methodeContentRepository = methodeContentRepository;
     }
 

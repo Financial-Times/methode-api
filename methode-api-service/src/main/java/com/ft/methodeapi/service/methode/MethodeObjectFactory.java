@@ -34,6 +34,9 @@ public class MethodeObjectFactory {
     private final String username;
     private final String password;
     private final String orbClass;
+	private final String hostname;
+	private final int port;
+	private final int connectionTimeout;
     private final String orbInitRef;
 
     private final String orbSingletonClass;
@@ -52,15 +55,18 @@ public class MethodeObjectFactory {
     private final Timer createRepositoryTimer = metricsRegistry.newTimer(MethodeObjectFactory.class, "create-repository");
     private final Timer closeRepositoryTimer = metricsRegistry.newTimer(MethodeObjectFactory.class, "close-repository");
 
-    public MethodeObjectFactory(String hostname, int port, String username, String password, String orbClass, String orbSingletonClass) {
+    public MethodeObjectFactory(String hostname, int port, String username, String password, int connectionTimeout, String orbClass, String orbSingletonClass) {
+		this.hostname = hostname;
+		this.port = port;
         this.username = username;
         this.password = password;
+		this.connectionTimeout = connectionTimeout;
         this.orbClass = orbClass;
         this.orbSingletonClass = orbSingletonClass;
         orbInitRef = String.format("NS=corbaloc:iiop:%s:%d/NameService", hostname, port);    }
 
     public MethodeObjectFactory(Builder builder) {
-        this(builder.host, builder.port, builder.username, builder.password, builder.orbClass, builder.orbSingletonClass);
+        this(builder.host, builder.port, builder.username, builder.password, builder.connectionTimeout, builder.orbClass, builder.orbSingletonClass);
     }
 
     public Session createSession(Repository repository) {
@@ -118,6 +124,7 @@ public class MethodeObjectFactory {
                 {
                     setProperty("org.omg.CORBA.ORBClass", orbClass);
                     setProperty("org.omg.CORBA.ORBSingletonClass", orbSingletonClass);
+					setProperty("jacorb.connection.client.connect_timeout", "" + connectionTimeout);
                 }
             };
             return ORB.init(orbInits, properties);
@@ -166,12 +173,25 @@ public class MethodeObjectFactory {
         return new Builder();
     }
 
-    public static class Builder {
+	public String getHostname() {
+		return hostname;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public static class Builder {
 
         private String username;
         private String password;
         private String host;
         private int port;
+		private int connectionTimeout;
         private String orbClass;
         private String orbSingletonClass;
 
@@ -184,6 +204,11 @@ public class MethodeObjectFactory {
             this.password = password;
             return this;
         }
+
+		public Builder withConnectionTimeout(int connectionTimeout) {
+			this.connectionTimeout = connectionTimeout;
+			return this;
+		}
 
         public Builder withHost(String host) {
             this.host = host;
