@@ -1,0 +1,4 @@
+methodeApi:
+  host:  ftaps02494-lvpr-uk-t
+  port: 8080
+  adminPort: 8081
