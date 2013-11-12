@@ -1,5 +1,5 @@
-<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<!DOCTYPE ObjectMetadata SYSTEM \"/SysConfig/Classify/FTStories/classify.dtd\"><ObjectMetadata><EditorialDisplayIndexing><DILeadCompanies/>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ObjectMetadata SYSTEM "/SysConfig/Classify/FTStories/classify.dtd"><ObjectMetadata><EditorialDisplayIndexing><DILeadCompanies/>
 <DITemporaryCompanies><DITemporaryCompany><DICoTempCode/>
 <DICoTempDescriptor/>
 <DICoTickerCode/>
@@ -19,7 +19,7 @@
 <DIFTNFronts>Front</DIFTNFronts>
 </DIFTN>
 <DIFTcom><DIFTcomWebType>story</DIFTcomWebType>
-<DIFTcomDisplayCodes><DIFTcomDisplayCodeRank1><DIFTcomDisplayCode title=\"World - Brussels - Economy\"><DIFTcomDisplayCodeFTCode>WBEC</DIFTcomDisplayCodeFTCode>
+<DIFTcomDisplayCodes><DIFTcomDisplayCodeRank1><DIFTcomDisplayCode title="World - Brussels - Economy"><DIFTcomDisplayCodeFTCode>WBEC</DIFTcomDisplayCodeFTCode>
 <DIFTcomDisplayCodeDescriptor>World - Brussels - Economy</DIFTcomDisplayCodeDescriptor>
 <DIFTcomDisplayCodeNewsInDepth>True</DIFTcomDisplayCodeNewsInDepth>
 <DIFTcomDisplayCodeSite>FTcom</DIFTcomDisplayCodeSite>
@@ -28,7 +28,7 @@
 <DIFTcomDisplayCodeEditorsTag>EU Economy</DIFTcomDisplayCodeEditorsTag>
 </DIFTcomDisplayCode>
 </DIFTcomDisplayCodeRank1>
-<DIFTcomDisplayCodeRank2><DIFTcomDisplayCode title=\"World\"><DIFTcomDisplayCodeFTCode>WNIP</DIFTcomDisplayCodeFTCode>
+<DIFTcomDisplayCodeRank2><DIFTcomDisplayCode title="World"><DIFTcomDisplayCodeFTCode>WNIP</DIFTcomDisplayCodeFTCode>
 <DIFTcomDisplayCodeDescriptor>World</DIFTcomDisplayCodeDescriptor>
 <DIFTcomDisplayCodeNewsInDepth>True</DIFTcomDisplayCodeNewsInDepth>
 <DIFTcomDisplayCodeSite>FTcom</DIFTcomDisplayCodeSite>
@@ -36,7 +36,7 @@
 <DIFTcomDisplayCodeArticleBrand/>
 <DIFTcomDisplayCodeEditorsTag/>
 </DIFTcomDisplayCode>
-<DIFTcomDisplayCode title=\"Companies\"><DIFTcomDisplayCodeFTCode>BNIP</DIFTcomDisplayCodeFTCode>
+<DIFTcomDisplayCode title="Companies"><DIFTcomDisplayCodeFTCode>BNIP</DIFTcomDisplayCodeFTCode>
 <DIFTcomDisplayCodeDescriptor>Companies</DIFTcomDisplayCodeDescriptor>
 <DIFTcomDisplayCodeNewsInDepth>True</DIFTcomDisplayCodeNewsInDepth>
 <DIFTcomDisplayCodeSite>FTcom</DIFTcomDisplayCodeSite>
@@ -44,7 +44,7 @@
 <DIFTcomDisplayCodeArticleBrand/>
 <DIFTcomDisplayCodeEditorsTag/>
 </DIFTcomDisplayCode>
-<DIFTcomDisplayCode title=\"World - Europe\"><DIFTcomDisplayCodeFTCode>WNEU</DIFTcomDisplayCodeFTCode>
+<DIFTcomDisplayCode title="World - Europe"><DIFTcomDisplayCodeFTCode>WNEU</DIFTcomDisplayCodeFTCode>
 <DIFTcomDisplayCodeDescriptor>World - Europe</DIFTcomDisplayCodeDescriptor>
 <DIFTcomDisplayCodeNewsInDepth>True</DIFTcomDisplayCodeNewsInDepth>
 <DIFTcomDisplayCodeSite>FTcom</DIFTcomDisplayCodeSite>
@@ -52,7 +52,7 @@
 <DIFTcomDisplayCodeArticleBrand/>
 <DIFTcomDisplayCodeEditorsTag/>
 </DIFTcomDisplayCode>
-<DIFTcomDisplayCode title=\"Financials - Banks\"><DIFTcomDisplayCodeFTCode>B08K</DIFTcomDisplayCodeFTCode>
+<DIFTcomDisplayCode title="Financials - Banks"><DIFTcomDisplayCodeFTCode>B08K</DIFTcomDisplayCodeFTCode>
 <DIFTcomDisplayCodeDescriptor>Financials - Banks</DIFTcomDisplayCodeDescriptor>
 <DIFTcomDisplayCodeNewsInDepth>True</DIFTcomDisplayCodeNewsInDepth>
 <DIFTcomDisplayCodeSite>FTcom</DIFTcomDisplayCodeSite>
@@ -60,7 +60,7 @@
 <DIFTcomDisplayCodeArticleBrand/>
 <DIFTcomDisplayCodeEditorsTag>Banks</DIFTcomDisplayCodeEditorsTag>
 </DIFTcomDisplayCode>
-<DIFTcomDisplayCode title=\"Financials\"><DIFTcomDisplayCodeFTCode>NDFS</DIFTcomDisplayCodeFTCode>
+<DIFTcomDisplayCode title="Financials"><DIFTcomDisplayCodeFTCode>NDFS</DIFTcomDisplayCodeFTCode>
 <DIFTcomDisplayCodeDescriptor>Financials</DIFTcomDisplayCodeDescriptor>
 <DIFTcomDisplayCodeNewsInDepth>True</DIFTcomDisplayCodeNewsInDepth>
 <DIFTcomDisplayCodeSite>FTcom</DIFTcomDisplayCodeSite>
@@ -68,7 +68,7 @@
 <DIFTcomDisplayCodeArticleBrand/>
 <DIFTcomDisplayCodeEditorsTag>Financials</DIFTcomDisplayCodeEditorsTag>
 </DIFTcomDisplayCode>
-<DIFTcomDisplayCode title=\"World - Global Economy\"><DIFTcomDisplayCodeFTCode>WNIE</DIFTcomDisplayCodeFTCode>
+<DIFTcomDisplayCode title="World - Global Economy"><DIFTcomDisplayCodeFTCode>WNIE</DIFTcomDisplayCodeFTCode>
 <DIFTcomDisplayCodeDescriptor>World - Global Economy</DIFTcomDisplayCodeDescriptor>
 <DIFTcomDisplayCodeNewsInDepth>True</DIFTcomDisplayCodeNewsInDepth>
 <DIFTcomDisplayCodeSite>FTcom</DIFTcomDisplayCodeSite>
@@ -76,7 +76,7 @@
 <DIFTcomDisplayCodeArticleBrand/>
 <DIFTcomDisplayCodeEditorsTag>International Economy</DIFTcomDisplayCodeEditorsTag>
 </DIFTcomDisplayCode>
-<DIFTcomDisplayCode title=\"World - Brussels\"><DIFTcomDisplayCodeFTCode>WNBB</DIFTcomDisplayCodeFTCode>
+<DIFTcomDisplayCode title="World - Brussels"><DIFTcomDisplayCodeFTCode>WNBB</DIFTcomDisplayCodeFTCode>
 <DIFTcomDisplayCodeDescriptor>World - Brussels</DIFTcomDisplayCodeDescriptor>
 <DIFTcomDisplayCodeNewsInDepth>True</DIFTcomDisplayCodeNewsInDepth>
 <DIFTcomDisplayCodeSite>FTcom</DIFTcomDisplayCodeSite>
@@ -84,7 +84,7 @@
 <DIFTcomDisplayCodeArticleBrand/>
 <DIFTcomDisplayCodeEditorsTag/>
 </DIFTcomDisplayCode>
-<DIFTcomDisplayCode title=\"Companies by region - Europe\"><DIFTcomDisplayCodeFTCode>BNEU</DIFTcomDisplayCodeFTCode>
+<DIFTcomDisplayCode title="Companies by region - Europe"><DIFTcomDisplayCodeFTCode>BNEU</DIFTcomDisplayCodeFTCode>
 <DIFTcomDisplayCodeDescriptor>Companies by region - Europe</DIFTcomDisplayCodeDescriptor>
 <DIFTcomDisplayCodeNewsInDepth>True</DIFTcomDisplayCodeNewsInDepth>
 <DIFTcomDisplayCodeSite>FTcom</DIFTcomDisplayCodeSite>
@@ -138,7 +138,7 @@
 <Author>steenm</Author>
 <Guides/>
 <Editor/>
-<Sources><Source title=\"Financial Times\"><SourceCode>FT</SourceCode>
+<Sources><Source title="Financial Times"><SourceCode>FT</SourceCode>
 <SourceDescriptor>Financial Times</SourceDescriptor>
 <SourceOnlineInclusion>True</SourceOnlineInclusion>
 <SourceCanBeSyndicated>True</SourceCanBeSyndicated>
