@@ -3,6 +3,7 @@ package com.ft.methodeapi.service.methode;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.yammer.dropwizard.validation.MinSize;
 import com.yammer.dropwizard.validation.PortRange;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -76,7 +77,8 @@ public class MethodeConnectionConfiguration {
                 .add("methodeHostName", methodeHostName)
                 .add("methodePort", methodePort)
                 .add("methodeUserName", methodeUserName)
-                .add("methodePassword", methodePassword)
+                // OBFUSCATE PASSWORD!
+                .add("methodePassword", Strings.repeat("*",methodePassword.length()))
 				.add("connectTimeout", connectTimeout)
                 .add("orbClass", orbClass)
                 .add("orbSingletonClass", orbSingletonClass)

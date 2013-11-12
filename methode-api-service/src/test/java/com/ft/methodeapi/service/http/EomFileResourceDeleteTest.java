@@ -8,11 +8,11 @@ import static org.mockito.Mockito.mock;
 
 import java.util.UUID;
 
+import com.ft.methodeapi.service.methode.ActionNotPermittedException;
 import com.ft.methodeapi.service.methode.MethodeFileRepository;
 import com.ft.methodeapi.service.methode.NotFoundException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.yammer.dropwizard.testing.ResourceTest;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class EomFileResourceDeleteTest extends ResourceTest {
@@ -26,7 +26,6 @@ public class EomFileResourceDeleteTest extends ResourceTest {
     }
 
     @Test
-    @Ignore
     public void deleteShouldReturn404WhenNotFound() {
 
         final String uuid = UUID.randomUUID().toString();
@@ -35,5 +34,17 @@ public class EomFileResourceDeleteTest extends ResourceTest {
         final ClientResponse clientResponse = client().resource("/eom-file/").path(uuid).delete(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+    }
+
+
+    @Test
+    public void deleteShouldReturn403WhenNotPermitted() {
+
+        final String uuid = UUID.randomUUID().toString();
+        doThrow(new ActionNotPermittedException("synthetic permission error")).when(methodeFileRepository).deleteTestFileByUuid(uuid);
+
+        final ClientResponse clientResponse = client().resource("/eom-file/").path(uuid).delete(ClientResponse.class);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(403)));
     }
 }
