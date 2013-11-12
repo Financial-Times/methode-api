@@ -1,6 +1,7 @@
 package com.ft.methodeapi.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 public class EomFile {
@@ -69,6 +70,13 @@ public class EomFile {
         public Builder withAttributes(String attributes) {
             this.attributes = attributes;
             return this;
+        }
+        
+        public Builder withValuesFrom(EomFile eomFile) {
+        	return withUuid(eomFile.getUuid())
+        			.withType(eomFile.getType())
+        			.withValue(eomFile.getValue())
+        			.withAttributes(eomFile.getAttributes());
         }
 
         public EomFile build() {
