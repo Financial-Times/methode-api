@@ -1,6 +1,6 @@
-# Class: methode_bridge
+# Class: methode_api
 #
-# This module manages methode_bridge
+# This module manages methode_api
 #
 # Parameters:
 #
