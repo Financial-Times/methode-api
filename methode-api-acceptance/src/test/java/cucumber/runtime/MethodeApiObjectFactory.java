@@ -18,6 +18,10 @@ import java.util.Set;
 
 import static java.lang.String.format;
 
+/**
+ * This is loaded automagically by Cucumber, as long as there is only one implementation of ObjectFactory in runtime.
+ * Consult the expert if you have more questions: Neil Green.
+ */
 public class MethodeApiObjectFactory implements ObjectFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodeApiObjectFactory.class);
