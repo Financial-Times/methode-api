@@ -23,3 +23,13 @@ methodeTestConnection:
   connectTimeout: 2000
 
 maxPingMillis: 500
+
+logging:
+  file:
+    threshold: INFO
+    enabled: true
+    timeZone: UTC
+    currentLogFilename: /var/log/apps/methode-api-app.log
+    archive: true
+    archivedLogFilenamePattern: /var/log/apps/methode-api-app-%d.log.gz
+    archivedFileCount: 5
