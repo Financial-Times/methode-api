@@ -1,12 +1,20 @@
 http:
-    port: 9080
-    adminPort: 9081
+  port: 9080
+  adminPort: 9081
+  requestLog:
+    file:
+      enabled: true
+      timeZone: UTC
+      currentLogFilename: /var/log/apps/methode-api-access.log
+      archive: true
+      archivedLogFilenamePattern: /var/log/apps/methode-api-access-%d.log.gz
+      archivedFileCount: 5
 
 methodeConnection:
   hostName: preditor-methode-01.svc.ft.com
   nsPort: 9092
-  userName: automate1
-  password: automate1
+  userName: app-methodeAPI
+  password: methodeapi
   connectTimeout: 2000
 
 methodeTestConnection:
@@ -17,3 +25,4 @@ methodeTestConnection:
   connectTimeout: 2000
 
 maxPingMillis: 500
+
