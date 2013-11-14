@@ -1,6 +1,14 @@
 http:
-    port: 8080
-    adminPort: 8081
+  port: 8080
+  adminPort: 8081
+  requestLog:
+    file:
+      enabled: true
+      timeZone: UTC
+      currentLogFilename: /var/log/apps/methode-api-access.log
+      archive: true
+      archivedLogFilenamePattern: /var/log/apps/methode-api-access-%d.log.gz
+      archivedFileCount: 5
 methodeConnection:
   hostName: <%=scope.function_hiera('methodeHostName')%>
   nsPort: <%=scope.function_hiera('methodeNameServicePort')%>
@@ -15,3 +23,13 @@ methodeTestConnection:
   connectTimeout: 2000
 
 maxPingMillis: 500
+
+logging:
+  file:
+    threshold: INFO
+    enabled: true
+    timeZone: UTC
+    currentLogFilename: /var/log/apps/methode-api-app.log
+    archive: true
+    archivedLogFilenamePattern: /var/log/apps/methode-api-app-%d.log.gz
+    archivedFileCount: 5

@@ -11,11 +11,11 @@ import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -33,6 +33,14 @@ public class StepDefs {
     private static final Logger LOGGER = LoggerFactory.getLogger(StepDefs.class);
     public static final String HEADLINE_FROM_TEST_FILE = "Eurozone collapses ...! Kaboom.";
 
+    /**
+     * Used to identify XML that is not significant for comparison purposes when considering
+     * two examples of Methode attributes XML.
+     */
+    private static final String[] INSIGNIFICANT_XPATHS = {
+            "/ObjectMetadata/OutputChannels/DIFTcom/DIFTcomSafeToSyndicate" ,
+            "/ObjectMetadata/EditorialDisplayIndexing//DIBylineCopy" /* TODO we can resume testing this if the methode bug goes away */
+    };
 
     private AcceptanceTestConfiguration acceptanceTestConfiguration;
 
@@ -139,11 +147,16 @@ public class StepDefs {
 	@Then("^the article should have the expected metadata$")
 	public void the_article_should_have_the_expected_metadata() throws Throwable {
 		assertThat("uuid didn't match", from(theResponseEntity).getString("uuid"), equalTo(theUuid.toString()));
-        // TODO this needs uncommenting, or replacing with something more subtle.
-        //assertThat("text in attributes differed", from(theResponseEntity).getString("attributes"), equalTo(theExpectedArticle.getAttributes()));
+
+        String significantXmlSource = Xml.removeInsignificantXml(from(theResponseEntity).getString("attributes"), INSIGNIFICANT_XPATHS);
+        String expectedSignificantXmlSource = Xml.removeInsignificantXml(theExpectedArticle.getAttributes(), INSIGNIFICANT_XPATHS);
+
+        assertThat("significant XML in attributes differed", significantXmlSource, equalTo(expectedSignificantXmlSource));
 	}
-	
-	@Then("^the article should have the expected content$")
+
+
+
+    @Then("^the article should have the expected content$")
 	public void the_article_should_have_the_expected_content() throws Throwable {
         byte[] retreivedContent =  from(theResponseEntity).getObject("", EomFile.class).getValue();
         assertThat("bytes in file differed", retreivedContent, equalTo(theExpectedArticle.getValue()));
