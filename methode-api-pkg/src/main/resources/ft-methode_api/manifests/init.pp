@@ -15,6 +15,7 @@ class methode_api {
 
     class { 'nagios::client': }
     class { 'hosts::export': hostname => "$certname" }
+    class { 'methode_api::monitoring': }
 
     class { 'runnablejar':
         service_name => 'methode_api',
