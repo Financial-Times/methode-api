@@ -4,7 +4,7 @@ class methode_api::monitoring::nagios {
   "${::certname}/1":
     url           => "http://localhost/healthcheck",
     port          => "8081",
-    expect        => 'OK',
+    expect        => 'can search for content',
     size          => 1,
     action_url    => 'https://sites.google.com/a/ft.com/technology/',
     notes         => "Methode API health";
