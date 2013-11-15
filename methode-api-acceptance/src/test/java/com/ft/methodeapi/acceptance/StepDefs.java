@@ -1,6 +1,7 @@
 package com.ft.methodeapi.acceptance;
 
 import com.ft.methodeapi.model.EomFile;
+import com.ft.methodetesting.xml.Xml;
 import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
 import com.google.common.io.Resources;
@@ -13,7 +14,6 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 
 import java.util.ArrayList;
