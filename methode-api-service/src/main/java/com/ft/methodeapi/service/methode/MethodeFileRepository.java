@@ -91,12 +91,26 @@ public class MethodeFileRepository {
     private static final String TEST_FOLDER = "/FT Website Production/Z_Test/dyn_pub_test";
     private static final String[] PATH_TO_TEST_FOLDER = Utils.stringToPath(TEST_FOLDER);
 
+    /**
+     * WARNING
+     * This method is used by smoke tests in every environment including production.
+     * It is very important that creating and deleting of content in production methode
+     * is restricted to the TEST_FOLDER. If you make changes to the code below (or the
+     * methods it calls), please ensure that you do not allow writing or deleting outside this folder.
+     */
     public EomFile createNewTestFile(final String filename, final EomFile eomFile) {
         final MethodeSessionOperationTemplate<EomFile> template = new MethodeSessionOperationTemplate<>(testClient);
         final EomFile createdEomFile = template.doOperation(new CreateFileCallback(TEST_FOLDER, filename, eomFile));
         return createdEomFile;
     }
 
+    /**
+     * WARNING
+     * This method is used by smoke tests in every environment including production.
+     * It is very important that creating and deleting of content in production methode
+     * is restricted to the TEST_FOLDER. If you make changes to the code below (or the
+     * methods it calls), please ensure that you do not allow writing or deleting outside this folder.
+     */
     public void deleteTestFileByUuid(final String uuid) {
         final MethodeSessionOperationTemplate<Void> template = new MethodeSessionOperationTemplate<>(testClient);
         template.doOperation(new MethodeSessionOperationTemplate.SessionCallback<Void>() {

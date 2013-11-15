@@ -4,6 +4,14 @@ import EOM.*;
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate;
 
+/**
+ * WARNING
+ * This class is used by smoke tests in every environment including production.
+ * It is very important that creating and deleting of content in production methode
+ * is restricted to the TEST_FOLDER. If you make changes to the code below (or the
+ * methods it calls), please ensure that you do not allow writing or deleting outside this folder.
+ */
+
 public class CreateFileCallback implements MethodeSessionOperationTemplate.SessionCallback<EomFile> {
 
     private final String path;
