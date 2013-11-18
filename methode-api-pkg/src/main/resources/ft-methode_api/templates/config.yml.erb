@@ -9,6 +9,8 @@ http:
       archive: true
       archivedLogFilenamePattern: /var/log/apps/methode-api-dw-access-%d.log.gz
       archivedFileCount: 5
+    console:
+      enabled: false
 methodeConnection:
   hostName: <%=scope.function_hiera('methodeHostName')%>
   nsPort: <%=scope.function_hiera('methodeNameServicePort')%>
@@ -33,3 +35,5 @@ logging:
     archive: true
     archivedLogFilenamePattern: /var/log/apps/methode-api-dw-app-%d.log.gz
     archivedFileCount: 5
+  console:
+    enabled: false
