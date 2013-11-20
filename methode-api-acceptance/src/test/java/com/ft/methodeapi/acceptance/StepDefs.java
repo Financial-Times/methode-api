@@ -2,9 +2,8 @@ package com.ft.methodeapi.acceptance;
 
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodetesting.xml.Xml;
-import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
-import com.google.common.io.Resources;
+import com.ft.methodetesting.ReferenceArticles;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
@@ -23,6 +22,7 @@ import java.util.UUID;
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.config.DecoderConfig.decoderConfig;
+import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -31,7 +31,6 @@ import static com.jayway.restassured.path.json.JsonPath.from;
 public class StepDefs {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StepDefs.class);
-    public static final String HEADLINE_FROM_TEST_FILE = "Eurozone collapses ...! Kaboom.";
 
     /**
      * Used to identify XML that is not significant for comparison purposes when considering
@@ -55,7 +54,9 @@ public class StepDefs {
     public StepDefs(AcceptanceTestConfiguration acceptanceTestConfiguration) throws IOException {
     	this.acceptanceTestConfiguration = acceptanceTestConfiguration;
 
-		RestAssured.config= newConfig().decoderConfig((decoderConfig().defaultContentCharset("UTF-8")));
+		RestAssured.config= newConfig()
+                .decoderConfig((decoderConfig().defaultContentCharset("UTF-8")))
+                .encoderConfig((encoderConfig().defaultContentCharset("UTF-8")));
     }
 
     @Before
@@ -105,19 +106,13 @@ public class StepDefs {
 	}
 
     private void prepareTheArticle() throws IOException {
-        String exampleArticleXml = readFromFile("exampleArticleData.txt");
-        String attributesXml = readFromFile("exampleArticleAttributes.txt");
 
         String stampedHeadline = String.format("Proudly tested with robotic consistency [Build %s]", buildNo());
-        exampleArticleXml = exampleArticleXml.replace(HEADLINE_FROM_TEST_FILE,stampedHeadline);
-        attributesXml = attributesXml.replace(HEADLINE_FROM_TEST_FILE,stampedHeadline);
+        theExpectedArticle = ReferenceArticles.publishedKitchenSinkArticle()
+                .withHeadline(stampedHeadline)
+                .build().getEomFile();
 
-        LOGGER.debug("Test article headline={}, articleXml={}, attributeXml={}",stampedHeadline, exampleArticleXml,attributesXml);
-
-        theExpectedArticle = new EomFile("","EOM::CompoundStory",
-                exampleArticleXml.getBytes(Charsets.UTF_8),
-                attributesXml
-            );
+        LOGGER.debug("Test article headline={}, articleXml={}, attributeXml={}",stampedHeadline, theExpectedArticle.getValue(),theExpectedArticle.getAttributes());
     }
 
     private String buildNo() {
@@ -162,19 +157,6 @@ public class StepDefs {
         assertThat("bytes in file differed", retreivedContent, equalTo(theExpectedArticle.getValue()));
 	}
 
-
-    private byte[] readBytesFromFile(String resourceName) throws IOException {
-        return Resources.asByteSource(Resources.getResource(resourceName)).read();
-    }
-
-	private String readFromFile(String resourceName) throws IOException {
-		String bodyFromFile = Resources.toString(Resources.getResource(resourceName), Charsets.UTF_8);
-		// because what we get back from the API uses UNIX line encodings, but when working locally on Windows, the expected file will have \r\n
-		if (System.getProperty("line.separator").equals("\r\n")) {
-			bodyFromFile = bodyFromFile.replace("\r", "");
-		}
-		return bodyFromFile;
-	}
 
 	private void given_service_is_running(final String url) throws Throwable {
 		LOGGER.info("Checking service is running: url=" + url);
