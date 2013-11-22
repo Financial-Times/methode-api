@@ -2,6 +2,11 @@ package com.ft.methodeapi.service.methode;
 
 import static com.ft.methodeapi.service.methode.PathHelper.folderIsAncestor;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import EOM.File;
 import EOM.FileSystemAdmin;
 import EOM.FileSystemAdminHelper;
@@ -14,6 +19,7 @@ import EOM.Repository;
 import EOM.RepositoryError;
 import EOM.Session;
 import EOM.Utils;
+
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodeapi.service.methode.templates.MethodeRepositoryOperationTemplate;
 import com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate;
@@ -153,6 +159,49 @@ public class MethodeFileRepository {
             }
         });
     }
+    
+    public Map<String, String> getAssetTypes(final Set<String> assetIdentifiers){
+    	final MethodeSessionOperationTemplate<Map<String, String>> template = new MethodeSessionOperationTemplate<>(testClient);
+        MethodeSessionOperationTemplate.SessionCallback<Map<String, String>> callback = new MethodeSessionOperationTemplate.SessionCallback<Map<String, String>>() {
+        	final Map<String, String> assetTypes = new HashMap<>();
+            @Override
+            public Map<String, String>  doOperation(Session session, Repository repository) {
+                final FileSystemAdmin fileSystemAdmin;
+                try {
+                    fileSystemAdmin = FileSystemAdminHelper.narrow(session.resolve_initial_references("FileSystemAdmin"));
+                } catch (ObjectNotFound | RepositoryError | PermissionDenied e) {
+                    throw new MethodeException(e);
+                }
+
+                for(String assetId : assetIdentifiers){
+        			
+                	if(!assetTypes.containsKey(assetId)){
+		                final String uri = "eom:/uuids/" + assetId;
+		
+		                final FileSystemObject fso;
+		                try {
+		                	fso = fileSystemAdmin.get_object_with_uri(uri);
+	                        final File eomFile = EOM.FileHelper.narrow(fso);
+	                        final String typeName = eomFile.get_type_name();
+	                        assetTypes.put(assetId, typeName);
+	                        eomFile._release();
+		                } catch (InvalidURI e) {
+		                    throw new NotFoundException(assetId);
+		                } catch (PermissionDenied | RepositoryError e) {
+		                    throw new MethodeException(e);
+		                } finally {
+		                    fileSystemAdmin._release();
+		                }
+                	}
+                }
+
+                return assetTypes;
+            }
+        };
+		return template.doOperation(callback);
+		
+	}
+    
 
 
 	public String getClientRepositoryInfo() {
