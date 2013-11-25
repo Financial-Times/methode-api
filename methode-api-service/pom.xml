@@ -97,6 +97,10 @@
             <artifactId>dropwizard-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.codehaus.woodstox</groupId>
+            <artifactId>stax2-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.eidosmedia.mps</groupId>
             <artifactId>emmethodelibs</artifactId>
         </dependency>

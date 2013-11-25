@@ -1,6 +1,7 @@
 package com.ft.methodeapi;
 
 import com.ft.methodeapi.service.methode.MethodeContentRetrievalHealthCheck;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +11,7 @@ import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.methodeapi.service.methode.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.MethodePingHealthCheck;
 import com.ft.methodeapi.service.http.EomFileResource;
+import com.ft.methodeapi.service.http.GetAssetTypeResource;
 import com.ft.methodeapi.service.methode.MethodeFileRepository;
 import com.ft.methodeapi.service.methode.MethodeConnectionConfiguration;
 import com.yammer.dropwizard.Service;
@@ -41,6 +43,7 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
         environment.addResource(new EomFileResource(methodeContentRepository));
         environment.addResource(new VersionResource(MethodeApiService.class));
         environment.addResource(new BuildInfoResource());
+        environment.addResource(new GetAssetTypeResource(methodeContentRepository));
         environment.addHealthCheck(new MethodePingHealthCheck(methodeContentRepository, configuration.getMaxPingMillis()));
         environment.addHealthCheck(new MethodeContentRetrievalHealthCheck(methodeContentRepository));
         environment.addProvider(new RuntimeExceptionMapper());

@@ -2,10 +2,20 @@ package com.ft.methodeapi.service.methode;
 
 import static com.ft.methodeapi.service.methode.PathHelper.folderIsAncestor;
 
+import java.io.StringReader;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.XMLEvent;
+
+import org.codehaus.stax2.XMLInputFactory2;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import EOM.File;
 import EOM.FileSystemAdmin;
@@ -20,6 +30,7 @@ import EOM.RepositoryError;
 import EOM.Session;
 import EOM.Utils;
 
+import com.ft.methodeapi.model.EomAssetType;
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodeapi.service.methode.templates.MethodeRepositoryOperationTemplate;
 import com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate;
@@ -27,6 +38,9 @@ import com.google.common.base.Optional;
 import com.yammer.metrics.annotation.Timed;
 
 public class MethodeFileRepository {
+	
+	private static final Logger logger = LoggerFactory.getLogger(MethodeFileRepository.class);
+	private static final String METHODE_WEB_TYPE = "DIFTcomWebType";
 
     private final MethodeObjectFactory client;
     private final MethodeObjectFactory testClient;
@@ -160,12 +174,13 @@ public class MethodeFileRepository {
         });
     }
     
-    public Map<String, String> getAssetTypes(final Set<String> assetIdentifiers){
-    	final MethodeSessionOperationTemplate<Map<String, String>> template = new MethodeSessionOperationTemplate<>(testClient);
-        MethodeSessionOperationTemplate.SessionCallback<Map<String, String>> callback = new MethodeSessionOperationTemplate.SessionCallback<Map<String, String>>() {
-        	final Map<String, String> assetTypes = new HashMap<>();
+    @Timed
+    public Map<String, EomAssetType> getAssetTypes(final Set<String> assetIdentifiers){
+    	final MethodeSessionOperationTemplate<Map<String, EomAssetType>> template = new MethodeSessionOperationTemplate<>(client);
+        MethodeSessionOperationTemplate.SessionCallback<Map<String, EomAssetType>> callback = new MethodeSessionOperationTemplate.SessionCallback<Map<String, EomAssetType>>() {
+        	final Map<String, EomAssetType> assetTypes = new HashMap<>();
             @Override
-            public Map<String, String>  doOperation(Session session, Repository repository) {
+            public Map<String, EomAssetType>  doOperation(Session session, Repository repository) {
                 final FileSystemAdmin fileSystemAdmin;
                 try {
                     fileSystemAdmin = FileSystemAdminHelper.narrow(session.resolve_initial_references("FileSystemAdmin"));
@@ -183,23 +198,54 @@ public class MethodeFileRepository {
 		                	fso = fileSystemAdmin.get_object_with_uri(uri);
 	                        final File eomFile = EOM.FileHelper.narrow(fso);
 	                        final String typeName = eomFile.get_type_name();
-	                        assetTypes.put(assetId, typeName);
+	                        final Optional<String> webType = getMethodeWebType(eomFile.get_attributes()); 
+	                        assetTypes.put(assetId, new EomAssetType(assetId, typeName, webType));
 	                        eomFile._release();
 		                } catch (InvalidURI e) {
-		                    throw new NotFoundException(assetId);
-		                } catch (PermissionDenied | RepositoryError e) {
-		                    throw new MethodeException(e);
-		                } finally {
+		                	logger.debug("Uri: {} for asset with identifier: {} is invalid", uri, assetId);
+		                } catch (PermissionDenied e) {
+		                	logger.debug("Permission denied for asset with identifier: {} is invalid", assetId);
+		                } catch (XMLStreamException e) {
+		                	logger.debug("Error when parsing attributes for asset : {}", assetId);
+						} catch (RepositoryError e) {
+							logger.debug("CORBA Repository error when getting asset with identifier: {}", assetId);
+						} finally {
 		                    fileSystemAdmin._release();
 		                }
                 	}
                 }
-
+                
+                logger.debug("Size of map :" + assetTypes.size());
                 return assetTypes;
             }
         };
 		return template.doOperation(callback);
 		
+	}
+    
+    private Optional<String> getMethodeWebType(String attributes) throws XMLStreamException{
+		Objects.requireNonNull(attributes, "Methode attributes should not be null");
+		
+        boolean diftcomWebType = false;
+        
+        XMLInputFactory xmlInputFactory =  XMLInputFactory2.newInstance();
+        XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(new StringReader(attributes));
+        
+        while (xmlEventReader.hasNext()) {
+        	XMLEvent xmlEvent = xmlEventReader.nextEvent();
+            if(xmlEvent.isStartElement() && xmlEvent.asStartElement().getName().toString().equals(METHODE_WEB_TYPE)){
+            	diftcomWebType = true;
+            }
+            
+            if(xmlEvent.isEndElement() && xmlEvent.asEndElement().getName().toString().equals(METHODE_WEB_TYPE)){
+            	diftcomWebType = false;
+            }
+            
+            if(xmlEvent.isCharacters() && diftcomWebType){
+            	return Optional.fromNullable(xmlEvent.asCharacters().getData());
+            }
+        }
+		return Optional.absent();
 	}
     
 
