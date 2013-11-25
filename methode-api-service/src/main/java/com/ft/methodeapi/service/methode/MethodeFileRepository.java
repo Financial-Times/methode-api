@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -40,7 +41,8 @@ import com.yammer.metrics.annotation.Timed;
 public class MethodeFileRepository {
 	
 	private static final Logger logger = LoggerFactory.getLogger(MethodeFileRepository.class);
-	private static final String METHODE_WEB_TYPE = "DIFTcomWebType";
+	
+	private static final String METHODE_WEB_TYPE = "SourceCode";
 
     private final MethodeObjectFactory client;
     private final MethodeObjectFactory testClient;
@@ -175,7 +177,7 @@ public class MethodeFileRepository {
     }
     
     @Timed
-    public Map<String, EomAssetType> getAssetTypes(final Set<String> assetIdentifiers){
+    public Map<String, EomAssetType> getAssetTypes(final Set<UUID> assetIdentifiers){
     	final MethodeSessionOperationTemplate<Map<String, EomAssetType>> template = new MethodeSessionOperationTemplate<>(client);
         MethodeSessionOperationTemplate.SessionCallback<Map<String, EomAssetType>> callback = new MethodeSessionOperationTemplate.SessionCallback<Map<String, EomAssetType>>() {
         	final Map<String, EomAssetType> assetTypes = new HashMap<>();
@@ -188,7 +190,8 @@ public class MethodeFileRepository {
                     throw new MethodeException(e);
                 }
 
-                for(String assetId : assetIdentifiers){
+                for(UUID uuid : assetIdentifiers){
+                	String assetId  = uuid.toString(); 
         			
                 	if(!assetTypes.containsKey(assetId)){
 		                final String uri = "eom:/uuids/" + assetId;
@@ -198,8 +201,8 @@ public class MethodeFileRepository {
 		                	fso = fileSystemAdmin.get_object_with_uri(uri);
 	                        final File eomFile = EOM.FileHelper.narrow(fso);
 	                        final String typeName = eomFile.get_type_name();
-	                        final Optional<String> webType = getMethodeWebType(eomFile.get_attributes()); 
-	                        assetTypes.put(assetId, new EomAssetType(assetId, typeName, webType));
+	                        Optional<String> sourceCode = getSourceCode(eomFile.get_attributes());
+	                        assetTypes.put(assetId, new EomAssetType(assetId, typeName, sourceCode));
 	                        eomFile._release();
 		                } catch (InvalidURI e) {
 		                	logger.debug("Uri: {} for asset with identifier: {} is invalid", uri, assetId);
@@ -215,15 +218,17 @@ public class MethodeFileRepository {
                 	}
                 }
                 
-                logger.debug("Size of map :" + assetTypes.size());
+                logger.debug("Successfully resolved type for {} assets :" + assetTypes.size());
                 return assetTypes;
             }
+
+            
         };
 		return template.doOperation(callback);
 		
 	}
     
-    private Optional<String> getMethodeWebType(String attributes) throws XMLStreamException{
+    private Optional<String> getSourceCode(String attributes) throws XMLStreamException{
 		Objects.requireNonNull(attributes, "Methode attributes should not be null");
 		
         boolean diftcomWebType = false;
