@@ -188,31 +188,41 @@ public class MethodeFileRepository {
 
                 for(UUID uuid : assetIdentifiers){
                 	String assetId  = uuid.toString(); 
-        			
+                	EomAssetType eomAssetType;
                 	if(!assetTypes.containsKey(assetId)){
 		                final String uri = "eom:/uuids/" + assetId;
-		
-		                final FileSystemObject fso;
-		                try {
-		                	fso = fileSystemAdmin.get_object_with_uri(uri);
-	                        final File eomFile = EOM.FileHelper.narrow(fso);
-	                        final String typeName = eomFile.get_type_name();
-	                        Optional<String> sourceCode = new MethodeSourceCodeExtractor(eomFile.get_attributes()).extract();
-	                        assetTypes.put(assetId, new EomAssetType(assetId, typeName, sourceCode));
-	                        eomFile._release();
-		                } catch (InvalidURI e) {
+
+		                final EomAssetType.Builder assetTypeBuilder= new EomAssetType.Builder();
+		                try{
+		                	final FileSystemObject fso = fileSystemAdmin.get_object_with_uri(uri);
+			                try {
+		                        final File eomFile = EOM.FileHelper.narrow(fso);
+		                        final String typeName = eomFile.get_type_name();
+		                        Optional<String> sourceCode = new MethodeSourceCodeExtractor(eomFile.get_attributes()).extract();
+		                        eomAssetType = assetTypeBuilder.uuid(assetId).type(typeName).sourceCode(sourceCode).build();
+			                } catch (XMLStreamException e) {
+			                	eomAssetType = assetTypeBuilder.uuid(assetId).error("Error when parsing attributes for asset").build();
+								logger.debug("Error when parsing attributes for asset : {}", assetId);
+							}finally{
+								fso._release();
+							}
+                		} catch (InvalidURI e) {
 		                	logger.debug("Uri: {} for asset with identifier: {} is invalid", uri, assetId);
+		                	throw new MethodeException("Invalid URI");
 		                } catch (PermissionDenied e) {
 		                	logger.debug("Permission denied for asset with identifier: {} is invalid", assetId);
-		                } catch (XMLStreamException e) {
-		                	logger.debug("Error when parsing attributes for asset : {}", assetId);
+		                	throw new MethodeException("Permission Denied");
 						} catch (RepositoryError e) {
-							logger.debug("CORBA Repository error when getting asset with identifier: {}", assetId);
-						} finally {
-		                    fileSystemAdmin._release();
-		                }
+							logger.debug("EOM Repository error when getting asset with identifier: {}", assetId);
+							throw new MethodeException("EOM Repository error when getting asset ");
+						} catch (MethodeException e){
+							eomAssetType = assetTypeBuilder.uuid(assetId).error("Internal Repository Error when trying to get the asset").build();
+						}
+		                assetTypes.put(assetId, eomAssetType);
                 	}
                 }
+                
+                fileSystemAdmin._release();
                 
                 logger.debug("Successfully resolved type for {} assets :" + assetTypes.size());
                 return assetTypes;
