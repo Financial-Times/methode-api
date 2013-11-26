@@ -172,7 +172,7 @@ public class MethodeFileRepository {
     }
     
     @Timed
-    public Map<String, EomAssetType> getAssetTypes(final Set<UUID> assetIdentifiers){
+    public Map<String, EomAssetType> getAssetTypes(final Set<String> assetIdentifiers){
     	final MethodeSessionOperationTemplate<Map<String, EomAssetType>> template = new MethodeSessionOperationTemplate<>(client);
         MethodeSessionOperationTemplate.SessionCallback<Map<String, EomAssetType>> callback = new MethodeSessionOperationTemplate.SessionCallback<Map<String, EomAssetType>>() {
         	final Map<String, EomAssetType> assetTypes = new HashMap<>();
@@ -186,11 +186,10 @@ public class MethodeFileRepository {
                     throw new MethodeException(e);
                 }
 
-                for(UUID uuid : assetIdentifiers){
-                	String assetId  = uuid.toString(); 
+                for(String assetId : assetIdentifiers){
                 	EomAssetType eomAssetType;
                 	if(!assetTypes.containsKey(assetId)){
-		                final String uri = "eom:/uuids/" + assetId;
+                		final String uri = getAssetURI(assetId);
 
 		                final EomAssetType.Builder assetTypeBuilder= new EomAssetType.Builder();
 		                try{
@@ -199,7 +198,7 @@ public class MethodeFileRepository {
 		                        final File eomFile = EOM.FileHelper.narrow(fso);
 		                        final String typeName = eomFile.get_type_name();
 		                        Optional<String> sourceCode = new MethodeSourceCodeExtractor(eomFile.get_attributes()).extract();
-		                        eomAssetType = assetTypeBuilder.uuid(assetId).type(typeName).sourceCode(sourceCode).build();
+		                        eomAssetType = assetTypeBuilder.uuid(eomFile.get_uuid_string()).type(typeName).sourceCode(sourceCode).build();
 			                } catch (XMLStreamException e) {
 			                	eomAssetType = assetTypeBuilder.uuid(assetId).error("Error when parsing attributes for asset").build();
 								logger.debug("Error when parsing attributes for asset : {}", assetId);
@@ -225,11 +224,26 @@ public class MethodeFileRepository {
                 logger.debug("Successfully resolved type for {} assets :" + assetTypes.size());
                 return assetTypes;
             }
-
-            
         };
 		return template.doOperation(callback);
 		
+	}
+    
+    private String getAssetURI(String assetId) {
+		if(isUUID(assetId)){
+			return "eom:/uuids/" + assetId;
+		}else{
+			return assetId;
+		}
+	}
+    
+    private boolean isUUID(String assetId) {
+		try{
+			UUID.fromString(assetId);
+			return true;
+		}catch(Exception e){
+			return false;
+		}
 	}
     
 

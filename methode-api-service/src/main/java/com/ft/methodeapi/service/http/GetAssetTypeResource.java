@@ -2,7 +2,6 @@ package com.ft.methodeapi.service.http;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -36,7 +35,7 @@ public class GetAssetTypeResource {
     @Timed
     @Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-    public Map<String, EomAssetType> getByUuid(final Set<UUID> assetIdentifiers) {
+    public Map<String, EomAssetType> getByUuid(final Set<String> assetIdentifiers) {
         try {
             return methodeFileRepository.getAssetTypes(assetIdentifiers);
         } catch(NotFoundException e){
