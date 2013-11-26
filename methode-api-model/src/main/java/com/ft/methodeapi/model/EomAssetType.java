@@ -30,6 +30,4 @@ public class EomAssetType {
 			return "";
 		return sourceCode.get();
 	}
-
-
 }
