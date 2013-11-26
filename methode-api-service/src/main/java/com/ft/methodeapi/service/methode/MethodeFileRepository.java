@@ -208,15 +208,13 @@ public class MethodeFileRepository {
 							}
                 		} catch (InvalidURI e) {
 		                	logger.debug("Uri: {} for asset with identifier: {} is invalid", uri, assetId);
-		                	throw new MethodeException("Invalid URI");
+		                	eomAssetType = assetTypeBuilder.uuid(assetId).error("Invalid URI").build();
 		                } catch (PermissionDenied e) {
 		                	logger.debug("Permission denied for asset with identifier: {} is invalid", assetId);
-		                	throw new MethodeException("Permission Denied");
+		                	eomAssetType = assetTypeBuilder.uuid(assetId).error("Permission Denied").build();
 						} catch (RepositoryError e) {
 							logger.debug("EOM Repository error when getting asset with identifier: {}", assetId);
-							throw new MethodeException("EOM Repository error when getting asset ");
-						} catch (MethodeException e){
-							eomAssetType = assetTypeBuilder.uuid(assetId).error("Internal Repository Error when trying to get the asset").build();
+							eomAssetType = assetTypeBuilder.uuid(assetId).error("EOM Repository error when getting asset ").build();
 						}
 		                assetTypes.put(assetId, eomAssetType);
                 	}
