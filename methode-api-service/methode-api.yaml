@@ -5,9 +5,9 @@ http:
     file:
       enabled: true
       timeZone: UTC
-      currentLogFilename: /var/log/apps/methode-api-access.log
+      currentLogFilename: /var/log/apps/methode-api-dw-access.log
       archive: true
-      archivedLogFilenamePattern: /var/log/apps/methode-api-access-%d.log.gz
+      archivedLogFilenamePattern: /var/log/apps/methode-api-dw-access-%d.log.gz
       archivedFileCount: 5
 
 methodeConnection:
@@ -31,8 +31,8 @@ logging:
     threshold: INFO
     enabled: true
     timeZone: UTC
-    currentLogFilename: /var/log/apps/methode-api-app.log
+    currentLogFilename: /var/log/apps/methode-api-dw-app.log
     archive: true
-    archivedLogFilenamePattern: /var/log/apps/methode-api-app-%d.log.gz
+    archivedLogFilenamePattern: /var/log/apps/methode-api-dw-app-%d.log.gz
     archivedFileCount: 5
 
