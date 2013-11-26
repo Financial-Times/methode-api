@@ -67,7 +67,7 @@ public class MethodeFileRepository {
 
         callback=new MethodeSessionOperationTemplate.SessionCallback<Optional<EomFile>>() {
             @Override
-            public Optional<EomFile> doOperation(Session session, Repository repository) {
+            public Optional<EomFile> doOperation(Session session) {
 				final FileSystemAdmin fileSystemAdmin;
 				try {
 					fileSystemAdmin = EOM.FileSystemAdminHelper.narrow(session.resolve_initial_references(FILE_SYSTEM_ADMIN));
@@ -132,7 +132,7 @@ public class MethodeFileRepository {
         final MethodeSessionOperationTemplate<Void> template = new MethodeSessionOperationTemplate<>(testClient);
         template.doOperation(new MethodeSessionOperationTemplate.SessionCallback<Void>() {
             @Override
-            public Void doOperation(Session session, Repository repository) {
+            public Void doOperation(Session session) {
                 final FileSystemAdmin fileSystemAdmin;
                 try {
                     fileSystemAdmin = FileSystemAdminHelper.narrow(session.resolve_initial_references(FILE_SYSTEM_ADMIN));
@@ -177,7 +177,7 @@ public class MethodeFileRepository {
         MethodeSessionOperationTemplate.SessionCallback<Map<String, EomAssetType>> callback = new MethodeSessionOperationTemplate.SessionCallback<Map<String, EomAssetType>>() {
         	final Map<String, EomAssetType> assetTypes = new HashMap<>();
             @Override
-            public Map<String, EomAssetType>  doOperation(Session session, Repository repository) {
+            public Map<String, EomAssetType>  doOperation(Session session) {
             	
                 final FileSystemAdmin fileSystemAdmin;
                 try {

@@ -52,7 +52,7 @@ public class MethodeSessionOperationTemplateTest {
 
         sut.doOperation(new MethodeSessionOperationTemplate.SessionCallback<Object>() {
             @Override
-            public Object doOperation(Session session, Repository repository) {
+            public Object doOperation(Session session) {
                 return null;
             }
         });

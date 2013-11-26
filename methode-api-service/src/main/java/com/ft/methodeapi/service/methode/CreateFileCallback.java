@@ -26,7 +26,7 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
     }
 
     @Override
-    public EomFile doOperation(Session session, Repository repository) {
+    public EomFile doOperation(Session session) {
 
         final ObjectTypeAdmin objectTypeAdmin;
         final FileSystemAdmin fileSystemAdmin;

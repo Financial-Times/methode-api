@@ -30,7 +30,7 @@ public class MethodeSessionOperationTemplate<T> {
                 try {
                     session = client.createSession(repository);
 
-                    return callback.doOperation(session,repository);
+                    return callback.doOperation(session);
 
                 } finally {
                     client.maybeCloseSession(session);
@@ -48,7 +48,7 @@ public class MethodeSessionOperationTemplate<T> {
 
     public static interface SessionCallback<T> {
 
-        public T doOperation(Session session, Repository repository);
+        public T doOperation(Session session);
 
     }
 }
