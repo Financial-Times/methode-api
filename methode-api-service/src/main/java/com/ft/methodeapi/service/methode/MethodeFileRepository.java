@@ -2,19 +2,13 @@ package com.ft.methodeapi.service.methode;
 
 import static com.ft.methodeapi.service.methode.PathHelper.folderIsAncestor;
 
-import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.XMLEvent;
 
-import org.codehaus.stax2.XMLInputFactory2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,9 +34,10 @@ import com.yammer.metrics.annotation.Timed;
 
 public class MethodeFileRepository {
 	
+
 	private static final Logger logger = LoggerFactory.getLogger(MethodeFileRepository.class);
 	
-	private static final String METHODE_WEB_TYPE = "SourceCode";
+	private static final String FILE_SYSTEM_ADMIN = "FileSystemAdmin";
 
     private final MethodeObjectFactory client;
     private final MethodeObjectFactory testClient;
@@ -75,7 +70,7 @@ public class MethodeFileRepository {
             public Optional<EomFile> doOperation(Session session, Repository repository) {
 				final FileSystemAdmin fileSystemAdmin;
 				try {
-					fileSystemAdmin = EOM.FileSystemAdminHelper.narrow(session.resolve_initial_references("FileSystemAdmin"));
+					fileSystemAdmin = EOM.FileSystemAdminHelper.narrow(session.resolve_initial_references(FILE_SYSTEM_ADMIN));
 				} catch (ObjectNotFound | RepositoryError | PermissionDenied e) {
 					throw new MethodeException(e);
 				}
@@ -140,7 +135,7 @@ public class MethodeFileRepository {
             public Void doOperation(Session session, Repository repository) {
                 final FileSystemAdmin fileSystemAdmin;
                 try {
-                    fileSystemAdmin = FileSystemAdminHelper.narrow(session.resolve_initial_references("FileSystemAdmin"));
+                    fileSystemAdmin = FileSystemAdminHelper.narrow(session.resolve_initial_references(FILE_SYSTEM_ADMIN));
                 } catch (ObjectNotFound | RepositoryError | PermissionDenied e) {
                     throw new MethodeException(e);
                 }
@@ -183,9 +178,10 @@ public class MethodeFileRepository {
         	final Map<String, EomAssetType> assetTypes = new HashMap<>();
             @Override
             public Map<String, EomAssetType>  doOperation(Session session, Repository repository) {
+            	
                 final FileSystemAdmin fileSystemAdmin;
                 try {
-                    fileSystemAdmin = FileSystemAdminHelper.narrow(session.resolve_initial_references("FileSystemAdmin"));
+                    fileSystemAdmin = FileSystemAdminHelper.narrow(session.resolve_initial_references(FILE_SYSTEM_ADMIN));
                 } catch (ObjectNotFound | RepositoryError | PermissionDenied e) {
                     throw new MethodeException(e);
                 }
@@ -201,7 +197,7 @@ public class MethodeFileRepository {
 		                	fso = fileSystemAdmin.get_object_with_uri(uri);
 	                        final File eomFile = EOM.FileHelper.narrow(fso);
 	                        final String typeName = eomFile.get_type_name();
-	                        Optional<String> sourceCode = getSourceCode(eomFile.get_attributes());
+	                        Optional<String> sourceCode = new MethodeSourceCodeExtractor(eomFile.get_attributes()).extract();
 	                        assetTypes.put(assetId, new EomAssetType(assetId, typeName, sourceCode));
 	                        eomFile._release();
 		                } catch (InvalidURI e) {
@@ -228,32 +224,6 @@ public class MethodeFileRepository {
 		
 	}
     
-    private Optional<String> getSourceCode(String attributes) throws XMLStreamException{
-		Objects.requireNonNull(attributes, "Methode attributes should not be null");
-		
-        boolean diftcomWebType = false;
-        
-        XMLInputFactory xmlInputFactory =  XMLInputFactory2.newInstance();
-        XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(new StringReader(attributes));
-        
-        while (xmlEventReader.hasNext()) {
-        	XMLEvent xmlEvent = xmlEventReader.nextEvent();
-            if(xmlEvent.isStartElement() && xmlEvent.asStartElement().getName().toString().equals(METHODE_WEB_TYPE)){
-            	diftcomWebType = true;
-            }
-            
-            if(xmlEvent.isEndElement() && xmlEvent.asEndElement().getName().toString().equals(METHODE_WEB_TYPE)){
-            	diftcomWebType = false;
-            }
-            
-            if(xmlEvent.isCharacters() && diftcomWebType){
-            	return Optional.fromNullable(xmlEvent.asCharacters().getData());
-            }
-        }
-		return Optional.absent();
-	}
-    
-
 
 	public String getClientRepositoryInfo() {
 		return String.format("hostname: %s, nsPort: %d, userName: %s", client.getHostname(), client.getPort(), client.getUsername());
