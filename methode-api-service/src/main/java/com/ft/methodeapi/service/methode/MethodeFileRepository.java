@@ -10,15 +10,12 @@ import org.slf4j.LoggerFactory;
 
 import EOM.File;
 import EOM.FileSystemAdmin;
-import EOM.FileSystemAdminHelper;
 import EOM.FileSystemObject;
 import EOM.InvalidURI;
 import EOM.ObjectLocked;
-import EOM.ObjectNotFound;
 import EOM.PermissionDenied;
 import EOM.Repository;
 import EOM.RepositoryError;
-import EOM.Session;
 import EOM.Utils;
 
 import com.ft.methodeapi.model.EomAssetType;
@@ -33,8 +30,6 @@ public class MethodeFileRepository {
 	
 	private static final Logger logger = LoggerFactory.getLogger(MethodeFileRepository.class);
 	
-	private static final String FILE_SYSTEM_ADMIN = "FileSystemAdmin";
-
     private final MethodeObjectFactory client;
     private final MethodeObjectFactory testClient;
 
@@ -57,18 +52,11 @@ public class MethodeFileRepository {
     @Timed
     public Optional<EomFile> findFileByUuid(final String uuid) {
 
-        final MethodeSessionOperationTemplate<Optional<EomFile>> template = new MethodeSessionOperationTemplate<>(client);
+        final MethodeFileSystemAdminOperationTemplate<Optional<EomFile>> template = new MethodeFileSystemAdminOperationTemplate<>(client);
 
-        MethodeSessionOperationTemplate.SessionCallback<Optional<EomFile>> callback = new MethodeSessionOperationTemplate.SessionCallback<Optional<EomFile>>() {
+        MethodeFileSystemAdminOperationTemplate.FileSystemAdminCallback<Optional<EomFile>> callback = new MethodeFileSystemAdminOperationTemplate.FileSystemAdminCallback<Optional<EomFile>>() {
             @Override
-            public Optional<EomFile> doOperation(Session session) {
-				final FileSystemAdmin fileSystemAdmin;
-				try {
-					fileSystemAdmin = EOM.FileSystemAdminHelper.narrow(session.resolve_initial_references(FILE_SYSTEM_ADMIN));
-				} catch (ObjectNotFound | RepositoryError | PermissionDenied e) {
-					throw new MethodeException(e);
-				}
-
+            public Optional<EomFile> doOperation(FileSystemAdmin fileSystemAdmin) {
 				String uri = "eom:/uuids/" + uuid;
 
 				FileSystemObject fso;
@@ -85,8 +73,6 @@ public class MethodeFileRepository {
 					foundContent = Optional.of(content);
 
 					eomFile._release();
-					fileSystemAdmin._release();
-
 				} catch (InvalidURI invalidURI) {
 					return Optional.absent();
 				} catch (RepositoryError | PermissionDenied e) {
@@ -129,16 +115,11 @@ public class MethodeFileRepository {
      * methods it calls), please ensure that you do not allow writing or deleting outside this folder.
      */
     public void deleteTestFileByUuid(final String uuid) {
-        final MethodeSessionOperationTemplate<Void> template = new MethodeSessionOperationTemplate<>(testClient);
-        template.doOperation(new MethodeSessionOperationTemplate.SessionCallback<Void>() {
+    	final MethodeFileSystemAdminOperationTemplate<Void> template = new MethodeFileSystemAdminOperationTemplate<>(testClient);
+
+        template.doOperation(new MethodeFileSystemAdminOperationTemplate.FileSystemAdminCallback<Void>() {
             @Override
-            public Void doOperation(Session session) {
-                final FileSystemAdmin fileSystemAdmin;
-                try {
-                    fileSystemAdmin = FileSystemAdminHelper.narrow(session.resolve_initial_references(FILE_SYSTEM_ADMIN));
-                } catch (ObjectNotFound | RepositoryError | PermissionDenied e) {
-                    throw new MethodeException(e);
-                }
+            public Void doOperation(final FileSystemAdmin fileSystemAdmin) {
 
                 final String uri = "eom:/uuids/" + uuid;
 
@@ -162,8 +143,6 @@ public class MethodeFileRepository {
                     throw new NotFoundException(uuid);
                 } catch (PermissionDenied | RepositoryError | ObjectLocked e) {
                     throw new MethodeException(e);
-                } finally {
-                    fileSystemAdmin._release();
                 }
 
                 return null;
