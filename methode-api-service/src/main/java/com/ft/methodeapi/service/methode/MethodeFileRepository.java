@@ -2,12 +2,8 @@ package com.ft.methodeapi.service.methode;
 
 import static com.ft.methodeapi.service.methode.PathHelper.folderIsAncestor;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
-
-import javax.xml.stream.XMLStreamException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +23,7 @@ import EOM.Utils;
 
 import com.ft.methodeapi.model.EomAssetType;
 import com.ft.methodeapi.model.EomFile;
+import com.ft.methodeapi.service.methode.templates.MethodeFileSystemAdminOperationTemplate;
 import com.ft.methodeapi.service.methode.templates.MethodeRepositoryOperationTemplate;
 import com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate;
 import com.google.common.base.Optional;
@@ -34,7 +31,6 @@ import com.yammer.metrics.annotation.Timed;
 
 public class MethodeFileRepository {
 	
-
 	private static final Logger logger = LoggerFactory.getLogger(MethodeFileRepository.class);
 	
 	private static final String FILE_SYSTEM_ADMIN = "FileSystemAdmin";
@@ -63,9 +59,7 @@ public class MethodeFileRepository {
 
         final MethodeSessionOperationTemplate<Optional<EomFile>> template = new MethodeSessionOperationTemplate<>(client);
 
-        MethodeSessionOperationTemplate.SessionCallback<Optional<EomFile>> callback;
-
-        callback=new MethodeSessionOperationTemplate.SessionCallback<Optional<EomFile>>() {
+        MethodeSessionOperationTemplate.SessionCallback<Optional<EomFile>> callback = new MethodeSessionOperationTemplate.SessionCallback<Optional<EomFile>>() {
             @Override
             public Optional<EomFile> doOperation(Session session) {
 				final FileSystemAdmin fileSystemAdmin;
@@ -104,6 +98,12 @@ public class MethodeFileRepository {
 
        return template.doOperation(callback);
     }
+    
+    @Timed
+    public Map<String, EomAssetType> getAssetTypes(final Set<String> assetIdentifiers){
+    	final MethodeFileSystemAdminOperationTemplate<Map<String, EomAssetType>> template = new MethodeFileSystemAdminOperationTemplate<>(client);
+		return template.doOperation(new GetAssetTypeFileSystemAdminCallback(assetIdentifiers));
+	}
 
     private static final String TEST_FOLDER = "/FT Website Production/Z_Test/dyn_pub_test";
     private static final String[] PATH_TO_TEST_FOLDER = Utils.stringToPath(TEST_FOLDER);
@@ -171,80 +171,6 @@ public class MethodeFileRepository {
         });
     }
     
-    @Timed
-    public Map<String, EomAssetType> getAssetTypes(final Set<String> assetIdentifiers){
-    	final MethodeSessionOperationTemplate<Map<String, EomAssetType>> template = new MethodeSessionOperationTemplate<>(client);
-        MethodeSessionOperationTemplate.SessionCallback<Map<String, EomAssetType>> callback = new MethodeSessionOperationTemplate.SessionCallback<Map<String, EomAssetType>>() {
-        	final Map<String, EomAssetType> assetTypes = new HashMap<>();
-            @Override
-            public Map<String, EomAssetType>  doOperation(Session session) {
-            	
-                final FileSystemAdmin fileSystemAdmin;
-                try {
-                    fileSystemAdmin = FileSystemAdminHelper.narrow(session.resolve_initial_references(FILE_SYSTEM_ADMIN));
-                } catch (ObjectNotFound | RepositoryError | PermissionDenied e) {
-                    throw new MethodeException(e);
-                }
-
-                for(String assetId : assetIdentifiers){
-                	EomAssetType eomAssetType;
-                	if(!assetTypes.containsKey(assetId)){
-                		final String uri = getAssetURI(assetId);
-
-		                final EomAssetType.Builder assetTypeBuilder= new EomAssetType.Builder();
-		                try{
-		                	final FileSystemObject fso = fileSystemAdmin.get_object_with_uri(uri);
-			                try {
-		                        final File eomFile = EOM.FileHelper.narrow(fso);
-		                        final String typeName = eomFile.get_type_name();
-		                        Optional<String> sourceCode = new MethodeSourceCodeExtractor(eomFile.get_attributes()).extract();
-		                        eomAssetType = assetTypeBuilder.uuid(eomFile.get_uuid_string()).type(typeName).sourceCode(sourceCode).build();
-			                } catch (XMLStreamException e) {
-			                	eomAssetType = assetTypeBuilder.uuid(assetId).error("Error when parsing attributes for asset").build();
-								logger.debug("Error when parsing attributes for asset : {}", assetId);
-							}finally{
-								fso._release();
-							}
-                		} catch (InvalidURI e) {
-		                	logger.debug("Uri: {} for asset with identifier: {} is invalid", uri, assetId);
-		                	eomAssetType = assetTypeBuilder.uuid(assetId).error("Invalid URI").build();
-		                } catch (PermissionDenied e) {
-		                	logger.debug("Permission denied for asset with identifier: {} is invalid", assetId);
-		                	eomAssetType = assetTypeBuilder.uuid(assetId).error("Permission Denied").build();
-						} catch (RepositoryError e) {
-							logger.debug("EOM Repository error when getting asset with identifier: {}", assetId);
-							eomAssetType = assetTypeBuilder.uuid(assetId).error("EOM Repository error when getting asset ").build();
-						}
-		                assetTypes.put(assetId, eomAssetType);
-                	}
-                }
-                
-                fileSystemAdmin._release();
-                
-                logger.debug("Successfully resolved type for {} assets :" + assetTypes.size());
-                return assetTypes;
-            }
-        };
-		return template.doOperation(callback);
-		
-	}
-    
-    private String getAssetURI(String assetId) {
-		if(isUUID(assetId)){
-			return "eom:/uuids/" + assetId;
-		}else{
-			return assetId;
-		}
-	}
-    
-    private boolean isUUID(String assetId) {
-		try{
-			UUID.fromString(assetId);
-			return true;
-		}catch(Exception e){
-			return false;
-		}
-	}
     
 
 	public String getClientRepositoryInfo() {
