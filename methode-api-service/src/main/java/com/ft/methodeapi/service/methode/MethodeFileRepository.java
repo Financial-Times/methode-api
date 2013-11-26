@@ -5,9 +5,6 @@ import static com.ft.methodeapi.service.methode.PathHelper.folderIsAncestor;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import EOM.File;
 import EOM.FileSystemAdmin;
 import EOM.FileSystemObject;
@@ -27,8 +24,6 @@ import com.google.common.base.Optional;
 import com.yammer.metrics.annotation.Timed;
 
 public class MethodeFileRepository {
-	
-	private static final Logger logger = LoggerFactory.getLogger(MethodeFileRepository.class);
 	
     private final MethodeObjectFactory client;
     private final MethodeObjectFactory testClient;
