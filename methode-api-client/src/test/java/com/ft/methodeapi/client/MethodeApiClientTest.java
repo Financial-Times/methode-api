@@ -55,14 +55,14 @@ public class MethodeApiClientTest extends ResourceTest {
     @Test(expected = ApiNetworkingException.class)
     public void shouldThrowDistinctExceptionForSocketTimeout() {
         Client mockClient = primeClientToExperienceExceptionWithSpecificRootCause(new SocketTimeoutException());
-        excerciseClient(mockClient);
+        excerciseClientForGetEomFile(mockClient);
     }
 
     @Test(expected = ApiNetworkingException.class)
     public void shouldThrowDistinctExceptionForAnyOtherIssueWithTheTcpSocket() {
 
         Client mockClient = primeClientToExperienceExceptionWithSpecificRootCause(new SocketException());
-        excerciseClient(mockClient);
+        excerciseClientForGetEomFile(mockClient);
 
     }
 
@@ -70,13 +70,18 @@ public class MethodeApiClientTest extends ResourceTest {
     public void shouldThrowDistinctExceptionForConnectionTimeout() {
 
         Client mockClient = primeClientToExperienceExceptionWithSpecificRootCause(new ConnectTimeoutException());
-        excerciseClient(mockClient);
+        excerciseClientForGetEomFile(mockClient);
 
     }
 
-    private void excerciseClient(Client mockClient) {
+    private void excerciseClientForGetEomFile(Client mockClient) {
         (new MethodeApiClient(mockClient, "localhost", 1234)).findFileByUuid("035a2fa0-d988-11e2-bce1-002128161462");
     }
+    
+    private void excerciseClientForGetAssetTypes(Client mockClient) {
+        (new MethodeApiClient(mockClient, "localhost", 1234)).findAssetTypes(Sets.newSet("035a2fa0-d988-11e2-bce1-002128161462"));
+    }
+    
     private Client primeClientToExperienceExceptionWithSpecificRootCause(Exception rootCause) {
         ClientHandler handler = mock(ClientHandler.class);
         Client mockClient = new Client(handler);
@@ -99,5 +104,17 @@ public class MethodeApiClientTest extends ResourceTest {
 
 		assertThat(assetTypes.entrySet(), everyItem(isIn(output.entrySet())));
 		assertThat(output.entrySet(), everyItem(isIn(assetTypes.entrySet())));
+    }
+    
+    @Test(expected = ApiNetworkingException.class)
+    public void shouldThrowDistinctExceptionForSocketTimeoutForGetAssetTypes() {
+        Client mockClient = primeClientToExperienceExceptionWithSpecificRootCause(new SocketTimeoutException());
+        excerciseClientForGetAssetTypes(mockClient);
+    }
+    
+    @Test(expected = ApiNetworkingException.class)
+    public void shouldThrowDistinctExceptionForConnectTimeoutForGetAssetTypes() {
+        Client mockClient = primeClientToExperienceExceptionWithSpecificRootCause(new ConnectTimeoutException());
+        excerciseClientForGetAssetTypes(mockClient);
     }
 }

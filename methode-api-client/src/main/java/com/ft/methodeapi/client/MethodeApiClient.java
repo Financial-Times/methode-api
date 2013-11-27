@@ -118,7 +118,6 @@ public class MethodeApiClient {
         int responseStatusFamily = responseStatusCode / 100;
 
         if (responseStatusFamily == 2) {
-            // SUCCESS!
             return clientResponse.getEntity(new GenericType<Map<String, EomAssetType>>(){});
         }
 
