@@ -1,5 +1,7 @@
 package com.ft.methodeapi.model;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 
@@ -70,9 +72,37 @@ public class EomAssetType {
 		public EomAssetType build(){
 			return new EomAssetType(uuid, type, sourceCode, errorMessage);
 		}
-		
-		
-		
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((errorMessage == null) ? 0 : errorMessage.hashCode());
+		result = prime * result
+				+ ((sourceCode == null) ? 0 : sourceCode.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		EomAssetType other = (EomAssetType) obj;
+		
+		return Objects.equals(this.errorMessage, other.errorMessage)
+				&& Objects.equals(this.sourceCode, other.sourceCode)
+				&& Objects.equals(this.type, other.type)
+				&& Objects.equals(this.uuid, other.uuid);
+				
+	}
+	
 
 }
