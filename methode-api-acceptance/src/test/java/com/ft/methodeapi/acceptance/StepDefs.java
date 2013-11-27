@@ -11,6 +11,8 @@ import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
+import cucumber.api.java.en.When;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
@@ -43,9 +45,10 @@ public class StepDefs {
 
     private AcceptanceTestConfiguration acceptanceTestConfiguration;
 
-	private Response theResponse;
-    private String theResponseEntity;
-    private UUID theUuid;
+	private Response theResponseForNotFoundRequest;
+    private String theResponseEntityForSuccessfulRequest;
+    private UUID uuidForArticleInMethode;
+    private UUID uuidForNonExistentArticle;
 
     private List<UUID> createdArticles;
     private EomFile theExpectedArticle;
@@ -75,12 +78,10 @@ public class StepDefs {
         }
     }
 
-
 	@Given("^the MethodeAPI service is running and connected to Methode$")
 	public void the_methode_api_service_is_running() throws Throwable {
 		given_service_is_running(acceptanceTestConfiguration.getMethodeApiHealthcheckUrl());
 	}
-
 
 	@Given("^an article exists in Methode$")
 	public void an_article_exists_in_Methode() throws Throwable {
@@ -100,9 +101,14 @@ public class StepDefs {
             .when()
                 .post(this.acceptanceTestConfiguration.getMethodeApiServiceUrl()).andReturn();
 
-        theUuid = UUID.fromString(response.jsonPath().getString("uuid"));
+        uuidForArticleInMethode = UUID.fromString(response.jsonPath().getString("uuid"));
 
-        createdArticles.add(theUuid);
+        createdArticles.add(uuidForArticleInMethode);
+	}
+
+	@Given("^an article does not exist in Methode$")
+	public void an_article_does_not_exist_in_Methode() throws Throwable {
+		uuidForNonExistentArticle = UUID.randomUUID();
 	}
 
     private void prepareTheArticle() throws IOException {
@@ -119,31 +125,46 @@ public class StepDefs {
         return Objects.firstNonNull(System.getProperty("BUILD_NUMBER"),"LOCAL BUILD");
     }
 
-    @Then("^I attempt to access the article$")
+    @When("^I attempt to access the article$")
 	public void i_attempt_to_access_the_article() throws Throwable {
-		String url = acceptanceTestConfiguration.getMethodeApiServiceUrl() + theUuid.toString();
+		String url = acceptanceTestConfiguration.getMethodeApiServiceUrl() + uuidForArticleInMethode.toString();
 		LOGGER.info("Calling Methode API: url=" + url);
-		theResponse =
+		Response theResponse =
 			given()
 				.contentType(ContentType.JSON)
 			.expect().statusCode(200)
 				.log().ifError()
 			.when()
 				.get(url);
+		
+		theResponseEntityForSuccessfulRequest = theResponse.asString();
+	}
 
-        theResponseEntity = theResponse.asString();
+    @When("^I attempt to access the non-existent article$")
+	public void i_attempt_to_access_the_non_existent_article() throws Throwable {
+		String url = acceptanceTestConfiguration.getMethodeApiServiceUrl() + uuidForNonExistentArticle.toString();
+		LOGGER.info("Calling Methode API: url=" + url);
+		theResponseForNotFoundRequest =
+			given()
+				.contentType(ContentType.JSON)
+			.get(url);
 	}
 	
 	@Then("^the article should be available from the MethodeAPI$")
 	public void the_article_should_be_available_from_the_MethodeAPI() throws Throwable {
-        assertThat("no body returned", theResponseEntity, notNullValue());
+        assertThat("no body returned", theResponseEntityForSuccessfulRequest, notNullValue());
+	}
+	
+	@Then("^the article should not be available from the MethodeAPI$")
+	public void the_article_should_not_be_available_from_the_MethodeAPI() throws Throwable {
+        assertThat("didn't get 404 not found", theResponseForNotFoundRequest.statusCode(), equalTo(404));
 	}
 	
 	@Then("^the article should have the expected metadata$")
 	public void the_article_should_have_the_expected_metadata() throws Throwable {
-		assertThat("uuid didn't match", from(theResponseEntity).getString("uuid"), equalTo(theUuid.toString()));
+		assertThat("uuid didn't match", from(theResponseEntityForSuccessfulRequest).getString("uuid"), equalTo(uuidForArticleInMethode.toString()));
 
-        String significantXmlSource = Xml.removeInsignificantXml(from(theResponseEntity).getString("attributes"), INSIGNIFICANT_XPATHS);
+        String significantXmlSource = Xml.removeInsignificantXml(from(theResponseEntityForSuccessfulRequest).getString("attributes"), INSIGNIFICANT_XPATHS);
         String expectedSignificantXmlSource = Xml.removeInsignificantXml(theExpectedArticle.getAttributes(), INSIGNIFICANT_XPATHS);
 
         assertThat("significant XML in attributes differed", significantXmlSource, equalTo(expectedSignificantXmlSource));
@@ -153,7 +174,7 @@ public class StepDefs {
 
     @Then("^the article should have the expected content$")
 	public void the_article_should_have_the_expected_content() throws Throwable {
-        byte[] retreivedContent =  from(theResponseEntity).getObject("", EomFile.class).getValue();
+        byte[] retreivedContent =  from(theResponseEntityForSuccessfulRequest).getObject("", EomFile.class).getValue();
         assertThat("bytes in file differed", retreivedContent, equalTo(theExpectedArticle.getValue()));
 	}
 

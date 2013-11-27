@@ -1,8 +1,3 @@
-/**
- * AccessTests
- *
- * @author Simon.Gibbs
- */
 package com.ft.methodeapi.acceptance;
 
 import cucumber.api.CucumberOptions;
@@ -12,8 +7,8 @@ import org.junit.runner.RunWith;
 @RunWith(Cucumber.class)
 @CucumberOptions(
         monochrome=true,
-        tags = "@smoke",
+        tags = "@Smoke",
         format = { "pretty", "html:target/cucumber-html-report", "json:target/cucumber-json-report/access.json" }
 )
-public class SmokeTestsTest {
+public class SmokeTests {
 }
