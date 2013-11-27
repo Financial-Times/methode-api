@@ -75,7 +75,7 @@ public class MethodeApiClient {
 
         if (responseStatusFamily == 2) {
             // SUCCESS!
-            return clientResponse.getEntity(EomFile.class);
+            return clientResponse.getEntity(new GenericType<EomFile>(){});
         }
 
         LOGGER.error("received a {} status code when making a GET request to {}", responseStatusCode, fileByUuidUri);
@@ -122,7 +122,7 @@ public class MethodeApiClient {
             return clientResponse.getEntity(new GenericType<Map<String, EomAssetType>>(){});
         }
 
-        LOGGER.error("received a {} status code when making a GET request to {}", responseStatusCode, assetTypeUri);
+        LOGGER.error("received a {} status code when making a POST request to {}", responseStatusCode, assetTypeUri);
         ErrorEntity entity = null;
         try {
             entity = clientResponse.getEntity(ErrorEntity.class);
