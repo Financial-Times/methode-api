@@ -40,11 +40,13 @@ public class GetAssetTypeResource {
 	@Consumes(MediaType.APPLICATION_JSON)
     public Map<String, EomAssetType> getByUuid(final Set<String> assetIdentifiers) {
         try {
-			LOGGER.debug("Asset identifiers: {}", Joiner.on(",").join(assetIdentifiers));
-            return methodeFileRepository.getAssetTypes(assetIdentifiers);
-        } catch(NotFoundException e){
-        	throw ClientError.status(404).error("Not Found").exception(e);
-        }catch(MethodeException | SystemException ex) {
+        	if (assetIdentifiers != null) {
+            	LOGGER.debug("Asset identifiers: {}", Joiner.on(",").join(assetIdentifiers));
+                return methodeFileRepository.getAssetTypes(assetIdentifiers);
+        	} else {
+        		throw ClientError.status(400).error("No asset identifiers supplied").exception();
+        	}
+        } catch(MethodeException | SystemException ex) {
             throw ServerError.status(503).error("error accessing upstream system").exception(ex);
         }
     }
