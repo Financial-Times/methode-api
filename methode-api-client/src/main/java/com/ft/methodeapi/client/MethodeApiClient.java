@@ -38,8 +38,9 @@ public class MethodeApiClient {
 
     }
 
-    /** It looks like build(...) isn't safe for concurrent use
-    /* so this method can be used to create fresh instances for
+    /**
+     * It looks like build(...) isn't safe for concurrent use
+     * so this method can be used to create fresh instances for
      * use in a single thread.
      */
     private UriBuilder fileUrlBuilder() {
