@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import javax.xml.stream.XMLStreamException;
 
+import org.omg.CORBA.BAD_PARAM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,7 @@ final class GetAssetTypeFileSystemAdminCallback implements FileSystemAdminCallba
 	    	if(!assetTypes.containsKey(assetId)){
 	    		final String uri = getAssetURI(assetId);
 
-	            final EomAssetType.Builder assetTypeBuilder= new EomAssetType.Builder();
+	            final EomAssetType.Builder assetTypeBuilder = new EomAssetType.Builder();
 	            try{
 	            	final FileSystemObject fso = fileSystemAdmin.get_object_with_uri(uri);
 	                try {
@@ -53,7 +54,10 @@ final class GetAssetTypeFileSystemAdminCallback implements FileSystemAdminCallba
 					}finally{
 						fso._release();
 					}
-	    		} catch (InvalidURI e) {
+                } catch (BAD_PARAM e) {
+                    logger.error("Internal error", e);
+                    eomAssetType = assetTypeBuilder.uuid(assetId).error("Internal error").build();
+                } catch (InvalidURI e) {
 	            	logger.debug("Uri: {} for asset with identifier: {} is invalid", uri, assetId);
 	            	eomAssetType = assetTypeBuilder.uuid(assetId).error("Invalid URI").build();
 	            } catch (PermissionDenied e) {
