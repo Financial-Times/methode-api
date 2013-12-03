@@ -4,7 +4,7 @@
 
   <row>
     <chart>
-      <searchString>source="/var/log/apps/methode-api-dw-access*"  | eval resptime_secs=dw_resptime/1000  | timechart count by host</searchString>
+      <searchString>source="/var/log/apps/methode-api-dw-access.log"  | eval resptime_secs=dw_resptime/1000  | timechart count by host</searchString>
       <title>Traffic counts by host</title>
       <earliestTime>-2h@h</earliestTime>
       <latestTime>now</latestTime>
@@ -13,7 +13,7 @@
       <option name="charting.primaryAxisTitle.text">1 bar = 2 Minutes</option>
     </chart>
     <chart>
-      <searchString>source="/var/log/apps/methode-api-dw-access*"  | eval resptime_secs=dw_resptime/1000  | timechart perc95(resptime_secs) by host</searchString>
+      <searchString>source="/var/log/apps/methode-api-dw-access.log"  | eval resptime_secs=dw_resptime/1000  | timechart perc95(resptime_secs) by host</searchString>
       <title>Response times by host (95th percentile)</title>
       <earliestTime>-2h@h</earliestTime>
       <latestTime>now</latestTime>
@@ -22,7 +22,7 @@
       <option name="charting.primaryAxisTitle.text">1 bar = 2 Minutes</option>
     </chart>
     <chart>
-      <searchString>source="/var/log/apps/methode-api-dw-access*"  | eval resptime_secs=dw_resptime/1000  | search status=5** | timechart count by host</searchString>
+      <searchString>source="/var/log/apps/methode-api-dw-access.log"  | eval resptime_secs=dw_resptime/1000  | search status=5** | timechart count by host</searchString>
       <title>Errors by host</title>
       <earliestTime>-2h@h</earliestTime>
       <latestTime>now</latestTime>
