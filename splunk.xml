@@ -16,13 +16,14 @@
 		<module name="HiddenSearch" autoRun="True">
 			<param name="maxCount">1000000</param>
 			<param name="maxEvents">1000000</param>
-			<param name="search">source="/var/log/apps/methode-api-dw-access.log"
-				| eval resptime_secs=dw_resptime/1000 |
+			<param name="search">source="/var/log/apps/methode-api-dw-access.log" | eval resptime_secs=dw_resptime/1000
+				| eval InternalError=if(like(status,"5%"),"True","False")
+				| sistats count perc95(resptime_secs) by host InternalError _time
 			</param>
 
 			<module name="JobProgressIndicator" autoRun="True">
 				<module name="HiddenPostProcess" autoRun="True">
-					<param name="search">timechart count by host</param>
+					<param name="search">| timechart count by host</param>
 					<module name="HiddenChartFormatter" layoutPanel="panel_row2_col1_grp1"
 							group="Traffic counts by host">
 						<param name="legend.placement">right</param>
@@ -40,7 +41,7 @@
 
 			<module name="JobProgressIndicator" autoRun="True">
 				<module name="HiddenPostProcess" autoRun="True">
-					<param name="search">timechart perc95(resptime_secs) by host</param>
+					<param name="search">| timechart perc95(resptime_secs) by host</param>
 					<module name="HiddenChartFormatter" layoutPanel="panel_row2_col2_grp1"
 							group="Response times by host (95th percentile)">
 						<param name="legend.placement">right</param>
@@ -57,7 +58,7 @@
 
 			<module name="JobProgressIndicator" autoRun="True">
 				<module name="HiddenPostProcess" autoRun="True">
-					<param name="search">search status=5** | timechart count by host</param>
+					<param name="search">| search InternalError=True|timechart count by host</param>
 					<module name="HiddenChartFormatter" layoutPanel="panel_row2_col3_grp1"
 							group="Errors by host">
 						<param name="legend.placement">right</param>
