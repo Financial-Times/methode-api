@@ -78,32 +78,62 @@
 
 	</module>
 
-	<module name="HiddenSavedSearch" layoutPanel="panel_row3_col1" autoRun="True" group="Content Platform Methode API Response Time 24h">
-		<param name="savedSearch">Content Platform Methode API Response Time 24h</param>
-		<param name="groupLabel">Content Platform Methode API response time over the last 24h</param>
-		<module name="HiddenFieldPicker">
-			<param name="strictMode">True</param>
-			<module name="JobProgressIndicator">
-				<module name="EnablePreview">
-					<param name="enable">True</param>
-					<param name="display">False</param>
-					<module name="HiddenChartFormatter">
-						<param name="chart">line</param>
-						<param name="legend.placement">right</param>
-						<module name="FlashChart">
-							<param name="width">100%</param>
-							<module name="ConvertToDrilldownSearch">
-								<module name="ViewRedirector">
-									<param name="viewTarget">flashtimeline</param>
-								</module>
-							</module>
-						</module>
-						<module name="ViewRedirectorLink">
-							<param name="viewTarget">flashtimeline</param>
-						</module>
+	<module name="HiddenSavedSearch" layoutPanel="panel_row3_col1" autoRun="True" group="Traffic count by host 24h">
+		<param name="savedSearch">Content Platform Methode API</param>
+		<param name="groupLabel">Traffic count by host 24h</param>
+
+		<module name="JobProgressIndicator" autoRun="True">
+			<module name="HiddenPostProcess" autoRun="True">
+				<param name="search">| timechart count by host</param>
+				<module name="HiddenChartFormatter" layoutPanel="panel_row3_col1_grp1"
+						group="Traffic count by host 24h">
+					<param name="legend.placement">right</param>
+					<param name="groupLabel">Traffic count
+						by host 24h</param>
+					<param name="chart">line</param>
+					<param name="chart.stackMode">stacked</param>
+					<param name="charting.axisTitleX.visibility">collapsed</param>
+					<module name="FlashChart">
+						<param name="width">100%</param>
+						<param name="height">200px</param>
 					</module>
 				</module>
 			</module>
 		</module>
+
+		<module name="JobProgressIndicator" autoRun="True">
+			<module name="HiddenPostProcess" autoRun="True">
+				<param name="search">| timechart perc95(resptime_secs) by host</param>
+				<module name="HiddenChartFormatter" layoutPanel="panel_row4_col1_grp1"
+						group="Response times by host (95th percentile) 24h">
+					<param name="legend.placement">right</param>
+					<param name="groupLabel">Response times by host (95th percentile) 24h</param>
+					<param name="chart">line</param>
+					<param name="chart.stackMode">stacked</param>
+					<module name="FlashChart">
+						<param name="width">100%</param>
+						<param name="height">200px</param>
+					</module>
+				</module>
+			</module>
+		</module>
+
+		<module name="JobProgressIndicator" autoRun="True">
+			<module name="HiddenPostProcess" autoRun="True">
+				<param name="search">| search InternalError=True|timechart count by host</param>
+				<module name="HiddenChartFormatter" layoutPanel="panel_row5_col1_grp1"
+						group="Errors by host 24h">
+					<param name="legend.placement">right</param>
+					<param name="groupLabel">Errors by host 24h</param>
+					<param name="chart">area</param>
+					<param name="chart.stackMode">stacked</param>
+					<module name="FlashChart">
+						<param name="width">100%</param>
+						<param name="height">200px</param>
+					</module>
+				</module>
+			</module>
+		</module>
+
 	</module>
 </view>
