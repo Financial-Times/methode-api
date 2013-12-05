@@ -18,7 +18,7 @@
 			<param name="maxCount">1000000</param>
 			<param name="maxEvents">1000000</param>
 			<param name="search">source="/var/log/apps/methode-api-dw-access.log" | eval resptime_secs=dw_resptime/1000
-				| eval InternalError=if(like(status,"5%"),"True","False")
+				| eval InternalError=if(status > 399,"True","False")
 				| sistats count perc95(resptime_secs) by host InternalError _time
 			</param>
 
@@ -32,6 +32,7 @@
 						<param name="chart">area</param>
 						<param name="chart.stackMode">stacked</param>
 						<param name="charting.axisTitleX.visibility">collapsed</param>
+						<param name="charting.axisTitleY.visibility">collapsed</param>
 						<module name="FlashChart">
 							<param name="width">100%</param>
 							<param name="height">200px</param>
@@ -49,6 +50,8 @@
 						<param name="groupLabel">Response times by host (95th percentile)</param>
 						<param name="chart">line</param>
 						<param name="chart.stackMode">stacked</param>
+						<param name="charting.axisTitleX.visibility">collapsed</param>
+						<param name="charting.axisTitleY.visibility">collapsed</param>
 						<module name="FlashChart">
 							<param name="width">100%</param>
 							<param name="height">200px</param>
@@ -66,6 +69,8 @@
 						<param name="groupLabel">Errors by host</param>
 						<param name="chart">area</param>
 						<param name="chart.stackMode">stacked</param>
+						<param name="charting.axisTitleX.visibility">collapsed</param>
+						<param name="charting.axisTitleY.visibility">collapsed</param>
 						<module name="FlashChart">
 							<param name="width">100%</param>
 							<param name="height">200px</param>
@@ -78,8 +83,10 @@
 
 	</module>
 
-	<module name="HiddenSavedSearch" layoutPanel="panel_row3_col1" autoRun="True" group="Traffic count by host 24h">
-		<param name="savedSearch">Content Platform Methode API</param>
+	<module name="HiddenSearch" layoutPanel="panel_row3_col1" autoRun="True" group="Traffic count by host 24h">
+		<param name="search">index=summary_web search_name="Content Platform Methode API" |
+			stats count perc95(resptime_secs) by orig_host InternalError _time |
+			rename orig_host as host|rename perc95(resptime_secs) as resptime_secs</param>
 		<param name="groupLabel">Traffic count by host 24h</param>
 
 		<module name="JobProgressIndicator" autoRun="True">
@@ -93,6 +100,7 @@
 					<param name="chart">line</param>
 					<param name="chart.stackMode">stacked</param>
 					<param name="charting.axisTitleX.visibility">collapsed</param>
+					<param name="charting.axisTitleY.visibility">collapsed</param>
 					<module name="FlashChart">
 						<param name="width">100%</param>
 						<param name="height">200px</param>
@@ -110,6 +118,8 @@
 					<param name="groupLabel">Response times by host (95th percentile) 24h</param>
 					<param name="chart">line</param>
 					<param name="chart.stackMode">stacked</param>
+					<param name="charting.axisTitleX.visibility">collapsed</param>
+					<param name="charting.axisTitleY.visibility">collapsed</param>
 					<module name="FlashChart">
 						<param name="width">100%</param>
 						<param name="height">200px</param>
@@ -127,6 +137,8 @@
 					<param name="groupLabel">Errors by host 24h</param>
 					<param name="chart">area</param>
 					<param name="chart.stackMode">stacked</param>
+					<param name="charting.axisTitleX.visibility">collapsed</param>
+					<param name="charting.axisTitleY.visibility">collapsed</param>
 					<module name="FlashChart">
 						<param name="width">100%</param>
 						<param name="height">200px</param>
