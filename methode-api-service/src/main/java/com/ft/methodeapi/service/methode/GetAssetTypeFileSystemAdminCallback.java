@@ -51,7 +51,7 @@ final class GetAssetTypeFileSystemAdminCallback implements FileSystemAdminCallba
 	                } catch (XMLStreamException e) {
 	                	eomAssetType = assetTypeBuilder.uuid(assetId).error("Error when parsing attributes for asset").build();
 						logger.debug("Error when parsing attributes for asset : {}", assetId);
-					}finally{
+					} finally{
 						fso._release();
 					}
                 } catch (BAD_PARAM e) {

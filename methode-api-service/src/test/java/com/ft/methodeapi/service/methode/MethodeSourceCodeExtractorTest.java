@@ -18,6 +18,12 @@ public class MethodeSourceCodeExtractorTest {
 	}
 	
 	@Test
+	public void shouldReturnEmptyStringWhenAttributesEmpty() throws XMLStreamException {
+		Optional<String> maybeSourceCode = new MethodeSourceCodeExtractor("").extract();
+		assertThat(maybeSourceCode.isPresent(), is(false));
+	}
+	
+	@Test
 	public void shouldReturnTheSourceCodeStringWhenSourceCodeIsDefined() throws XMLStreamException{
 		String expectedSourceCode = "FTSB";
 		Optional<String> maybeSourceCode = new MethodeSourceCodeExtractor("<test><SourceCode>" + expectedSourceCode + "</SourceCode></test>").extract();

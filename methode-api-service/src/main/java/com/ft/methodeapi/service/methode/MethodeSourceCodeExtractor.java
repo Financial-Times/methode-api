@@ -25,24 +25,27 @@ public class MethodeSourceCodeExtractor {
 
 	public Optional<String> extract() throws XMLStreamException{
 		boolean diftcomWebType = false;
-        
-        XMLInputFactory xmlInputFactory =  XMLInputFactory2.newInstance();
-        XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(new StringReader(attributes));
-        
-        while (xmlEventReader.hasNext()) {
-        	XMLEvent xmlEvent = xmlEventReader.nextEvent();
-            if(xmlEvent.isStartElement() && xmlEvent.asStartElement().getName().toString().equals(METHODE_WEB_TYPE)){
-            	diftcomWebType = true;
-            }
-            
-            if(xmlEvent.isEndElement() && xmlEvent.asEndElement().getName().toString().equals(METHODE_WEB_TYPE)){
-            	diftcomWebType = false;
-            }
-            
-            if(xmlEvent.isCharacters() && diftcomWebType){
-            	return Optional.fromNullable(xmlEvent.asCharacters().getData());
-            }
-        }
+		
+		if (!attributes.isEmpty()) {
+			XMLInputFactory xmlInputFactory =  XMLInputFactory2.newInstance();
+	        XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(new StringReader(attributes));
+	        
+	        while (xmlEventReader.hasNext()) {
+	        	XMLEvent xmlEvent = xmlEventReader.nextEvent();
+	            if(xmlEvent.isStartElement() && xmlEvent.asStartElement().getName().toString().equals(METHODE_WEB_TYPE)){
+	            	diftcomWebType = true;
+	            }
+	            
+	            if(xmlEvent.isEndElement() && xmlEvent.asEndElement().getName().toString().equals(METHODE_WEB_TYPE)){
+	            	diftcomWebType = false;
+	            }
+	            
+	            if(xmlEvent.isCharacters() && diftcomWebType){
+	            	return Optional.fromNullable(xmlEvent.asCharacters().getData());
+	            }
+	        }
+		}
+              
 		return Optional.absent();
 	}
 }
