@@ -1,0 +1,15 @@
+Content Platform Methode API
+
+source="/var/log/apps/methode-api-dw-access.log"
+| eval resptime_secs=dw_resptime/1000
+| eval InternalError=if(status > 399,"True","False")
+| sistats count perc95(resptime_secs) by host InternalError _time
+
+Start time: -1h@h
+Finish time: @h
+
+Not accelerated.
+
+Scheduled: 14 * * * *
+
+Summary Indexing enabled: summary_web
