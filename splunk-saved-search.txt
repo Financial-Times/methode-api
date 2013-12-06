@@ -12,4 +12,6 @@ Not accelerated.
 
 Scheduled: 14 * * * *
 
+Expiration: 2 minutes.
+
 Summary Indexing enabled: summary_web
