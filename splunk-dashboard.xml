@@ -87,6 +87,7 @@
 		<param name="search">index=summary_web search_name="Content Platform Methode API" |
 			stats count perc95(resptime_secs) by orig_host InternalError _time |
 			rename orig_host as host|rename perc95(resptime_secs) as resptime_secs</param>
+		<param name="earliest">-24h</param>
 		<param name="groupLabel">Traffic count by host 24h</param>
 
 		<module name="JobProgressIndicator" autoRun="True">
