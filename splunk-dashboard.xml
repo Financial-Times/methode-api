@@ -49,7 +49,6 @@
 						<param name="legend.placement">right</param>
 						<param name="groupLabel">Response times by host (95th percentile)</param>
 						<param name="chart">line</param>
-						<param name="chart.stackMode">stacked</param>
 						<param name="charting.axisTitleX.visibility">collapsed</param>
 						<param name="charting.axisTitleY.visibility">collapsed</param>
 						<module name="FlashChart">
@@ -98,7 +97,7 @@
 					<param name="legend.placement">right</param>
 					<param name="groupLabel">Traffic count
 						by host 24h</param>
-					<param name="chart">line</param>
+					<param name="chart">area</param>
 					<param name="chart.stackMode">stacked</param>
 					<param name="charting.axisTitleX.visibility">collapsed</param>
 					<param name="charting.axisTitleY.visibility">collapsed</param>
@@ -118,7 +117,6 @@
 					<param name="legend.placement">right</param>
 					<param name="groupLabel">Response times by host (95th percentile) 24h</param>
 					<param name="chart">line</param>
-					<param name="chart.stackMode">stacked</param>
 					<param name="charting.axisTitleX.visibility">collapsed</param>
 					<param name="charting.axisTitleY.visibility">collapsed</param>
 					<module name="FlashChart">
