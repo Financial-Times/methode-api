@@ -45,10 +45,19 @@
                     <execution>
                         <phase>prepare-package</phase>
                         <goals>
-                            <goal>copy-dependencies</goal>
+                            <goal>copy</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/ft-methode_api/files</outputDirectory>
+			    <artifactItems>
+            			<artifactItem>
+              			    <groupId>com.ft.methode-api</groupId>
+              			    <artifactId>methode-api-service</artifactId>
+              			    <version>${project.version}</version>
+              			    <type>jar</type>
+                            	    <outputDirectory>${project.build.directory}/ft-methode_api/files</outputDirectory>
+              			    <destFileName>methode-api-service.jar</destFileName>
+            		    	</artifactItem>
+          		    </artifactItems>
                         </configuration>
                     </execution>
                 </executions>
