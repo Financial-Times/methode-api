@@ -116,8 +116,8 @@ public class StepDefs {
 
         String stampedHeadline = String.format("Proudly tested with robotic consistency [Build %s]", buildNo());
         theExpectedArticle = ReferenceArticles.publishedKitchenSinkArticle()
-                .withHeadline(stampedHeadline)
-                .withWorkflowStatus(MethodeArticle.WEB_READY).build().getEomFile();
+                .withHeadline(stampedHeadline).build().getEomFile();
+//                .withWorkflowStatus(MethodeArticle.WEB_READY).build().getEomFile();
 
         LOGGER.debug("Test article headline={}, articleXml={}, attributeXml={}",stampedHeadline, theExpectedArticle.getValue(),theExpectedArticle.getAttributes());
     }
