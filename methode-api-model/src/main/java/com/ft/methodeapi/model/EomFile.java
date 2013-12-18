@@ -6,6 +6,9 @@ import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 public class EomFile {
 
+	public static final String WEB_REVISE = "Stories/WebRevise";
+	public static final String WEB_READY = "Stories/WebReady";
+
     /**
      * Marks reason for controversial design choices.
      */
