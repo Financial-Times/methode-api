@@ -17,15 +17,18 @@ public class EomFile {
     @SuppressWarnings(value = "EI_EXPOSE_REP2", justification = JUSTIFICATION_MEMORY_CHURN)
     private final byte[] value;
     private final String attributes;
+	private final String workflowStatus;
 
     public EomFile(@JsonProperty("uuid") String uuid,
                    @JsonProperty("type") String type,
                    @JsonProperty("value") byte[] bytes,
-                   @JsonProperty("attributes") String attributes) {
+                   @JsonProperty("attributes") String attributes,
+				   @JsonProperty("workflowStatus") String workflowStatus) {
         this.uuid = uuid;
         this.type = type;
         this.value = bytes;
         this.attributes = attributes;
+		this.workflowStatus = workflowStatus;
     }
 
     public String getUuid() {
@@ -45,11 +48,16 @@ public class EomFile {
         return attributes;
     }
 
-    public static class Builder {
+	public String getWorkflowStatus() {
+		return workflowStatus;
+	}
+
+	public static class Builder {
         private String uuid;
         private String type;
         private byte[] value;
         private String attributes;
+		private String workflowStatus;
 
         public Builder withUuid(String uuid) {
             this.uuid = uuid;
@@ -71,16 +79,22 @@ public class EomFile {
             this.attributes = attributes;
             return this;
         }
+
+		public Builder withWorkflowStatus(String workflowStatus) {
+			this.workflowStatus = workflowStatus;
+			return this;
+		}
         
         public Builder withValuesFrom(EomFile eomFile) {
         	return withUuid(eomFile.getUuid())
         			.withType(eomFile.getType())
         			.withValue(eomFile.getValue())
-        			.withAttributes(eomFile.getAttributes());
+        			.withAttributes(eomFile.getAttributes())
+					.withWorkflowStatus(eomFile.getWorkflowStatus());
         }
 
         public EomFile build() {
-            return new EomFile(uuid, type, value, attributes);
+            return new EomFile(uuid, type, value, attributes, workflowStatus);
         }
     }
 }

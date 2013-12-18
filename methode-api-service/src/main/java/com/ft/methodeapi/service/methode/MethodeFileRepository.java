@@ -64,7 +64,8 @@ public class MethodeFileRepository {
 					final String typeName = eomFile.get_type_name();
 					final byte[] bytes = eomFile.read_all();
 					final String attributes = eomFile.get_attributes();
-					EomFile content = new EomFile(uuid, typeName, bytes, attributes);
+					final String workflowStatus = eomFile.get_status_name();
+					EomFile content = new EomFile(uuid, typeName, bytes, attributes, workflowStatus);
 					foundContent = Optional.of(content);
 
 					eomFile._release();

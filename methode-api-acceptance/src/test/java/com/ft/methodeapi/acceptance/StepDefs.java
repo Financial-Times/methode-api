@@ -1,6 +1,7 @@
 package com.ft.methodeapi.acceptance;
 
 import com.ft.methodeapi.model.EomFile;
+import com.ft.methodetesting.MethodeArticle;
 import com.ft.methodetesting.xml.Xml;
 import com.google.common.base.Objects;
 import com.ft.methodetesting.ReferenceArticles;
@@ -116,7 +117,7 @@ public class StepDefs {
         String stampedHeadline = String.format("Proudly tested with robotic consistency [Build %s]", buildNo());
         theExpectedArticle = ReferenceArticles.publishedKitchenSinkArticle()
                 .withHeadline(stampedHeadline)
-                .build().getEomFile();
+                .withWorkflowStatus(MethodeArticle.WEB_READY).build().getEomFile();
 
         LOGGER.debug("Test article headline={}, articleXml={}, attributeXml={}",stampedHeadline, theExpectedArticle.getValue(),theExpectedArticle.getAttributes());
     }
@@ -170,8 +171,10 @@ public class StepDefs {
         assertThat("significant XML in attributes differed", significantXmlSource, equalTo(expectedSignificantXmlSource));
 	}
 
-
-
+	@Then("^the article should have the expected workflow status$")
+	public void the_article_should_have_the_expected_wokflow_status() throws Throwable {
+		assertThat("workflow statuses didn't match", from(theResponseEntityForSuccessfulRequest).getString("workflowStatus"), equalTo(theExpectedArticle.getWorkflowStatus()));
+	}
     @Then("^the article should have the expected content$")
 	public void the_article_should_have_the_expected_content() throws Throwable {
         byte[] retreivedContent =  from(theResponseEntityForSuccessfulRequest).getObject("", EomFile.class).getValue();

@@ -49,20 +49,26 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
             file.write_all(eomFile.getValue());
             file.set_attributes(eomFile.getAttributes());
 
-            final boolean keepCheckedOut = false;
-            file.check_in("", keepCheckedOut);
+			ObjectAdmin oa = ObjectAdminHelper.narrow(session.resolve_initial_references("ObjectAdmin"));
+			oa.set_status_name(file, eomFile.getWorkflowStatus());
+			EOM.EventAdmin ea = EOM.EventAdminHelper.narrow(session.resolve_initial_references("EventAdmin"));
+			ea.fire_event(file, "set_status");
 
-            return new EomFile(file.get_uuid_string(), file.get_type_name(), file.read_all(), file.get_attributes());
+			final boolean keepCheckedOut = false;
+			file.check_in("", keepCheckedOut);
 
-        } catch (TypeNotFound | RepositoryError | PermissionDenied | InvalidName | InvalidForContainer | ObjectLocked
-                | DuplicatedName | ObjectNotLocked | ObjectNotCheckedOut e) {
-            throw new MethodeException(e);
+			return new EomFile(file.get_uuid_string(), file.get_type_name(), file.read_all(), file.get_attributes(), file.get_status_name());
 
-        } catch (InvalidAttributes | InvalidType e) {
-            throw new InvalidEomFileException("cannot create requested file", e);
-        }
+		} catch (TypeNotFound | RepositoryError | PermissionDenied | InvalidName | InvalidForContainer | ObjectLocked
+				| DuplicatedName | ObjectNotLocked | ObjectNotCheckedOut | ObjectNotFound e) {
+			throw new MethodeException(e);
+		} catch (InvalidAttributes | InvalidType e) {
+			throw new InvalidEomFileException("cannot create requested file", e);
+		} catch (InvalidStatus invalidStatus) {
+			throw new InvalidEomFileException("Invalid workflow status.", invalidStatus);
+		}
 
-    }
+	}
 
     private Folder findOrCreateFolder(final Folder rootFolder, final String path) throws RepositoryError, PermissionDenied, InvalidName, InvalidForContainer, ObjectLocked, DuplicatedName {
         final String[] pathSegments = Utils.stringToPath(path);

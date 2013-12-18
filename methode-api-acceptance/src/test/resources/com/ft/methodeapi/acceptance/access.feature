@@ -11,6 +11,7 @@ Feature: Requests for articles
     Then the article should be available from the MethodeAPI
     And the article should have the expected metadata
     And the article should have the expected content
+	And the article should have the expected workflow status
 
   Scenario: An article that doesn't exist is not found
     Given an article does not exist in Methode
