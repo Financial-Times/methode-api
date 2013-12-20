@@ -21,17 +21,20 @@ public class EomFile {
     private final byte[] value;
     private final String attributes;
 	private final String workflowStatus;
+	private final String systemAttributes;
 
     public EomFile(@JsonProperty("uuid") String uuid,
-                   @JsonProperty("type") String type,
-                   @JsonProperty("value") byte[] bytes,
-                   @JsonProperty("attributes") String attributes,
-				   @JsonProperty("workflowStatus") String workflowStatus) {
+				   @JsonProperty("type") String type,
+				   @JsonProperty("value") byte[] bytes,
+				   @JsonProperty("attributes") String attributes,
+				   @JsonProperty("workflowStatus") String workflowStatus,
+				   @JsonProperty("systemAttributes") String systemAttributes) {
         this.uuid = uuid;
         this.type = type;
         this.value = bytes;
         this.attributes = attributes;
 		this.workflowStatus = workflowStatus;
+		this.systemAttributes = systemAttributes;
     }
 
     public String getUuid() {
@@ -55,12 +58,17 @@ public class EomFile {
 		return workflowStatus;
 	}
 
+	public String getSystemAttributes() {
+		return systemAttributes;
+	}
+
 	public static class Builder {
         private String uuid;
         private String type;
         private byte[] value;
         private String attributes;
 		private String workflowStatus;
+		private String systemAttributes;
 
         public Builder withUuid(String uuid) {
             this.uuid = uuid;
@@ -87,17 +95,23 @@ public class EomFile {
 			this.workflowStatus = workflowStatus;
 			return this;
 		}
+
+		public Builder withSystemAttributes(String systemAttributes) {
+			this.systemAttributes = systemAttributes;
+			return this;
+		}
         
         public Builder withValuesFrom(EomFile eomFile) {
         	return withUuid(eomFile.getUuid())
         			.withType(eomFile.getType())
         			.withValue(eomFile.getValue())
         			.withAttributes(eomFile.getAttributes())
-					.withWorkflowStatus(eomFile.getWorkflowStatus());
+					.withWorkflowStatus(eomFile.getWorkflowStatus())
+					.withSystemAttributes(eomFile.getSystemAttributes());
         }
 
         public EomFile build() {
-            return new EomFile(uuid, type, value, attributes, workflowStatus);
+            return new EomFile(uuid, type, value, attributes, workflowStatus, systemAttributes);
         }
     }
 }

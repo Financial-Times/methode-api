@@ -57,7 +57,8 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
 			final boolean keepCheckedOut = false;
 			file.check_in("", keepCheckedOut);
 
-			return new EomFile(file.get_uuid_string(), file.get_type_name(), file.read_all(), file.get_attributes(), file.get_status_name());
+			return new EomFile(file.get_uuid_string(), file.get_type_name(), file.read_all(), file.get_attributes(),
+					file.get_status_name(), file.get_system_attributes());
 
 		} catch (TypeNotFound | RepositoryError | PermissionDenied | InvalidName | InvalidForContainer | ObjectLocked
 				| DuplicatedName | ObjectNotLocked | ObjectNotCheckedOut | ObjectNotFound e) {

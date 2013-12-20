@@ -34,6 +34,14 @@ public class MethodeApiClientTest extends ResourceTest {
 
     private MethodeFileRepository methodeFileRepository;
 
+	private final String SYSTEM_ATTRIBUTES = "<props><productInfo><name>FTcom</name>\n" +
+			"<issueDate>20131219</issueDate>\n" +
+			"</productInfo>\n" +
+			"<workFolder>/FT/Companies</workFolder>\n" +
+			"<templateName>/SysConfig/Templates/FT/Base-Story.xml</templateName>\n" +
+			"<summary>t text text text text text text text text text text text text text text text text\n" +
+			" text text text text te...</summary><wordCount>417</wordCount></props>";
+
     @Override
     protected void setUpResources() throws Exception {
         methodeFileRepository = mock(MethodeFileRepository.class);
@@ -45,7 +53,7 @@ public class MethodeApiClientTest extends ResourceTest {
     public void canRetrieveEomFile() {
 
         final byte[] fileBytes = "blah, blah, blah".getBytes();
-        when(methodeFileRepository.findFileByUuid(any(String.class))).thenReturn(Optional.of(new EomFile("asdf", "someType", fileBytes, "some attributes", "WebRevise")));
+        when(methodeFileRepository.findFileByUuid(any(String.class))).thenReturn(Optional.of(new EomFile("asdf", "someType", fileBytes, "some attributes", "WebRevise", SYSTEM_ATTRIBUTES)));
 
         EomFile eomFile = new MethodeApiClient(client(), "localhost", 1234).findFileByUuid("asdsfgdg");
 

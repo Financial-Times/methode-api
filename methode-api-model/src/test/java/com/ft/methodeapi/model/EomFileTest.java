@@ -24,4 +24,20 @@ public class EomFileTest {
                 .build();
         assertThat("eomFile", eomFile, hasProperty("attributes", equalTo("some attributes")));
     }
+
+	@Test
+	public void shouldUseSystemAttributesFromBuilder() {
+		final EomFile eomFile = new EomFile.Builder()
+				.withSystemAttributes("some attributes")
+				.build();
+		assertThat("eomFile", eomFile, hasProperty("systemAttributes", equalTo("some attributes")));
+	}
+
+	@Test
+	public void shouldUseWorkflowStatusFromBuilder() {
+		final EomFile eomFile = new EomFile.Builder()
+				.withWorkflowStatus("Stories/WebReady")
+				.build();
+		assertThat("eomFile", eomFile, hasProperty("workflowStatus", equalTo("Stories/WebReady")));
+	}
 }
