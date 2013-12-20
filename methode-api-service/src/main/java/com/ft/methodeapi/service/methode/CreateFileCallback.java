@@ -48,7 +48,7 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
 
             file.write_all(eomFile.getValue());
             file.set_attributes(eomFile.getAttributes());
-			file.set_system_attributes(eomFile.getAttributes());
+			file.set_system_attributes(eomFile.getSystemAttributes());
 
 			ObjectAdmin oa = ObjectAdminHelper.narrow(session.resolve_initial_references("ObjectAdmin"));
 			oa.set_status_name(file, eomFile.getWorkflowStatus());
