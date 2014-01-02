@@ -31,7 +31,8 @@
         <jaxrs.errorhandling.version>1.0.3</jaxrs.errorhandling.version>
         <cucumber.version>1.1.5</cucumber.version>
         <restassured.version>1.8.1</restassured.version>
-	<stax2api.version>3.1.1</stax2api.version>
+		<stax2api.version>3.1.1</stax2api.version>
+		<swagger.version>1.0.1</swagger.version>
     </properties>
 
     <repositories>
@@ -121,7 +122,12 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-	    <dependency>
+			<dependency>
+			    <groupId>com.ft.ws.lib</groupId>
+			    <artifactId>ft-swagger</artifactId>
+			    <version>${swagger.version}</version>
+			</dependency>
+	    	<dependency>
                 <groupId>org.codehaus.woodstox</groupId>
                 <artifactId>stax2-api</artifactId>
                 <version>${stax2api.version}</version>

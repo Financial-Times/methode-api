@@ -24,6 +24,10 @@ methodeTestConnection:
   password: <%=scope.function_hiera('methodeTestPassword', 'methodeapi')%>
   connectTimeout: 2000
 
+swaggerConfiguration:
+  apiVersion: 1.0
+  basePath: <%=scope.function_hiera('basePath')%>
+
 maxPingMillis: 500
 
 logging:

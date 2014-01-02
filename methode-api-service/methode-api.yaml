@@ -36,3 +36,6 @@ logging:
     archivedLogFilenamePattern: /var/log/apps/methode-api-dw-app-%d.log.gz
     archivedFileCount: 5
 
+swaggerConfiguration:
+  apiVersion: 1.0
+  basePath: http://localhost:9080

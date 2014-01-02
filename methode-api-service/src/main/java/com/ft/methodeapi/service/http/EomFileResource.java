@@ -20,10 +20,13 @@ import com.ft.methodeapi.service.methode.MethodeException;
 import com.ft.methodeapi.service.methode.MethodeFileRepository;
 import com.ft.methodeapi.service.methode.NotFoundException;
 import com.google.common.base.Optional;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
 import com.yammer.metrics.annotation.Timed;
 import org.omg.CORBA.SystemException;
 
 @Path("eom-file")
+@Api(value = "/eom-file", description = "Resource for managing EOM files.")
 public class EomFileResource {
 
     private final MethodeFileRepository methodeContentRepository;
@@ -32,9 +35,15 @@ public class EomFileResource {
         this.methodeContentRepository = methodeContentRepository;
     }
 
+	@ApiOperation(
+	            value = "Returns a EOM file.",
+	            notes = "Returns a EOM file by UUID from the configured Methode instance.",
+	            response = EomFile.class,
+	            responseContainer = "Optional",
+	            produces = MediaType.APPLICATION_JSON)
     @GET
     @Timed
-    @Path("{uuid}")
+    @Path("/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     public Optional<EomFile> getByUuid(@PathParam("uuid") String uuid) {
         try {
@@ -44,6 +53,12 @@ public class EomFileResource {
         }
     }
 
+	@ApiOperation(
+	            value = "Writes a new file to Methode.",
+	            notes = "Writes the given EOM file to the configured Methode instance, and then returns it.",
+	            response = EomFile.class,
+	            produces = MediaType.APPLICATION_JSON,
+				consumes = MediaType.APPLICATION_JSON)
     @POST
     @Timed
     @Consumes(MediaType.APPLICATION_JSON)
@@ -57,9 +72,13 @@ public class EomFileResource {
         }
     }
 
+	@ApiOperation(
+	            value = "Deletes an EOM file in Methode.",
+	            notes = "Deletes an EOM file by UUID from the configured Methode instance.",
+				consumes = MediaType.APPLICATION_JSON)
     @DELETE
     @Timed
-    @Path("{uuid}")
+    @Path("/{uuid}")
     public void deleteByUuid(@PathParam("uuid") String uuid) {
         try {
             methodeContentRepository.deleteTestFileByUuid(uuid);

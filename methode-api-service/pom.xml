@@ -104,6 +104,10 @@
             <groupId>com.eidosmedia.mps</groupId>
             <artifactId>emmethodelibs</artifactId>
         </dependency>
+		<dependency>
+		  <groupId>com.ft.ws.lib</groupId>
+		  <artifactId>ft-swagger</artifactId>
+	  </dependency>
         <dependency>
             <groupId>com.eidosmedia</groupId>
             <artifactId>eom_NOT_Unicode</artifactId>

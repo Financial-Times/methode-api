@@ -17,3 +17,7 @@ methodeTestConnection:
   connectTimeout: 2000
 
 maxPingMillis: 500
+
+swaggerConfiguration:
+  apiVersion: 1.0
+  basePath: http://localhost:9080

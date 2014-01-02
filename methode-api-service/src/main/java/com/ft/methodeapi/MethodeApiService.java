@@ -2,6 +2,7 @@ package com.ft.methodeapi;
 
 import com.ft.methodeapi.service.methode.MethodeContentRetrievalHealthCheck;
 
+import com.ft.ws.lib.swagger.SwaggerBundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +29,7 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
 
     @Override
     public void initialize(Bootstrap<MethodeApiConfiguration> bootstrap) {
+		bootstrap.addBundle(new SwaggerBundle());
     }
 
     @Override
