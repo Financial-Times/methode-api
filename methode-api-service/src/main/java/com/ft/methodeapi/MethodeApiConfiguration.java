@@ -16,8 +16,6 @@ public class MethodeApiConfiguration extends Configuration implements SwaggerCon
     private final MethodeConnectionConfiguration methodeConnectionConfiguration;
     private final MethodeConnectionConfiguration methodeTestConnectionConfiguration;
     private final long maxPingMillis;
-	@NotNull
-	@JsonProperty
 	private SwaggerConfiguration swaggerConfiguration;
 
     public MethodeApiConfiguration(@JsonProperty("methodeConnection") MethodeConnectionConfiguration methodeConnectionConfiguration,
@@ -47,6 +45,8 @@ public class MethodeApiConfiguration extends Configuration implements SwaggerCon
         return maxPingMillis;
     }
 
+
+	@NotNull
 	@Override
 	public SwaggerConfiguration getSwaggerConfiguration() {
 	    return swaggerConfiguration;
@@ -57,7 +57,8 @@ public class MethodeApiConfiguration extends Configuration implements SwaggerCon
                 .add("super", super.toString())
                 .add("methodeConnectionConfiguration", methodeConnectionConfiguration)
                 .add("methodeTestConnectionConfiguration", methodeTestConnectionConfiguration)
-                .add("maxPingMillis", maxPingMillis);
+                .add("maxPingMillis", maxPingMillis)
+				.add("swaggerConfiguration", swaggerConfiguration);
     }
     
     @Override
