@@ -14,13 +14,16 @@ public class MethodeApiClientConfiguration {
     private final String methodeApiHost;
     private final int methodeApiPort;
     private final JerseyClientConfiguration jerseyClientConfiguration;
+    private Optional<AdditionalNodes> additionalNodes;
 
     public MethodeApiClientConfiguration(@JsonProperty("apiHost") String methodeApiHost,
                                          @JsonProperty("apiPort") int methodeApiPort,
-                                         @JsonProperty("jerseyClient") Optional<JerseyClientConfiguration> jerseyClientConfiguration) {
+                                         @JsonProperty("jerseyClient") Optional<JerseyClientConfiguration> jerseyClientConfiguration,
+                                         @JsonProperty("additionalNodes") Optional<AdditionalNodes> additionalNodes) {
         this.methodeApiHost = methodeApiHost;
         this.methodeApiPort = methodeApiPort;
         this.jerseyClientConfiguration = jerseyClientConfiguration.or(new JerseyClientConfiguration());
+        this.additionalNodes = additionalNodes;
     }
 
     @NotEmpty
@@ -37,5 +40,10 @@ public class MethodeApiClientConfiguration {
     @NotNull
     public JerseyClientConfiguration getJerseyClientConfiguration() {
         return jerseyClientConfiguration;
+    }
+
+    @Valid
+    public Optional<AdditionalNodes> getAdditionalNodes() {
+        return additionalNodes;
     }
 }

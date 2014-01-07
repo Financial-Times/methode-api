@@ -26,7 +26,11 @@
             <groupId>com.yammer.dropwizard</groupId>
             <artifactId>dropwizard-client</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.ft.resilient-jersey-wrapper</groupId>
+            <artifactId>resilient-jersey-wrapper</artifactId>
+            <version>0.1.5</version>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>methode-api-service</artifactId>
