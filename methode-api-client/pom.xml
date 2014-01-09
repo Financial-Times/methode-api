@@ -13,6 +13,10 @@
 
     <artifactId>methode-api-client</artifactId>
 
+    <properties>
+        <resilientclient.version>0.1.12</resilientclient.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -29,7 +33,7 @@
         <dependency>
             <groupId>com.ft.resilient-jersey-wrapper</groupId>
             <artifactId>resilient-jersey-wrapper</artifactId>
-            <version>0.1.5</version>
+            <version>${resilientclient.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

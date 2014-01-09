@@ -8,6 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.ft.api.jaxrs.client.exceptions.ApiNetworkingException;
+import com.ft.jerseyhttpwrapper.config.EndpointConfiguration;
 import com.ft.methodeapi.model.EomAssetType;
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodeapi.service.http.EomFileResource;
@@ -55,7 +56,7 @@ public class MethodeApiClientTest extends ResourceTest {
         final byte[] fileBytes = "blah, blah, blah".getBytes();
         when(methodeFileRepository.findFileByUuid(any(String.class))).thenReturn(Optional.of(new EomFile("asdf", "someType", fileBytes, "some attributes", "WebRevise", SYSTEM_ATTRIBUTES)));
 
-        EomFile eomFile = new MethodeApiClient(client(), "localhost", 1234).findFileByUuid("asdsfgdg");
+        EomFile eomFile = mockMethodeApiClient(client()).findFileByUuid("asdsfgdg");
 
         assertArrayEquals(fileBytes, eomFile.getValue());
     }
@@ -83,11 +84,15 @@ public class MethodeApiClientTest extends ResourceTest {
     }
 
     private void excerciseClientForGetEomFile(Client mockClient) {
-        (new MethodeApiClient(mockClient, "localhost", 1234)).findFileByUuid("035a2fa0-d988-11e2-bce1-002128161462");
+        mockMethodeApiClient(mockClient).findFileByUuid("035a2fa0-d988-11e2-bce1-002128161462");
     }
-    
+
+    private MethodeApiClient mockMethodeApiClient(Client mockClient) {
+        return new MethodeApiClient(mockClient, EndpointConfiguration.forTesting("localhost", 1234));
+    }
+
     private void excerciseClientForGetAssetTypes(Client mockClient) {
-        (new MethodeApiClient(mockClient, "localhost", 1234)).findAssetTypes(Sets.newSet("035a2fa0-d988-11e2-bce1-002128161462"));
+        mockMethodeApiClient(mockClient).findAssetTypes(Sets.newSet("035a2fa0-d988-11e2-bce1-002128161462"));
     }
     
     private Client primeClientToExperienceExceptionWithSpecificRootCause(Exception rootCause) {
@@ -107,7 +112,7 @@ public class MethodeApiClientTest extends ResourceTest {
     	
         when(methodeFileRepository.getAssetTypes(assetIds)).thenReturn(output);
 
-		Map<String, EomAssetType> assetTypes = new MethodeApiClient(client(), "localhost", 1234).findAssetTypes(assetIds);
+		Map<String, EomAssetType> assetTypes = mockMethodeApiClient(client()).findAssetTypes(assetIds);
 		System.out.println(assetTypes);
 
 		assertThat(assetTypes.entrySet(), everyItem(isIn(output.entrySet())));

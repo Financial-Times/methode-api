@@ -2,8 +2,6 @@ package com.ft.methodeapi.client;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,17 +11,14 @@ import javax.ws.rs.core.UriBuilder;
 import com.ft.api.jaxrs.client.exceptions.ApiNetworkingException;
 import com.ft.api.jaxrs.client.exceptions.RemoteApiException;
 import com.ft.api.jaxrs.errors.ErrorEntity;
-import com.ft.jerseyhttpwrapper.ResilienceStrategy;
-import com.ft.jerseyhttpwrapper.ResilientClient;
-import com.ft.jerseyhttpwrapper.providers.HostAndPortProvider;
+import com.ft.jerseyhttpwrapper.ResilientClientBuilder;
+import com.ft.jerseyhttpwrapper.config.EndpointConfiguration;
 import com.ft.methodeapi.model.EomAssetType;
 import com.ft.methodeapi.model.EomFile;
-import com.google.common.net.HostAndPort;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
-import com.yammer.dropwizard.client.JerseyClientBuilder;
 import com.yammer.dropwizard.config.Environment;
 
 import org.slf4j.Logger;
@@ -37,11 +32,20 @@ public class MethodeApiClient {
     private final String apiHost;
     private final int apiPort;
 
-    public MethodeApiClient(Client jerseyClient, String apiHost, int apiPort) {
-        this.jerseyClient = jerseyClient;
-        this.apiHost = apiHost;
-        this.apiPort = apiPort;
+    public MethodeApiClient(Environment environment, EndpointConfiguration endpointConfiguration) {
+        this(ResilientClientBuilder
+                    .in(environment)
+                    .using(endpointConfiguration)
+                    .build(),
+                endpointConfiguration
+            );
 
+    }
+
+    public MethodeApiClient(Client client, EndpointConfiguration endpointConfiguration) {
+        this.jerseyClient = client;
+        this.apiHost = endpointConfiguration.getHost();
+        this.apiPort = endpointConfiguration.getPort();
     }
 
     /**
@@ -137,56 +141,6 @@ public class MethodeApiClient {
         }
         throw new RemoteApiException(assetTypeUri,"GET",responseStatusCode,entity);
 
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private MethodeApiClientConfiguration configuration;
-        private JerseyClientBuilder jerseyClientBuilder = new JerseyClientBuilder();
-        private HostAndPortProvider primaryNodes;
-        private HostAndPortProvider secondaryNodes;
-
-        public Builder using(MethodeApiClientConfiguration configuration) {
-            this.configuration = configuration;
-            jerseyClientBuilder.using(configuration.getJerseyClientConfiguration());
-
-            if(configuration.getAdditionalNodes().isPresent()) {
-                AdditionalNodes additionalNodes = configuration.getAdditionalNodes().get();
-
-                // add the main host / port to the additional nodes.
-                List<String> allPrimaryNodes = new ArrayList<>(3);
-                allPrimaryNodes.add(String.format("%s:%d", configuration.getMethodeApiHost(), configuration.getMethodeApiPort()));
-                allPrimaryNodes.addAll(additionalNodes.getPrimaryNodes());
-
-                // may yield some null providers if validation of AdditionalNodes allows it
-                primaryNodes = ResilienceStrategy.randomiseAndFailoverTraffic(additionalNodes.getPrimaryNodes());
-                secondaryNodes = ResilienceStrategy.randomiseAndFailoverTraffic(additionalNodes.getSecondaryNodes());
-            }
-
-            return this;
-        }
-
-        public Builder using(Environment environment) {
-            jerseyClientBuilder.using(environment);
-            return this;
-        }
-
-        public MethodeApiClient build() {
-
-            Client client;
-            if(configuration.getAdditionalNodes().isPresent()) {
-                client = new ResilientClient(
-                    jerseyClientBuilder.build(),
-                    primaryNodes, secondaryNodes );
-            } else {
-               client = jerseyClientBuilder.build();
-            }
-
-            return new MethodeApiClient(client, configuration.getMethodeApiHost(), configuration.getMethodeApiPort());
-        }
     }
 
 }
