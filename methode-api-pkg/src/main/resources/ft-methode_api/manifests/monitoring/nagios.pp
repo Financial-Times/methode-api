@@ -4,12 +4,13 @@ class methode_api::monitoring::nagios {
   "${::certname}/1":
     url           => "http://${::hostname}/healthcheck",
     port          => "8081",
+    recode        => "200",
     expect        => 'can search for content',
     size          => 1,
-    wtime         => 1.0,
+    wtime         => 3.0,
     action_url    => 'https://sites.google.com/a/ft.com/dynamic-publishing-team/home/methode-api',
     notes         => "Severity 1 \\n Service unavailable \\n Methode API healthchecks are failing consistently. Please check http://${::hostname}:8081/healthcheck \\n\\n",
-    ctime	  => 2.5;
+    ctime	  => 3.0;
   }
 }
 
