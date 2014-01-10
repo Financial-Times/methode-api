@@ -11,7 +11,7 @@ class methode_api::monitoring::nagios {
     service_description => 'HTTP: ftlnx01829-lvpr-uk-int:8081/healthcheck:can search for content:200:1:3.0:3.0 ',
     target              => '/etc/nagios/nagios_service.cfg',
     use                 => 'generic-service',
-    max_check_attempts  => '5';
+    max_check_attempts  => '5',
   }
 }
 
