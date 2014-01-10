@@ -1,7 +1,7 @@
 class methode_api::monitoring::nagios {
   $thisenv = hiera('lifecycle_environment','')
   
-  @@nagios_service { 'check_http__app01-methode-api-pr-uk.content-platform.int.cloud.ft.com_ftlnx01829-lvpr-uk-int_8081_/healthcheck_can search for content_200_1_3.0_3.0':
+  @@nagios_service { 'check_http__app01-methode-api-testinG':
     ensure              => 'present',
     action_url          => 'https://sites.google.com/a/ft.com/dynamic-publishing-team/home/methode-api',
     check_command       => 'check_http!ftlnx01829-lvpr-uk-int!8081!/healthcheck!can search for content!200!1!3.0!3.0',
