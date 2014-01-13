@@ -12,6 +12,7 @@ class methode_api::monitoring::nagios {
   target              => '/etc/nagios/nagios_service.cfg',
   use                 => 'generic-service',
   tag		      => "${::pdsdomain}",
+  check_interval      => '1',
 }
 
 }
