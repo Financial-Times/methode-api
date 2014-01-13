@@ -1,7 +1,5 @@
 class methode_api::monitoring::nagios {
 
-  notify {"Running the nagios.pp ":}
-
   @@nagios_service { 'check_http__app01-methode-api-pr-uk.content-platform.int.cloud.ft.com_ftlnx01829-lvpr-uk-int_8081_/healthcheck_OK_200_1_3.0_3.0':
   ensure              => 'present',
   action_url          => 'https://sites.google.com/a/ft.com/dynamic-publishing-team/home/methode-api',
@@ -13,6 +11,7 @@ class methode_api::monitoring::nagios {
   service_description => 'HTTP: ftlnx01829-lvpr-uk-int:8081/healthcheck:OK:200:1:3.0:3.0 ',
   target              => '/etc/nagios/nagios_service.cfg',
   use                 => 'generic-service',
+  tag		      => "${::pdsdomain}",
 }
 
 }
