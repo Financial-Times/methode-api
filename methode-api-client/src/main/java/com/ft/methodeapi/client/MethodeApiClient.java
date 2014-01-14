@@ -19,6 +19,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
+import com.yammer.dropwizard.client.JerseyClientBuilder;
 import com.yammer.dropwizard.config.Environment;
 
 import org.slf4j.Logger;
@@ -33,13 +34,10 @@ public class MethodeApiClient {
     private final int apiPort;
 
     public MethodeApiClient(Environment environment, EndpointConfiguration endpointConfiguration) {
-        this(ResilientClientBuilder
-                    .in(environment)
-                    .using(endpointConfiguration)
-                    .build(),
-                endpointConfiguration
+        this(
+            (new JerseyClientBuilder()).using(environment).using(endpointConfiguration.getJerseyClientConfiguration()).build(),
+            endpointConfiguration
             );
-
     }
 
     public MethodeApiClient(Client client, EndpointConfiguration endpointConfiguration) {
