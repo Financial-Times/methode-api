@@ -24,7 +24,7 @@ methodeTestConnection:
   password: dynpubtest
   connectTimeout: 2000
 
-maxPingMillis: 500
+maxPingMillis: 2000
 
 logging:
   file:
