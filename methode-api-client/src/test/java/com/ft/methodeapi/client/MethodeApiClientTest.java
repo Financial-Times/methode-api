@@ -33,6 +33,8 @@ import java.util.Set;
 
 public class MethodeApiClientTest extends ResourceTest {
 
+	private final String TRANSACTION_ID = "tid_test";
+
     private MethodeFileRepository methodeFileRepository;
 
 	private final String SYSTEM_ATTRIBUTES = "<props><productInfo><name>FTcom</name>\n" +
@@ -56,7 +58,7 @@ public class MethodeApiClientTest extends ResourceTest {
         final byte[] fileBytes = "blah, blah, blah".getBytes();
         when(methodeFileRepository.findFileByUuid(any(String.class))).thenReturn(Optional.of(new EomFile("asdf", "someType", fileBytes, "some attributes", "WebRevise", SYSTEM_ATTRIBUTES)));
 
-        EomFile eomFile = mockMethodeApiClient(client()).findFileByUuid("asdsfgdg");
+        EomFile eomFile = mockMethodeApiClient(client()).findFileByUuid("asdsfgdg", TRANSACTION_ID);
 
         assertArrayEquals(fileBytes, eomFile.getValue());
     }
@@ -84,7 +86,7 @@ public class MethodeApiClientTest extends ResourceTest {
     }
 
     private void excerciseClientForGetEomFile(Client mockClient) {
-        mockMethodeApiClient(mockClient).findFileByUuid("035a2fa0-d988-11e2-bce1-002128161462");
+        mockMethodeApiClient(mockClient).findFileByUuid("035a2fa0-d988-11e2-bce1-002128161462", TRANSACTION_ID);
     }
 
     private MethodeApiClient mockMethodeApiClient(Client mockClient) {

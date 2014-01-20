@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 public class MethodeApiClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodeApiClient.class);
+	private static final String TRANSACTION_ID_HEADER = "X-Request-Id";
 
     private final Client jerseyClient;
     private final String apiHost;
@@ -60,7 +61,7 @@ public class MethodeApiClient {
                 .port(apiPort);
     }
 
-    public EomFile findFileByUuid(String uuid) {
+    public EomFile findFileByUuid(String uuid, String transactionId) {
         final URI fileByUuidUri = fileUrlBuilder().build(uuid);
         LOGGER.debug("making GET request to methode api {}", fileByUuidUri);
 
@@ -70,6 +71,7 @@ public class MethodeApiClient {
             clientResponse = jerseyClient
                     .resource(fileByUuidUri)
                     .accept(MediaType.APPLICATION_JSON_TYPE)
+					.header(TRANSACTION_ID_HEADER, transactionId)
                     .get(ClientResponse.class);
         } catch (ClientHandlerException che) {
             Throwable cause = che.getCause();
