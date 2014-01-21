@@ -134,6 +134,10 @@
             <artifactId>jaxrs-error-handling-builder</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.ft</groupId>
+            <artifactId>jaxrs-transaction-id-handling</artifactId>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>

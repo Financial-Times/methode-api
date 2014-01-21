@@ -15,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
+import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodeapi.service.methode.ActionNotPermittedException;
 import com.ft.methodeapi.service.methode.InvalidEomFileException;
@@ -25,19 +26,15 @@ import com.google.common.base.Optional;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.yammer.metrics.annotation.Timed;
-import org.apache.commons.lang.StringUtils;
 import org.omg.CORBA.SystemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 @Path("eom-file")
 @Api(value = "/eom-file", description = "Resource for managing EOM files.")
 public class EomFileResource {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(EomFileResource.class);
-	private static final String TRANSACTION_ID_HEADER = "X-Request-Id";
 
     private final MethodeFileRepository methodeContentRepository;
 
@@ -56,7 +53,7 @@ public class EomFileResource {
     @Path("/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     public Optional<EomFile> getByUuid(@PathParam("uuid") String uuid, @Context HttpHeaders httpHeaders) {
-		String transactionId = getOrGenerateTransactionId(httpHeaders, uuid, "EOM File requested.");
+		String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, uuid, "EOM File requested.");
 		try {
 			try {
 				Optional<EomFile> eomFile = methodeContentRepository.findFileByUuid(uuid);
@@ -84,7 +81,7 @@ public class EomFileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public EomFile newTestFile(final EomFile eomFile, @Context HttpHeaders httpHeaders) {
-		String transactionId = getOrGenerateTransactionId(httpHeaders, eomFile.getUuid(), "Create new test EOM File.");
+		String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, eomFile.getUuid(), "Create new test EOM File.");
         final String filename = "test-file-" + System.currentTimeMillis() + ".xml";
         try {
 			try {
@@ -110,7 +107,7 @@ public class EomFileResource {
     @Timed
     @Path("/{uuid}")
     public void deleteByUuid(@PathParam("uuid") String uuid, @Context HttpHeaders httpHeaders) {
-		String transactionId = getOrGenerateTransactionId(httpHeaders, uuid, "Delete EOM file.");
+		String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, uuid, "Delete EOM file.");
 		try {
 			try {
 				methodeContentRepository.deleteTestFileByUuid(uuid);
@@ -129,25 +126,5 @@ public class EomFileResource {
 			throw e;
 		}
     }
-
-	private String getOrGenerateTransactionId(HttpHeaders httpHeaders, String uuid, String message) {
-		String transactionId = getHeaderValue(httpHeaders, TRANSACTION_ID_HEADER);
-		if (StringUtils.isEmpty(transactionId)) {
-			LOGGER.error("Transaction ID ({} header) not found.", TRANSACTION_ID_HEADER);
-			throw new IllegalStateException("Transaction ID not found.");
-		} else {
-			LOGGER.info("message=\"{}\" transaction_id={} uuid={}.", message, transactionId, uuid);
-			return transactionId;
-		}
-	}
-
-	private String getHeaderValue(HttpHeaders httpHeaders, String headerName) {
-		List<String> headerValues = httpHeaders.getRequestHeader(headerName);
-		if (headerValues == null || headerValues.isEmpty()) {
-			return null;
-		} else {
-			return headerValues.get(0);
-		}
-	}
 
 }

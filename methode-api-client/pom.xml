@@ -36,6 +36,10 @@
             <version>${resilientclient.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.ft</groupId>
+            <artifactId>jaxrs-transaction-id-handling</artifactId>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>methode-api-service</artifactId>
             <scope>test</scope>

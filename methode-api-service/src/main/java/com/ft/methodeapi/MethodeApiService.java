@@ -1,5 +1,6 @@
 package com.ft.methodeapi;
 
+import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.methodeapi.service.methode.MethodeContentRetrievalHealthCheck;
 
 import com.ft.ws.lib.swagger.SwaggerBundle;

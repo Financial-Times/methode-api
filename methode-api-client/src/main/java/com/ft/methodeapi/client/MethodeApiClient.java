@@ -11,7 +11,7 @@ import javax.ws.rs.core.UriBuilder;
 import com.ft.api.jaxrs.client.exceptions.ApiNetworkingException;
 import com.ft.api.jaxrs.client.exceptions.RemoteApiException;
 import com.ft.api.jaxrs.errors.ErrorEntity;
-import com.ft.jerseyhttpwrapper.ResilientClientBuilder;
+import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.jerseyhttpwrapper.config.EndpointConfiguration;
 import com.ft.methodeapi.model.EomAssetType;
 import com.ft.methodeapi.model.EomFile;
@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 public class MethodeApiClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodeApiClient.class);
-	private static final String TRANSACTION_ID_HEADER = "X-Request-Id";
 
     private final Client jerseyClient;
     private final String apiHost;
@@ -71,7 +70,7 @@ public class MethodeApiClient {
             clientResponse = jerseyClient
                     .resource(fileByUuidUri)
                     .accept(MediaType.APPLICATION_JSON_TYPE)
-					.header(TRANSACTION_ID_HEADER, transactionId)
+					.header(TransactionIdUtils.TRANSACTION_ID_HEADER, transactionId)
                     .get(ClientResponse.class);
         } catch (ClientHandlerException che) {
             Throwable cause = che.getCause();
