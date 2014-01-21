@@ -49,6 +49,7 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
         environment.addHealthCheck(new MethodePingHealthCheck(methodeContentRepository, configuration.getMaxPingMillis()));
         environment.addHealthCheck(new MethodeContentRetrievalHealthCheck(methodeContentRepository));
         environment.addProvider(new RuntimeExceptionMapper());
+		environment.addFilter(new TransactionIdFilter(), "/eom-file/*");
     }
 
     private MethodeObjectFactory createMethodeObjectFactory(MethodeConnectionConfiguration methodeConnectionConfiguration) {

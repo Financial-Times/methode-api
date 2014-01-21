@@ -18,6 +18,7 @@ import org.junit.Test;
 public class EomFileResourceDeleteTest extends ResourceTest {
 
     private MethodeFileRepository methodeFileRepository;
+	private static final String TRANSACTION_ID_HEADER = "X-Request-Id";
 
     @Override
     protected void setUpResources() throws Exception {
@@ -31,7 +32,7 @@ public class EomFileResourceDeleteTest extends ResourceTest {
         final String uuid = UUID.randomUUID().toString();
         doThrow(new NotFoundException(uuid)).when(methodeFileRepository).deleteTestFileByUuid(uuid);
 
-        final ClientResponse clientResponse = client().resource("/eom-file/").path(uuid).delete(ClientResponse.class);
+        final ClientResponse clientResponse = client().resource("/eom-file/").path(uuid).header(TRANSACTION_ID_HEADER, "tid_test").delete(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
     }
@@ -43,7 +44,7 @@ public class EomFileResourceDeleteTest extends ResourceTest {
         final String uuid = UUID.randomUUID().toString();
         doThrow(new ActionNotPermittedException("synthetic permission error")).when(methodeFileRepository).deleteTestFileByUuid(uuid);
 
-        final ClientResponse clientResponse = client().resource("/eom-file/").path(uuid).delete(ClientResponse.class);
+        final ClientResponse clientResponse = client().resource("/eom-file/").path(uuid).header(TRANSACTION_ID_HEADER, "tid_test").delete(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(403)));
     }

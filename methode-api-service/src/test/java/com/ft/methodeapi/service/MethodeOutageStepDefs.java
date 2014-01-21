@@ -27,6 +27,8 @@ import cucumber.api.java.en.When;
 
 public class MethodeOutageStepDefs extends ResourceTest {
 
+	private static final String TRANSACTION_ID_HEADER = "X-Request-Id";
+
 	private MethodeFileRepository methodeFileRepository;
 	private ClientResponse response;
 
@@ -56,7 +58,7 @@ public class MethodeOutageStepDefs extends ResourceTest {
     public void i_attempt_to_access_an_article() {
     	// avoid dependency cycles by NOT using the official client
         try {
-            client().resource("/eom-file/").path(UUID.randomUUID().toString()).accept(MediaType.APPLICATION_JSON_TYPE).get(EomFile.class);
+            client().resource("/eom-file/").path(UUID.randomUUID().toString()).header(TRANSACTION_ID_HEADER, "tid_test").accept(MediaType.APPLICATION_JSON_TYPE).get(EomFile.class);
         } catch(UniformInterfaceException uie) {
         	response = uie.getResponse();
         }
