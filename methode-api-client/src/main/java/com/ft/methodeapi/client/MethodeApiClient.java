@@ -66,7 +66,7 @@ public class MethodeApiClient {
 
         ClientResponse clientResponse;
 
-		LOGGER.info("request_uri={} transaction_id={} uuid={}", fileByUuidUri, transactionId, uuid);
+		LOGGER.info("request_uri={} uuid={}", fileByUuidUri, uuid);
         try {
             clientResponse = jerseyClient
                     .resource(fileByUuidUri)

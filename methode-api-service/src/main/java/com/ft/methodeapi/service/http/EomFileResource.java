@@ -9,13 +9,10 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
-import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodeapi.service.methode.ActionNotPermittedException;
 import com.ft.methodeapi.service.methode.InvalidEomFileException;
@@ -52,22 +49,14 @@ public class EomFileResource {
     @Timed
     @Path("/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Optional<EomFile> getByUuid(@PathParam("uuid") String uuid, @Context HttpHeaders httpHeaders) {
-		String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, uuid, "EOM File requested.");
-		try {
-			try {
-				Optional<EomFile> eomFile = methodeContentRepository.findFileByUuid(uuid);
-				LOGGER.info("message=\"File retrieved successfully.\" transaction_id={} uuid={}.", transactionId, uuid);
-				return eomFile;
-			} catch(MethodeException | SystemException ex) {
-				throw ServerError.status(503).error("error accessing upstream system").exception(ex);
-			}
-		} catch (RuntimeException e) {
-			String errorMessage = String.format("message=\"%s.\" transaction_id=%s uuid=%s",
-					e.getMessage(), transactionId, uuid);
-			LOGGER.error(errorMessage, e);
-			throw e;
-		}
+    public Optional<EomFile> getByUuid(@PathParam("uuid") String uuid) {
+        try {
+            Optional<EomFile> eomFile = methodeContentRepository.findFileByUuid(uuid);
+            LOGGER.info("message=\"File retrieved successfully.\" uuid={}.", uuid);
+            return eomFile;
+        } catch(MethodeException | SystemException ex) {
+            throw ServerError.status(503).error("error accessing upstream system").exception(ex);
+        }
     }
 
 	@ApiOperation(
@@ -80,23 +69,15 @@ public class EomFileResource {
     @Timed
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public EomFile newTestFile(final EomFile eomFile, @Context HttpHeaders httpHeaders) {
-		String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, eomFile.getUuid(), "Create new test EOM File.");
+    public EomFile newTestFile(final EomFile eomFile) {
         final String filename = "test-file-" + System.currentTimeMillis() + ".xml";
         try {
-			try {
-				EomFile newEomFile = methodeContentRepository.createNewTestFile(filename, eomFile);
-				LOGGER.info("message=\"Test file created successfully.\" transaction_id={} uuid={}.", transactionId, newEomFile.getUuid());
-				return newEomFile;
-			} catch (InvalidEomFileException e) {
-				throw ClientError.status(422).exception(e);
-			}
-		} catch (RuntimeException e) {
-			String errorMessage = String.format("message=\"%s.\" transaction_id=%s uuid=%s",
-					e.getMessage(), transactionId, eomFile.getUuid());
-			LOGGER.error(errorMessage, e);
-			throw e;
-		}
+            EomFile newEomFile = methodeContentRepository.createNewTestFile(filename, eomFile);
+            LOGGER.info("message=\"Test file created successfully.\" uuid={}.", newEomFile.getUuid());
+            return newEomFile;
+        } catch (InvalidEomFileException e) {
+            throw ClientError.status(422).exception(e);
+        }
     }
 
 	@ApiOperation(
@@ -106,25 +87,17 @@ public class EomFileResource {
     @DELETE
     @Timed
     @Path("/{uuid}")
-    public void deleteByUuid(@PathParam("uuid") String uuid, @Context HttpHeaders httpHeaders) {
-		String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, uuid, "Delete EOM file.");
-		try {
-			try {
-				methodeContentRepository.deleteTestFileByUuid(uuid);
-				LOGGER.info("message=\"File deleted successfully.\" transaction_id={} uuid={}.", transactionId, uuid);
-			} catch (NotFoundException e) {
-				throw ClientError.status(404).error(format("%s not found", uuid)).exception();
-			} catch (ActionNotPermittedException e) {
-				throw ClientError.status(403).error(format("not allowed to delete %s", uuid)).exception(e);
-			} catch (MethodeException | SystemException e) {
-				throw ServerError.status(503).error("error accessing upstream system").exception(e);
-			}
-		} catch (RuntimeException e) {
-			String errorMessage = String.format("message=\"%s.\" transaction_id=%s uuid=%s",
-					e.getMessage(), transactionId, uuid);
-			LOGGER.error(errorMessage, e);
-			throw e;
-		}
+    public void deleteByUuid(@PathParam("uuid") String uuid) {
+        try {
+            methodeContentRepository.deleteTestFileByUuid(uuid);
+            LOGGER.info("message=\"File deleted successfully.\" uuid={}.", uuid);
+        } catch (NotFoundException e) {
+            throw ClientError.status(404).error(format("%s not found", uuid)).exception();
+        } catch (ActionNotPermittedException e) {
+            throw ClientError.status(403).error(format("not allowed to delete %s", uuid)).exception(e);
+        } catch (MethodeException | SystemException e) {
+            throw ServerError.status(503).error("error accessing upstream system").exception(e);
+        }
     }
 
 }
