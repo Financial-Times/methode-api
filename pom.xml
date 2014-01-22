@@ -28,7 +28,7 @@
 
     <properties>
         <hamcrest.version>1.3</hamcrest.version>
-        <jaxrs.errorhandling.version>1.0.3</jaxrs.errorhandling.version>
+        <jaxrs.errorhandling.version>1.0.7</jaxrs.errorhandling.version>
         <jaxrs.transaction-id-handling.version>1.3</jaxrs.transaction-id-handling.version>
         <cucumber.version>1.1.5</cucumber.version>
         <restassured.version>1.8.1</restassured.version>
