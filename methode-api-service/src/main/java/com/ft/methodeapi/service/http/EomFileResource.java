@@ -52,8 +52,12 @@ public class EomFileResource {
     public Optional<EomFile> getByUuid(@PathParam("uuid") String uuid) {
         try {
             Optional<EomFile> eomFile = methodeContentRepository.findFileByUuid(uuid);
-            LOGGER.info("message=\"File retrieved successfully.\" uuid={}.", uuid);
-            return eomFile;
+            if(eomFile.isPresent()){
+                LOGGER.info("message=\"File retrieved successfully.\" uuid={}.", uuid);
+                return eomFile;
+            }else{
+                throw ClientError.status(404).error(String.format("Eom file not found for uuid: %s", uuid)).exception();
+            }
         } catch(MethodeException | SystemException ex) {
             throw ServerError.status(503).error("error accessing upstream system").exception(ex);
         }
