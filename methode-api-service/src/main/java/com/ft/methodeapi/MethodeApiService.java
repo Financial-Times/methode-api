@@ -51,6 +51,7 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
         environment.addHealthCheck(new MethodeContentRetrievalHealthCheck(methodeContentRepository));
         environment.addProvider(new RuntimeExceptionMapper());
 		environment.addFilter(new TransactionIdFilter(), "/eom-file/*");
+        environment.addFilter(new TransactionIdFilter(), "/asset-type/*");
     }
 
     private MethodeObjectFactory createMethodeObjectFactory(MethodeConnectionConfiguration methodeConnectionConfiguration) {
