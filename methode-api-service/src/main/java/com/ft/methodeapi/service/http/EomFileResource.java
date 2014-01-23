@@ -51,13 +51,7 @@ public class EomFileResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Optional<EomFile> getByUuid(@PathParam("uuid") String uuid) {
         try {
-            Optional<EomFile> eomFile = methodeContentRepository.findFileByUuid(uuid);
-            if(eomFile.isPresent()){
-                LOGGER.info("message=\"File retrieved successfully.\" uuid={}.", uuid);
-                return eomFile;
-            }else{
-                throw ClientError.status(404).error(String.format("Eom file not found for uuid: %s", uuid)).exception();
-            }
+            return methodeContentRepository.findFileByUuid(uuid);
         } catch(MethodeException | SystemException ex) {
             throw ServerError.status(503).error("error accessing upstream system").exception(ex);
         }
@@ -77,7 +71,6 @@ public class EomFileResource {
         final String filename = "test-file-" + System.currentTimeMillis() + ".xml";
         try {
             EomFile newEomFile = methodeContentRepository.createNewTestFile(filename, eomFile);
-            LOGGER.info("message=\"Test file created successfully.\" uuid={}.", newEomFile.getUuid());
             return newEomFile;
         } catch (InvalidEomFileException e) {
             throw ClientError.status(422).exception(e);
@@ -94,7 +87,6 @@ public class EomFileResource {
     public void deleteByUuid(@PathParam("uuid") String uuid) {
         try {
             methodeContentRepository.deleteTestFileByUuid(uuid);
-            LOGGER.info("message=\"File deleted successfully.\" uuid={}.", uuid);
         } catch (NotFoundException e) {
             throw ClientError.status(404).error(format("%s not found", uuid)).exception();
         } catch (ActionNotPermittedException e) {

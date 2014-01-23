@@ -51,9 +51,7 @@ public class GetAssetTypeResource {
         try {
         	if (assetIdentifiers != null) {
             	LOGGER.debug("Asset identifiers: {}", Joiner.on(",").join(assetIdentifiers));
-                Map<String, EomAssetType> assetTypes = methodeFileRepository.getAssetTypes(assetIdentifiers);
-                LOGGER.info("message=\"Returning asset types\" uuids=\"{}\".", assetTypes.keySet());
-                return assetTypes;
+                return methodeFileRepository.getAssetTypes(assetIdentifiers);
         	} else {
         		throw ClientError.status(400).error("No asset identifiers supplied").exception();
         	}
