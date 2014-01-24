@@ -7,7 +7,7 @@ import EOM.RepositoryError;
 import EOM.Session;
 
 import com.ft.methodeapi.service.methode.MethodeException;
-import com.ft.methodeapi.service.methode.MethodeObjectFactory;
+import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate.SessionCallback;
 
 public class MethodeFileSystemAdminOperationTemplate<T> {

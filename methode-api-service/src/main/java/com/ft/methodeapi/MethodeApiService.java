@@ -1,6 +1,7 @@
 package com.ft.methodeapi;
 
 import com.ft.api.util.transactionid.TransactionIdFilter;
+import com.ft.methodeapi.service.methode.connection.DefaultMethodeObjectFactory;
 import com.ft.methodeapi.service.methode.MethodeContentRetrievalHealthCheck;
 
 import com.ft.ws.lib.swagger.SwaggerBundle;
@@ -10,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.ft.api.jaxrs.errors.RuntimeExceptionMapper;
 import com.ft.api.util.VersionResource;
 import com.ft.api.util.buildinfo.BuildInfoResource;
-import com.ft.methodeapi.service.methode.MethodeObjectFactory;
+import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.MethodePingHealthCheck;
 import com.ft.methodeapi.service.http.EomFileResource;
 import com.ft.methodeapi.service.http.GetAssetTypeResource;
@@ -55,7 +56,7 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
     }
 
     private MethodeObjectFactory createMethodeObjectFactory(MethodeConnectionConfiguration methodeConnectionConfiguration) {
-        return MethodeObjectFactory.builder()
+        return DefaultMethodeObjectFactory.builder()
                     .withHost(methodeConnectionConfiguration.getMethodeHostName())
                     .withPort(methodeConnectionConfiguration.getMethodePort())
                     .withUsername(methodeConnectionConfiguration.getMethodeUserName())
@@ -63,6 +64,7 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
 					.withConnectionTimeout(methodeConnectionConfiguration.getConnectTimeout())
                     .withOrbClass(methodeConnectionConfiguration.getOrbClass())
                     .withOrbSingletonClass(methodeConnectionConfiguration.getOrbSingletonClass())
+                    .withPooling(5)
                     .build();
     }
 }

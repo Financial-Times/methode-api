@@ -2,7 +2,7 @@ package com.ft.methodeapi.service.methode.templates;
 
 import EOM.Repository;
 import EOM.Session;
-import com.ft.methodeapi.service.methode.MethodeObjectFactory;
+import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

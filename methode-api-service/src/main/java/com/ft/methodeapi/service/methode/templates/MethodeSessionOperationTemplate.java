@@ -2,7 +2,7 @@ package com.ft.methodeapi.service.methode.templates;
 
 import EOM.Repository;
 import EOM.Session;
-import com.ft.methodeapi.service.methode.MethodeObjectFactory;
+import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 
 /**
  * Encapsulates orchestration required to find, open and close the correct sequence of Methode objects to

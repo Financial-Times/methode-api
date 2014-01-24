@@ -1,4 +1,4 @@
-package com.ft.methodeapi.service.methode;
+package com.ft.methodeapi.service.methode.connection;
 
 import EOM.ObjectLocked;
 import EOM.PermissionDenied;
@@ -7,6 +7,7 @@ import EOM.RepositoryError;
 import EOM.RepositoryHelper;
 import EOM.RepositoryPackage.InvalidLogin;
 import EOM.Session;
+import com.ft.methodeapi.service.methode.MethodeException;
 import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.MetricsRegistry;
 import com.yammer.metrics.core.Timer;
@@ -27,9 +28,9 @@ import java.util.Properties;
  *
  * @author Simon.Gibbs
  */
-public class MethodeObjectFactory {
+public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MethodeObjectFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultMethodeObjectFactory.class);
 
     private final String username;
     private final String password;
@@ -43,19 +44,19 @@ public class MethodeObjectFactory {
 
     private final MetricsRegistry metricsRegistry = Metrics.defaultRegistry();
 
-    private final Timer createSessionTimer = metricsRegistry.newTimer(MethodeObjectFactory.class, "create-methode-session");
-    private final Timer closeSessionTimer = metricsRegistry.newTimer(MethodeObjectFactory.class, "close-methode-session");
+    private final Timer createSessionTimer = metricsRegistry.newTimer(DefaultMethodeObjectFactory.class, "create-methode-session");
+    private final Timer closeSessionTimer = metricsRegistry.newTimer(DefaultMethodeObjectFactory.class, "close-methode-session");
 
-    private final Timer createNamingServiceTimer = metricsRegistry.newTimer(MethodeObjectFactory.class, "create-naming-service");
-    private final Timer closeNameServiceTimer = metricsRegistry.newTimer(MethodeObjectFactory.class, "close-naming-service");
+    private final Timer createNamingServiceTimer = metricsRegistry.newTimer(DefaultMethodeObjectFactory.class, "create-naming-service");
+    private final Timer closeNameServiceTimer = metricsRegistry.newTimer(DefaultMethodeObjectFactory.class, "close-naming-service");
 
-    private final Timer createOrbTimer = metricsRegistry.newTimer(MethodeObjectFactory.class, "create-orb");
-    private final Timer closeOrbTimer = metricsRegistry.newTimer(MethodeObjectFactory.class, "close-orb");
+    private final Timer createOrbTimer = metricsRegistry.newTimer(DefaultMethodeObjectFactory.class, "create-orb");
+    private final Timer closeOrbTimer = metricsRegistry.newTimer(DefaultMethodeObjectFactory.class, "close-orb");
 
-    private final Timer createRepositoryTimer = metricsRegistry.newTimer(MethodeObjectFactory.class, "create-repository");
-    private final Timer closeRepositoryTimer = metricsRegistry.newTimer(MethodeObjectFactory.class, "close-repository");
+    private final Timer createRepositoryTimer = metricsRegistry.newTimer(DefaultMethodeObjectFactory.class, "create-repository");
+    private final Timer closeRepositoryTimer = metricsRegistry.newTimer(DefaultMethodeObjectFactory.class, "close-repository");
 
-    public MethodeObjectFactory(String hostname, int port, String username, String password, int connectionTimeout, String orbClass, String orbSingletonClass) {
+    public DefaultMethodeObjectFactory(String hostname, int port, String username, String password, int connectionTimeout, String orbClass, String orbSingletonClass) {
 		this.hostname = hostname;
 		this.port = port;
         this.username = username;
@@ -65,10 +66,11 @@ public class MethodeObjectFactory {
         this.orbSingletonClass = orbSingletonClass;
         orbInitRef = String.format("NS=corbaloc:iiop:%s:%d/NameService", hostname, port);    }
 
-    public MethodeObjectFactory(Builder builder) {
+    public DefaultMethodeObjectFactory(Builder builder) {
         this(builder.host, builder.port, builder.username, builder.password, builder.connectionTimeout, builder.orbClass, builder.orbSingletonClass);
     }
 
+    @Override
     public Session createSession(Repository repository) {
         Session session;
         final TimerContext timerContext = createSessionTimer.time();
@@ -82,6 +84,7 @@ public class MethodeObjectFactory {
         return session;
     }
 
+    @Override
     public NamingContextExt createNamingService(ORB orb) {
         final TimerContext timerContext = createNamingServiceTimer.time();
         try {
@@ -93,6 +96,7 @@ public class MethodeObjectFactory {
         }
     }
 
+    @Override
     public void maybeCloseNamingService(NamingContextExt namingService) {
         if (namingService != null) {
             final TimerContext timerContext = closeNameServiceTimer.time();
@@ -104,6 +108,7 @@ public class MethodeObjectFactory {
         }
     }
 
+    @Override
     public Repository createRepository(NamingContextExt namingService) {
         final TimerContext timerContext = createRepositoryTimer.time();
         try {
@@ -116,6 +121,7 @@ public class MethodeObjectFactory {
         }
     }
 
+    @Override
     public ORB createOrb() {
         final TimerContext timerContext = createOrbTimer.time();
         try {
@@ -133,6 +139,7 @@ public class MethodeObjectFactory {
         }
     }
 
+    @Override
     public void maybeCloseSession(Session session) {
         if (session != null) {
             final TimerContext timerContext = closeSessionTimer.time();
@@ -147,6 +154,7 @@ public class MethodeObjectFactory {
         }
     }
 
+    @Override
     public void maybeCloseOrb(ORB orb) {
         if (orb != null) {
             final TimerContext timerContext = closeOrbTimer.time();
@@ -158,6 +166,7 @@ public class MethodeObjectFactory {
         }
     }
 
+    @Override
     public void maybeCloseRepository(Repository repository) {
         if(repository!=null) {
             final TimerContext timerContext = closeRepositoryTimer.time();
@@ -185,7 +194,12 @@ public class MethodeObjectFactory {
 		return username;
 	}
 
-	public static class Builder {
+    @Override
+    public String getDescription() {
+        return String.format("hostname: %s, nsPort: %d, userName: %s", getHostname(), getPort(), getUsername());
+    }
+
+    public static class Builder {
 
         private String username;
         private String password;
@@ -194,6 +208,7 @@ public class MethodeObjectFactory {
 		private int connectionTimeout;
         private String orbClass;
         private String orbSingletonClass;
+        private int poolSize;
 
         public Builder withUsername(String username) {
             this.username = username;
@@ -231,7 +246,18 @@ public class MethodeObjectFactory {
         }
 
         public MethodeObjectFactory build() {
-            return new MethodeObjectFactory(this);
+
+            MethodeObjectFactory factory = new DefaultMethodeObjectFactory(this);
+            if(poolSize>0) {
+                factory = new PoolingMethodeObjectFactory(factory, poolSize);
+            }
+
+            return factory;
+        }
+
+        public Builder withPooling(int poolSize) {
+            this.poolSize = poolSize;
+            return this;
         }
     }
 
