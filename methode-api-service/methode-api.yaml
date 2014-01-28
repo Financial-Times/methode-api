@@ -16,6 +16,7 @@ methodeConnection:
   userName: app-methodeAPI
   password: methodeapi
   connectTimeout: 2000
+  poolSize: 20
 
 methodeTestConnection:
   hostName: preditor-methode-01.svc.ft.com
@@ -23,6 +24,7 @@ methodeTestConnection:
   userName: dynpubtest
   password: dynpubtest
   connectTimeout: 2000
+  poolSize: 0
 
 maxPingMillis: 2000
 
