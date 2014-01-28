@@ -19,8 +19,13 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
@@ -54,6 +59,8 @@ public class StepDefs {
     private List<UUID> createdArticles;
     private EomFile theExpectedArticle;
 
+    private List<Long> requestTimings;
+
 
     public StepDefs(AcceptanceTestConfiguration acceptanceTestConfiguration) throws IOException {
     	this.acceptanceTestConfiguration = acceptanceTestConfiguration;
@@ -64,8 +71,9 @@ public class StepDefs {
     }
 
     @Before
-    public void createCreatedArticleList() {
+    public void setup() {
         createdArticles = new ArrayList<>();
+        requestTimings = new ArrayList<>(1000);
     }
 
     @After
@@ -141,6 +149,46 @@ public class StepDefs {
 		theResponseEntityForSuccessfulRequest = theResponse.asString();
 	}
 
+    @When("^(\\d+) users access the article a total of (\\d+) times$")
+    public void i_attempt_to_access_the_article_count_times(int users, int count) throws Throwable {
+        final String url = acceptanceTestConfiguration.getMethodeApiServiceUrl() + uuidForArticleInMethode.toString();
+        LOGGER.info("Calling Methode API: url=" + url);
+
+        ExecutorService userPool = Executors.newFixedThreadPool(users);
+        List<Future<Long>> futureTimings = new ArrayList<>(count);
+
+        for(int i=0; i<count; i++) {
+
+            futureTimings.add(userPool.submit(new Callable<Long>() {
+
+                @Override
+                public Long call() throws Exception {
+                    long startTime = System.currentTimeMillis();
+                    Response theResponse =
+                            given()
+                                    .contentType(ContentType.JSON)
+                                    .expect().statusCode(200)
+                                    .log().ifError()
+                                    .when()
+                                    .get(url);
+
+                    theResponseEntityForSuccessfulRequest = theResponse.asString();
+
+                    return System.currentTimeMillis() - startTime;
+                }
+            }));
+
+        }
+
+        for(Future<Long> timing : futureTimings) {
+            requestTimings.add(timing.get());
+        }
+
+        userPool.shutdown();
+
+    }
+
+
     @When("^I attempt to access the non-existent article$")
 	public void i_attempt_to_access_the_non_existent_article() throws Throwable {
 		String url = acceptanceTestConfiguration.getMethodeApiServiceUrl() + uuidForNonExistentArticle.toString();
@@ -181,6 +229,20 @@ public class StepDefs {
         assertThat("bytes in file differed", retreivedContent, equalTo(theExpectedArticle.getValue()));
 	}
 
+
+    @Then("^it is returned within (\\d+)ms at least (\\d+)% of the time$")
+    public void it_is_returned_within_MAX_ms_at_least_PERCENT_of_the_time(long max, double percent) {
+        long numberOfFastRequests = 0;
+        for(Long duration : requestTimings) {
+            if(duration < max) {
+                numberOfFastRequests++;
+            }
+        }
+
+        double percentageOfFastRequests = (((double) numberOfFastRequests) / ((double) requestTimings.size())) * 100d;
+
+        assertThat("Too many slow requests",percentageOfFastRequests,greaterThan(percent));
+    }
 
 	private void given_service_is_running(final String url) throws Throwable {
 		LOGGER.info("Checking service is running: url=" + url);
