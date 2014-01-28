@@ -94,7 +94,7 @@ public class MethodeApiClientTest extends ResourceTest {
     }
 
     private void excerciseClientForGetAssetTypes(Client mockClient) {
-        mockMethodeApiClient(mockClient).findAssetTypes(Sets.newSet("035a2fa0-d988-11e2-bce1-002128161462"));
+        mockMethodeApiClient(mockClient).findAssetTypes(Sets.newSet("035a2fa0-d988-11e2-bce1-002128161462"), TRANSACTION_ID);
     }
     
     private Client primeClientToExperienceExceptionWithSpecificRootCause(Exception rootCause) {
@@ -114,7 +114,7 @@ public class MethodeApiClientTest extends ResourceTest {
     	
         when(methodeFileRepository.getAssetTypes(assetIds)).thenReturn(output);
 
-		Map<String, EomAssetType> assetTypes = mockMethodeApiClient(client()).findAssetTypes(assetIds);
+		Map<String, EomAssetType> assetTypes = mockMethodeApiClient(client()).findAssetTypes(assetIds, TRANSACTION_ID);
 		System.out.println(assetTypes);
 
 		assertThat(assetTypes.entrySet(), everyItem(isIn(output.entrySet())));

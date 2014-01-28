@@ -99,7 +99,7 @@ public class MethodeApiClient {
 
     }
     
-    public Map<String, EomAssetType> findAssetTypes(Set<String> assetIdentifiers) {
+    public Map<String, EomAssetType> findAssetTypes(Set<String> assetIdentifiers, String transactionId) {
         final URI assetTypeUri = UriBuilder.fromPath("asset-type")
         		.scheme("http")
         		.host(apiHost)
@@ -115,6 +115,7 @@ public class MethodeApiClient {
                     .resource(assetTypeUri)
                     .accept(MediaType.APPLICATION_JSON_TYPE)
                     .header("Content-Type", MediaType.APPLICATION_JSON_TYPE)
+					.header(TransactionIdUtils.TRANSACTION_ID_HEADER, transactionId)
                     .post(ClientResponse.class, assetIdentifiers);
         } catch (ClientHandlerException che) {
             Throwable cause = che.getCause();
