@@ -1,5 +1,6 @@
 package com.ft.methodeapi.service.methode.connection;
 
+import EOM.FileSystemAdmin;
 import EOM.Repository;
 import EOM.Session;
 import org.omg.CORBA.ORB;
@@ -11,6 +12,9 @@ import org.omg.CosNaming.NamingContextExt;
  * @author Simon.Gibbs
  */
 public interface MethodeObjectFactory {
+
+    FileSystemAdmin createFileSystemAdmin(Session session);
+
     Session createSession(Repository repository);
 
     NamingContextExt createNamingService(ORB orb);
@@ -20,6 +24,8 @@ public interface MethodeObjectFactory {
     Repository createRepository(NamingContextExt namingService);
 
     ORB createOrb();
+
+    void maybeCloseFileSystemAdmin(FileSystemAdmin fileSystemAdmin);
 
     void maybeCloseSession(Session session);
 

@@ -64,7 +64,7 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
 					.withConnectionTimeout(methodeConnectionConfiguration.getConnectTimeout())
                     .withOrbClass(methodeConnectionConfiguration.getOrbClass())
                     .withOrbSingletonClass(methodeConnectionConfiguration.getOrbSingletonClass())
-                    .withPooling(5)
+                    .withPooling(methodeConnectionConfiguration.getPoolSize())
                     .build();
     }
 }

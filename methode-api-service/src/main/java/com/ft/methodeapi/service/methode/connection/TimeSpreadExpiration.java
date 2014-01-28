@@ -1,0 +1,87 @@
+package com.ft.methodeapi.service.methode.connection;
+
+import com.yammer.metrics.Metrics;
+import com.yammer.metrics.core.Histogram;
+import stormpot.Expiration;
+import stormpot.Poolable;
+import stormpot.SlotInfo;
+
+import java.util.concurrent.TimeUnit;
+
+/**
+ * Modified pseudo random expiration algorithm. The pseudo-random factor is derived
+ * from object hash codes.
+ *
+ * @author Simon Gibbs
+ * @author Chris Vest &lt;mr.chrisvest@gmail.com&gt;
+ */
+public class TimeSpreadExpiration implements Expiration<Poolable> {
+
+    private final long lowerBoundMillis;
+    private final long upperBoundMillis;
+
+    private final Histogram connectionAgeActual = Metrics.newHistogram(TimeSpreadExpiration.class,"actual","connection-age",true);
+    private final Histogram connectionAgeExpected = Metrics.newHistogram(TimeSpreadExpiration.class,"expected","connection-age",true);
+
+
+    /**
+     * Construct a new Expiration that will invalidate objects that are older
+     * than the given lower bound, before they get older than the upper bound,
+     * in the given time unit.
+     * <p>
+     * If the <code>lowerBound</code> is less than 1, the <code>upperBound</code>
+     * is less than the <code>lowerBound</code>, or the <code>unit</code> is
+     * <code>null</code>, then an {@link IllegalArgumentException} will
+     * be thrown.
+     * <p/>
+     * <p/>
+     * <p>This method is an unaltered copy of the constructor from
+     * TimeSpreadExpiration written by Chris vest as  part of StormPot 2.2.</p>
+     *
+     * @param lowerBound Poolables younger than this, in the given unit, are not
+     *                   considered expired. This value must be at least 1.
+     * @param upperBound Poolables older than this, in the given unit, are always
+     *                   considered expired. This value must be greater than the
+     *                   lowerBound.
+     * @param unit       The {@link java.util.concurrent.TimeUnit} of the bounds values. Never
+     *                   <code>null</code>.
+     */
+    public TimeSpreadExpiration(
+            long lowerBound,
+            long upperBound,
+            TimeUnit unit) {
+        if (lowerBound < 1) {
+            throw new IllegalArgumentException("The lower bound cannot be less than 1.");
+        }
+        if (upperBound <= lowerBound) {
+            throw new IllegalArgumentException("The upper bound must be greater than the lower bound.");
+        }
+        if (unit == null) {
+            throw new IllegalArgumentException("The TimeUnit cannot be null.");
+        }
+        this.lowerBoundMillis = unit.toMillis(lowerBound);
+        this.upperBoundMillis = unit.toMillis(upperBound);
+    }
+
+    /**
+     * Expires the Poolable after the minimum time has expired and before the
+     * the maximum time. The exact time is determined by adding the modulo of
+     * @{link Poolable#hashCode()} and the delta to the lower bound.
+     */
+    @Override
+    public boolean hasExpired(SlotInfo<? extends Poolable> info) {
+        long maxDelta = upperBoundMillis - lowerBoundMillis;
+        long expirationAge = lowerBoundMillis + Math.abs(info.hashCode() % maxDelta);
+
+        long age = info.getAgeMillis();
+
+        if(age >= expirationAge) {
+            connectionAgeActual.update(age);
+            connectionAgeExpected.update(expirationAge);
+            return true;
+        }
+
+        return false;
+
+    }
+}

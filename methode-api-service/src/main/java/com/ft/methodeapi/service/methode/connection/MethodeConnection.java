@@ -1,5 +1,6 @@
 package com.ft.methodeapi.service.methode.connection;
 
+import EOM.FileSystemAdmin;
 import EOM.Repository;
 import EOM.Session;
 import org.omg.CORBA.ORB;
@@ -8,20 +9,22 @@ import stormpot.Poolable;
 import stormpot.Slot;
 
 /**
- * MethodeContext
+ * MethodeConnection
  *
  * @author Simon.Gibbs
  */
-public class MethodeContext implements Poolable {
+public class MethodeConnection implements Poolable {
 
     private final Slot slot;
+    private final FileSystemAdmin fileSystemAdmin;
     private final Session session;
     private final Repository repository;
     private final NamingContextExt namingService;
     private final ORB orb;
 
-    public MethodeContext(Slot slot, ORB orb, NamingContextExt namingService, Repository repository, Session session) {
+    public MethodeConnection(Slot slot, ORB orb, NamingContextExt namingService, Repository repository, Session session, FileSystemAdmin fileSystemAdmin ) {
         this.slot = slot;
+        this.fileSystemAdmin = fileSystemAdmin;
         this.session = session;
         this.repository = repository;
         this.namingService = namingService;
@@ -31,6 +34,10 @@ public class MethodeContext implements Poolable {
     @Override
     public void release() {
         slot.release(this);
+    }
+
+    public FileSystemAdmin getFileSystemAdmin() {
+        return fileSystemAdmin;
     }
 
     public Session getSession() {

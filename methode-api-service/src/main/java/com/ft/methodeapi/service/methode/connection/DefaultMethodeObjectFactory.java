@@ -1,6 +1,8 @@
 package com.ft.methodeapi.service.methode.connection;
 
+import EOM.FileSystemAdmin;
 import EOM.ObjectLocked;
+import EOM.ObjectNotFound;
 import EOM.PermissionDenied;
 import EOM.Repository;
 import EOM.RepositoryError;
@@ -30,6 +32,8 @@ import java.util.Properties;
  */
 public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
 
+    private static final String FILE_SYSTEM_ADMIN = "FileSystemAdmin";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultMethodeObjectFactory.class);
 
     private final String username;
@@ -43,6 +47,9 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
     private final String orbSingletonClass;
 
     private final MetricsRegistry metricsRegistry = Metrics.defaultRegistry();
+
+    private final Timer createFileSystemAdminTimer = metricsRegistry.newTimer(DefaultMethodeObjectFactory.class, "create-file-system-admin");
+    private final Timer closeFileSystemAdminTimer = metricsRegistry.newTimer(DefaultMethodeObjectFactory.class, "close-file-system-admin");
 
     private final Timer createSessionTimer = metricsRegistry.newTimer(DefaultMethodeObjectFactory.class, "create-methode-session");
     private final Timer closeSessionTimer = metricsRegistry.newTimer(DefaultMethodeObjectFactory.class, "close-methode-session");
@@ -66,8 +73,23 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
         this.orbSingletonClass = orbSingletonClass;
         orbInitRef = String.format("NS=corbaloc:iiop:%s:%d/NameService", hostname, port);    }
 
-    public DefaultMethodeObjectFactory(Builder builder) {
+    public DefaultMethodeObjectFactory(MethodeObjectFactoryBuilder builder) {
         this(builder.host, builder.port, builder.username, builder.password, builder.connectionTimeout, builder.orbClass, builder.orbSingletonClass);
+    }
+
+    @Override
+    public FileSystemAdmin createFileSystemAdmin(Session session) {
+
+        final TimerContext timerContext = createFileSystemAdminTimer.time();
+        FileSystemAdmin fileSystemAdmin;
+        try {
+           fileSystemAdmin = EOM.FileSystemAdminHelper.narrow(session.resolve_initial_references(FILE_SYSTEM_ADMIN));
+        } catch (ObjectNotFound | RepositoryError | PermissionDenied e) {
+            throw new MethodeException(e);
+        } finally {
+            timerContext.stop();
+        }
+        return fileSystemAdmin;
     }
 
     @Override
@@ -140,6 +162,18 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
     }
 
     @Override
+    public void maybeCloseFileSystemAdmin(FileSystemAdmin fileSystemAdmin) {
+        if(fileSystemAdmin !=null) {
+            final TimerContext timerContext = closeFileSystemAdminTimer.time();
+            try {
+                fileSystemAdmin._release();
+            } finally {
+                timerContext.stop();
+            }
+        }
+    }
+
+    @Override
     public void maybeCloseSession(Session session) {
         if (session != null) {
             final TimerContext timerContext = closeSessionTimer.time();
@@ -178,8 +212,8 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
         }
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static MethodeObjectFactoryBuilder builder() {
+        return new MethodeObjectFactoryBuilder();
     }
 
 	public String getHostname() {
@@ -197,68 +231,6 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
     @Override
     public String getDescription() {
         return String.format("hostname: %s, nsPort: %d, userName: %s", getHostname(), getPort(), getUsername());
-    }
-
-    public static class Builder {
-
-        private String username;
-        private String password;
-        private String host;
-        private int port;
-		private int connectionTimeout;
-        private String orbClass;
-        private String orbSingletonClass;
-        private int poolSize;
-
-        public Builder withUsername(String username) {
-            this.username = username;
-            return this;
-        }
-
-        public Builder withPassword(String password) {
-            this.password = password;
-            return this;
-        }
-
-		public Builder withConnectionTimeout(int connectionTimeout) {
-			this.connectionTimeout = connectionTimeout;
-			return this;
-		}
-
-        public Builder withHost(String host) {
-            this.host = host;
-            return this;
-        }
-
-        public Builder withPort(int port) {
-            this.port = port;
-            return this;
-        }
-
-        public Builder withOrbClass(String orbClass) {
-            this.orbClass = orbClass;
-            return this;
-        }
-
-        public Builder withOrbSingletonClass(String orbSingletonClass) {
-            this.orbSingletonClass = orbSingletonClass;
-            return this;
-        }
-
-        public MethodeObjectFactory build() {
-
-            MethodeObjectFactory factory = new DefaultMethodeObjectFactory(this);
-            if(poolSize>0) {
-                factory = new PoolingMethodeObjectFactory(factory, poolSize);
-            }
-
-            return factory;
-        }
-
-        public Builder withPooling(int poolSize) {
-            this.poolSize = poolSize;
-            return this;
-        }
     }
 
 
