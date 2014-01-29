@@ -10,6 +10,12 @@ server methode-api.yaml
 
 Please make sure you are running it in the correct working directory (methode-api-service).
 
+Healthcheck: [http://localhost:9081/healthcheck]
+
+## Using the API
+Hit http://localhost:9080/eom-file/42e3d9b6-187e-11e3-83b9-00144feab7de
+You don't need to provide any headers.
+
 ## Running acceptance tests
 For all acceptance tests, run com.ft.methodeapi.acceptance.AllTests the with the following VM argument:
 -Dtest.methodeApi.configFile=local.yaml
