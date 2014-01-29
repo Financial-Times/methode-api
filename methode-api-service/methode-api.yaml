@@ -16,7 +16,7 @@ methodeConnection:
   userName: app-methodeAPI
   password: methodeapi
   connectTimeout: 2000
-  poolSize: 20
+  poolSize: 10
 
 methodeTestConnection:
   hostName: preditor-methode-01.svc.ft.com
