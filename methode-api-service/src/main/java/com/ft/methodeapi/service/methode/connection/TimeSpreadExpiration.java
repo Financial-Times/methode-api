@@ -2,6 +2,8 @@ package com.ft.methodeapi.service.methode.connection;
 
 import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.Histogram;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import stormpot.Expiration;
 import stormpot.Poolable;
 import stormpot.SlotInfo;
@@ -22,6 +24,8 @@ public class TimeSpreadExpiration implements Expiration<Poolable> {
 
     private final Histogram connectionAgeActual = Metrics.newHistogram(TimeSpreadExpiration.class,"actual","connection-age",true);
     private final Histogram connectionAgeExpected = Metrics.newHistogram(TimeSpreadExpiration.class,"expected","connection-age",true);
+
+    private static Logger LOGGER = LoggerFactory.getLogger(TimeSpreadExpiration.class);
 
 
     /**
@@ -78,6 +82,9 @@ public class TimeSpreadExpiration implements Expiration<Poolable> {
         if(age >= expirationAge) {
             connectionAgeActual.update(age);
             connectionAgeExpected.update(expirationAge);
+
+            LOGGER.info("Expired connection after actual={}, expected={}",age,expirationAge);
+
             return true;
         }
 
