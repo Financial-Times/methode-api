@@ -10,11 +10,11 @@ server methode-api.yaml
 
 Please make sure you are running it in the correct working directory (methode-api-service).
 
-Healthcheck: [http://localhost:9081/healthcheck]
+Healthcheck: [http://localhost:9081/healthcheck](http://localhost:9081/healthcheck)
 
 ## Using the API
 ### Getting an EOM file
-Hit http://localhost:9080/eom-file/42e3d9b6-187e-11e3-83b9-00144feab7de
+Hit http://localhost:9080/eom-file/42e3d9b6-187e-11e3-83b9-00144feab7de with a GET request.
 You don't need to provide any headers.
 ### Getting asset types
 Hit http://localhost:9080/asset-type with a POST request, header
