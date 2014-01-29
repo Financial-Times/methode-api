@@ -13,8 +13,14 @@ Please make sure you are running it in the correct working directory (methode-ap
 Healthcheck: [http://localhost:9081/healthcheck]
 
 ## Using the API
+### Getting an EOM file
 Hit http://localhost:9080/eom-file/42e3d9b6-187e-11e3-83b9-00144feab7de
 You don't need to provide any headers.
+### Getting asset types
+Hit http://localhost:9080/asset-type with a POST request, header
+Content-Type: application/json
+and following parameters:
+["54307a12-37fa-11e3-8f44-002128161462", "64307a12-37fa-11e3-8f44-002128161462"]
 
 ## Running acceptance tests
 For all acceptance tests, run com.ft.methodeapi.acceptance.AllTests the with the following VM argument:
