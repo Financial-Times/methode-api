@@ -2,6 +2,8 @@ package com.ft.methodeapi.service.methode;
 
 import EOM.PermissionDenied;
 import EOM.Session;
+import com.ft.methodeapi.service.methode.connection.DefaultMethodeObjectFactory;
+import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +32,7 @@ public class MethodeObjectFactoryTest {
 
     @Before
     public void setupFactory() {
-        methodeObjectFactory = MethodeObjectFactory.builder().build();
+        methodeObjectFactory = DefaultMethodeObjectFactory.builder().build();
     }
 
     @Test

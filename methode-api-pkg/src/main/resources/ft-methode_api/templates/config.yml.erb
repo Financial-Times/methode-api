@@ -17,12 +17,14 @@ methodeConnection:
   userName: <%=scope.function_hiera('methodeUsername')%>
   password: <%=scope.function_hiera('methodePassword')%>
   connectTimeout: 2000
+  poolSize: 10
 methodeTestConnection:
   hostName: <%=scope.function_hiera('methodeHostName')%>
   nsPort: <%=scope.function_hiera('methodeNameServicePort')%>
   userName: <%=scope.function_hiera('methodeTestUsername', 'app-methodeAPI')%>
   password: <%=scope.function_hiera('methodeTestPassword', 'methodeapi')%>
   connectTimeout: 2000
+  poolSize: 2
 
 swaggerConfiguration:
   apiVersion: 1.0

@@ -17,6 +17,8 @@ import EOM.Utils;
 
 import com.ft.methodeapi.model.EomAssetType;
 import com.ft.methodeapi.model.EomFile;
+import com.ft.methodeapi.service.methode.connection.DefaultMethodeObjectFactory;
+import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.templates.MethodeFileSystemAdminOperationTemplate;
 import com.ft.methodeapi.service.methode.templates.MethodeRepositoryOperationTemplate;
 import com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate;
@@ -150,6 +152,6 @@ public class MethodeFileRepository {
     
 
 	public String getClientRepositoryInfo() {
-		return String.format("hostname: %s, nsPort: %d, userName: %s", client.getHostname(), client.getPort(), client.getUsername());
+		return client.getDescription();
 	}
 }

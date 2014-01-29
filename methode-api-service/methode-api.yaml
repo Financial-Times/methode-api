@@ -16,6 +16,7 @@ methodeConnection:
   userName: app-methodeAPI
   password: methodeapi
   connectTimeout: 2000
+  poolSize: 10
 
 methodeTestConnection:
   hostName: preditor-methode-01.svc.ft.com
@@ -23,12 +24,13 @@ methodeTestConnection:
   userName: dynpubtest
   password: dynpubtest
   connectTimeout: 2000
+  poolSize: 0
 
 maxPingMillis: 2000
 
 logging:
   console:
-    logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m%n%xEx"
+    logFormat: "%-5p %thread [%d{ISO8601, GMT}] %c: %X{transaction_id} %m%n%xEx"
   file:
     threshold: INFO
     enabled: true

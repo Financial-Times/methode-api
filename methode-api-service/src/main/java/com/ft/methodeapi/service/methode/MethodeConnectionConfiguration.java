@@ -19,6 +19,7 @@ public class MethodeConnectionConfiguration {
 	private final int connectTimeout;
     private final String orbClass;
     private final String orbSingletonClass;
+    private final int poolSize;
 
     public MethodeConnectionConfiguration(@JsonProperty("hostName") String methodeHostName,
                                           @JsonProperty("nsPort") int methodePort,
@@ -26,7 +27,8 @@ public class MethodeConnectionConfiguration {
                                           @JsonProperty("password") String methodePassword,
 										  @JsonProperty("connectTimeout") int connectTimeout,
                                           @JsonProperty("orbClass") Optional<String> orbClass,
-                                          @JsonProperty("orbSingletonClass") Optional<String> orbSingletonClass) {
+                                          @JsonProperty("orbSingletonClass") Optional<String> orbSingletonClass,
+                                          @JsonProperty("poolSize") Optional<Integer> poolSize) {
         this.methodeHostName = methodeHostName;
         this.methodePort = methodePort;
         this.methodeUserName = methodeUserName;
@@ -34,6 +36,7 @@ public class MethodeConnectionConfiguration {
 		this.connectTimeout = connectTimeout;
         this.orbClass = orbClass.or("org.jacorb.orb.ORB");
         this.orbSingletonClass = orbSingletonClass.or("org.jacorb.orb.ORBSingleton");
+        this.poolSize = poolSize.or(0); // no pooling by default
     }
 
     @NotEmpty
@@ -70,7 +73,12 @@ public class MethodeConnectionConfiguration {
     public String getOrbSingletonClass() {
         return orbSingletonClass;
     }
-    
+
+    @Min(0)
+    public int getPoolSize() {
+        return poolSize;
+    }
+
     @Override
     public String toString() {
         return Objects.toStringHelper(this)

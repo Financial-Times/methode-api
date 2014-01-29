@@ -1,7 +1,7 @@
 package com.ft.methodeapi.service.methode.templates;
 
 import EOM.Repository;
-import com.ft.methodeapi.service.methode.MethodeObjectFactory;
+import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NamingContextExt;
 
