@@ -12,6 +12,7 @@ import com.ft.api.jaxrs.client.exceptions.ApiNetworkingException;
 import com.ft.api.jaxrs.client.exceptions.RemoteApiException;
 import com.ft.api.jaxrs.errors.ErrorEntity;
 import com.ft.api.util.transactionid.TransactionIdUtils;
+import com.ft.jerseyhttpwrapper.ResilientClientBuilder;
 import com.ft.jerseyhttpwrapper.config.EndpointConfiguration;
 import com.ft.methodeapi.model.EomAssetType;
 import com.ft.methodeapi.model.EomFile;
@@ -19,7 +20,6 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
-import com.yammer.dropwizard.client.JerseyClientBuilder;
 import com.yammer.dropwizard.config.Environment;
 
 import org.slf4j.Logger;
@@ -35,8 +35,8 @@ public class MethodeApiClient {
 
     public MethodeApiClient(Environment environment, EndpointConfiguration endpointConfiguration) {
         this(
-            (new JerseyClientBuilder()).using(environment).using(endpointConfiguration.getJerseyClientConfiguration()).build(),
-            endpointConfiguration
+				ResilientClientBuilder.in(environment).using(endpointConfiguration).build(),
+				endpointConfiguration
             );
     }
 
