@@ -5,7 +5,6 @@ import com.yammer.metrics.core.Histogram;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import stormpot.Expiration;
-import stormpot.Poolable;
 import stormpot.SlotInfo;
 
 import java.util.concurrent.TimeUnit;
@@ -17,7 +16,7 @@ import java.util.concurrent.TimeUnit;
  * @author Simon Gibbs
  * @author Chris Vest &lt;mr.chrisvest@gmail.com&gt;
  */
-public class TimeSpreadExpiration implements Expiration<Poolable> {
+public class TimeSpreadExpiration implements Expiration<MethodeConnection> {
 
     private final long lowerBoundMillis;
     private final long upperBoundMillis;
@@ -73,7 +72,7 @@ public class TimeSpreadExpiration implements Expiration<Poolable> {
      * @{link Poolable#hashCode()} and the delta to the lower bound.
      */
     @Override
-    public boolean hasExpired(SlotInfo<? extends Poolable> info) {
+    public boolean hasExpired(SlotInfo<? extends MethodeConnection> info) {
         long maxDelta = upperBoundMillis - lowerBoundMillis;
         long expirationAge = lowerBoundMillis + Math.abs(info.hashCode() % maxDelta);
 

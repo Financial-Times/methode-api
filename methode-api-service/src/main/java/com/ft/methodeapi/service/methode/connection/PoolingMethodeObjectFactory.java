@@ -8,11 +8,14 @@ import com.ft.methodeapi.metrics.RunningTimer;
 import com.ft.methodeapi.service.methode.MethodeException;
 import com.google.common.base.Preconditions;
 import org.omg.CORBA.ORB;
+import org.omg.CORBA.TIMEOUT;
+import org.omg.CORBA.TRANSIENT;
 import org.omg.CosNaming.NamingContextExt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import stormpot.Allocator;
 import stormpot.Config;
+import stormpot.LifecycledResizablePool;
 import stormpot.PoolException;
 import stormpot.Timeout;
 import stormpot.bpool.BlazePool;
@@ -31,7 +34,7 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory {
     private final FTTimer claimConnectionTimer = FTTimer.newTimer(PoolingMethodeObjectFactory.class, "claim-connection");
     private final FTTimer releaseConnectionTimer = FTTimer.newTimer(PoolingMethodeObjectFactory.class, "release-connection");
 
-    ThreadLocal<MethodeConnection> allocatedContext = new ThreadLocal<MethodeConnection>() {
+    ThreadLocal<MethodeConnection> allocatedConnection = new ThreadLocal<MethodeConnection>() {
         @Override
         protected MethodeConnection initialValue() {
 
@@ -48,7 +51,7 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory {
     };
 
     private final MethodeObjectFactory implementation;
-    private final BlazePool<MethodeConnection> pool;
+    private final LifecycledResizablePool<MethodeConnection> pool;
     private final Timeout timeout;
 
 
@@ -59,7 +62,8 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory {
         config.setSize(poolSize);
         config.setExpiration(new TimeSpreadExpiration(5,10,TimeUnit.MINUTES));
 
-        pool = new BlazePool<>(config);
+
+        pool = new SelfCleaningPool<>(new BlazePool<>(config), TIMEOUT.class, TRANSIENT.class);
         timeout = new Timeout(10, TimeUnit.SECONDS);
         this.implementation = implementation;
 
@@ -67,28 +71,28 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory {
 
     @Override
     public ORB createOrb() {
-        return allocatedContext.get().getOrb();  //To change body of implemented methods use File | Settings | File Templates.
+        return allocatedConnection.get().getOrb();  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public NamingContextExt createNamingService(ORB orb) {
         Preconditions.checkState(orb==this.createOrb());
-        return allocatedContext.get().getNamingService();
+        return allocatedConnection.get().getNamingService();
     }
 
     @Override
     public Repository createRepository(NamingContextExt namingService) {
-        return allocatedContext.get().getRepository();
+        return allocatedConnection.get().getRepository();
     }
 
     @Override
     public Session createSession(Repository repository) {
-        return allocatedContext.get().getSession();
+        return allocatedConnection.get().getSession();
     }
 
     @Override
     public FileSystemAdmin createFileSystemAdmin(Session session) {
-        return allocatedContext.get().getFileSystemAdmin();
+        return allocatedConnection.get().getFileSystemAdmin();
     }
 
     @Override
@@ -117,8 +121,8 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory {
         try {
             Preconditions.checkState(orb==this.createOrb());
             LOGGER.debug("Releasing MethodeConnection");
-            allocatedContext.get().release();
-            allocatedContext.remove();
+            allocatedConnection.get().release();
+            allocatedConnection.remove();
         } finally {
             timer.stop();
         }
