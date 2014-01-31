@@ -12,25 +12,30 @@ import java.util.concurrent.TimeUnit;
 /**
  * Modified pseudo random expiration algorithm. The pseudo-random factor is derived
  * from object hash codes.
+ * 
+ * Also includes a 'quick fail' based on Methode connection here_i_am check, so if
+ * a connection is no longer valid, it gets expired immediately. This check happens
+ * AFTER the expiration check.
  *
  * @author Simon Gibbs
  * @author Chris Vest &lt;mr.chrisvest@gmail.com&gt;
  */
-public class TimeSpreadExpiration implements Expiration<MethodeConnection> {
+public class TimeSpreadOrMethodeConnectionInvalidExpiration implements Expiration<MethodeConnection> {
 
     private final long lowerBoundMillis;
     private final long upperBoundMillis;
 
-    private final Histogram connectionAgeActual = Metrics.newHistogram(TimeSpreadExpiration.class,"actual","connection-age",true);
-    private final Histogram connectionAgeExpected = Metrics.newHistogram(TimeSpreadExpiration.class,"expected","connection-age",true);
+    private final Histogram connectionAgeActual = Metrics.newHistogram(TimeSpreadOrMethodeConnectionInvalidExpiration.class,"actual","connection-age",true);
+    private final Histogram connectionAgeExpected = Metrics.newHistogram(TimeSpreadOrMethodeConnectionInvalidExpiration.class,"expected","connection-age",true);
 
-    private static Logger LOGGER = LoggerFactory.getLogger(TimeSpreadExpiration.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(TimeSpreadOrMethodeConnectionInvalidExpiration.class);
 
 
     /**
      * Construct a new Expiration that will invalidate objects that are older
      * than the given lower bound, before they get older than the upper bound,
-     * in the given time unit.
+     * in the given time unit. It will also invalidate objects with an invalid
+     * Methode connection. 
      * <p>
      * If the <code>lowerBound</code> is less than 1, the <code>upperBound</code>
      * is less than the <code>lowerBound</code>, or the <code>unit</code> is
@@ -49,7 +54,7 @@ public class TimeSpreadExpiration implements Expiration<MethodeConnection> {
      * @param unit       The {@link java.util.concurrent.TimeUnit} of the bounds values. Never
      *                   <code>null</code>.
      */
-    public TimeSpreadExpiration(
+    public TimeSpreadOrMethodeConnectionInvalidExpiration(
             long lowerBound,
             long upperBound,
             TimeUnit unit) {
@@ -67,8 +72,15 @@ public class TimeSpreadExpiration implements Expiration<MethodeConnection> {
     }
 
     /**
-     * Expires the Poolable after the minimum time has expired and before the
-     * the maximum time. The exact time is determined by adding the modulo of
+     * Will expire the Poolable if the upper bound has been exceeded 
+     * OR if the Methode connection is no longer valid.
+     * 
+     * MAY expire it after the minimum time has expired and before the
+     * the maximum time, based on a pseudorandom algorithm. This last is to 
+     * ensure we don't get lots of Poolables expiring at the same time given,
+     * for example, that they all get created on startup.
+     * 
+     * For the random algorithm, an expiry time is calculated by adding the modulo of
      * @{link Poolable#hashCode()} and the delta to the lower bound.
      */
     @Override
@@ -84,6 +96,14 @@ public class TimeSpreadExpiration implements Expiration<MethodeConnection> {
 
             LOGGER.info("Expired connection after actual={}, expected={}",age,expirationAge);
 
+            return true;
+        }
+        
+        // now check the connection
+        try {
+        	info.getPoolable().getSession().here_i_am();    	
+        } catch (Exception e) {
+        	LOGGER.info("Methode connection is no longer valid, expiring it", e);
             return true;
         }
 

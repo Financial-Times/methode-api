@@ -60,7 +60,7 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory {
 
         Config<MethodeConnection> config = new Config<MethodeConnection>().setAllocator(allocator);
         config.setSize(poolSize);
-        config.setExpiration(new TimeSpreadExpiration(5,10,TimeUnit.MINUTES));
+        config.setExpiration(new TimeSpreadOrMethodeConnectionInvalidExpiration(5,10,TimeUnit.MINUTES));
 
 
         pool = new SelfCleaningPool<>(new BlazePool<>(config), TIMEOUT.class, TRANSIENT.class);
