@@ -1,5 +1,7 @@
 package com.ft.methodeapi.service.methode.connection;
 
+import com.ft.methodeapi.metrics.FTTimer;
+import com.ft.methodeapi.metrics.RunningTimer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  * to quickly move on from outages that cause the whole pool to become poisoned.</p>
  *
  * <p>Cleaning is performed by claiming and releasing Poolables such that any cached exceptions
- * are removed from Slots (e.g {@link stormpot.bpool.BSlot#poison})</p>
+ * are removed from Slots (see {@link stormpot.bpool.BSlot#poison})</p>
  *
  * <p>Excess load and log noise are avoided by scheduling an asynchronous "dredge" not more than every
  * {@link SelfCleaningPool#DREDGE_PERIOD DREDGE_PERIOD} seconds, and by white listing recoverable exception
@@ -35,13 +37,15 @@ public class SelfCleaningPool<T extends Poolable> implements LifecycledResizable
 
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SelfCleaningPool.class);
-	private static final long DREDGE_PERIOD = 60;
+	private static final long DREDGE_PERIOD = 30;
+    private static FTTimer dredgeTimer  = FTTimer.newTimer(SelfCleaningPool.class,"pool-dredging");
 
-	private final LifecycledResizablePool<T> implementation;
+    private final LifecycledResizablePool<T> implementation;
 	private final ScheduledExecutorService executorService;
 	private final Set<Class<? extends Throwable>> recoverableExceptions;
+    private final long dredgeDelay;
 
-	private boolean dredging = false;
+    private boolean dredging = false;
 
 	private final Runnable dredgePool = new Runnable() {
 
@@ -49,6 +53,7 @@ public class SelfCleaningPool<T extends Poolable> implements LifecycledResizable
 
 		@Override
 		public void run() {
+            RunningTimer timer = dredgeTimer.start();
 			for(int i =0; i<implementation.getTargetSize();i++) {
 				T poolable = null;
 				try {
@@ -64,27 +69,39 @@ public class SelfCleaningPool<T extends Poolable> implements LifecycledResizable
 					}
 				}
 			}
-
 			dredging = false;
-
+            timer.stop();
 		}
 	};
 
 	/**
 	 * Adapts a {@link LifecycledResizablePool} to add self-cleaning behavior when expected exception
-	 * types are
+	 * types are thrown from <code>implementation.claim(to)</code>
 	 * @param implementation the adapted {@link LifecycledResizablePool} implementation
+     * @param dredgeDelay number of seconds to wait before dredging out bad connections
 	 * @param recoverableExceptionTypes white listed exception types that will be logged and discarded
 	 */
 	@SafeVarargs
-	public SelfCleaningPool(LifecycledResizablePool<T> implementation, Class<? extends Throwable>... recoverableExceptionTypes) {
+	public SelfCleaningPool(LifecycledResizablePool<T> implementation, long dredgeDelay, Class<? extends Throwable>... recoverableExceptionTypes) {
 		this.implementation = implementation;
 		this.executorService = Executors.newSingleThreadScheduledExecutor();
 		this.recoverableExceptions = new HashSet<>( recoverableExceptionTypes.length);
 		for(Class<? extends Throwable> type : recoverableExceptionTypes) {
 			recoverableExceptions.add(type);
 		}
+        this.dredgeDelay = dredgeDelay;
 	}
+
+    /**
+     * Adapts a {@link LifecycledResizablePool} to add self-cleaning behavior when expected exception
+     * types are thrown from <code>implementation.claim(to)</code>
+     * @param implementation the adapted {@link LifecycledResizablePool} implementation
+     * @param recoverableExceptionTypes white listed exception types that will be logged and discarded
+     */
+    @SafeVarargs
+    public SelfCleaningPool(LifecycledResizablePool<T> implementation, Class<? extends Throwable>... recoverableExceptionTypes) {
+        this(implementation, DREDGE_PERIOD, recoverableExceptionTypes);
+    }
 
 	@Override
 	public Completion shutdown() {
@@ -109,7 +126,8 @@ public class SelfCleaningPool<T extends Poolable> implements LifecycledResizable
 		} catch (PoolException pe) {
 			if(!dredging && expectedException(pe)) {
 				dredging = true;
-				executorService.schedule(dredgePool, DREDGE_PERIOD, TimeUnit.SECONDS);
+				executorService.schedule(dredgePool, dredgeDelay, TimeUnit.SECONDS);
+                LOGGER.info("Dredging scheduled",pe);
 			}
 			throw pe;
 		}
