@@ -14,7 +14,7 @@ import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
  */
 public class MethodeSessionOperationTemplate<T> {
 
-    private final MethodeObjectFactory client;
+    protected final MethodeObjectFactory client;
 
     public MethodeSessionOperationTemplate(MethodeObjectFactory client) {
         this.client = client;
@@ -46,7 +46,7 @@ public class MethodeSessionOperationTemplate<T> {
 
 
 
-    public static interface SessionCallback<T> {
+    public static interface SessionCallback<T> extends MethodeCallback<T,Session> {
 
         public T doOperation(Session session);
 

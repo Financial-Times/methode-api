@@ -2,6 +2,7 @@ package com.ft.methodeapi.service.methode;
 
 import EOM.*;
 import com.ft.methodeapi.model.EomFile;
+import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate;
 
 /**
@@ -17,9 +18,11 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
     private final String path;
     private final String filename;
     private final EomFile eomFile;
+    private final MethodeObjectFactory methodeObjectFactory;
 
 
-    public CreateFileCallback(String path, String filename, EomFile eomFile) {
+    public CreateFileCallback(MethodeObjectFactory methodeObjectFactory, String path, String filename, EomFile eomFile) {
+        this.methodeObjectFactory = methodeObjectFactory;
         this.path = path;
         this.filename = filename;
         this.eomFile = eomFile;
@@ -28,13 +31,16 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
     @Override
     public EomFile doOperation(Session session) {
 
-        final ObjectTypeAdmin objectTypeAdmin;
-        final FileSystemAdmin fileSystemAdmin;
+        ObjectTypeAdmin objectTypeAdmin = null;
+        FileSystemAdmin fileSystemAdmin = null;
         try {
             objectTypeAdmin = ObjectTypeAdminHelper.narrow(session.resolve_initial_references("ObjectTypeAdmin"));
-            fileSystemAdmin = FileSystemAdminHelper.narrow(session.resolve_initial_references("FileSystemAdmin"));
-
+            fileSystemAdmin = methodeObjectFactory.createFileSystemAdmin(session);
         } catch (ObjectNotFound | RepositoryError | PermissionDenied e) {
+            methodeObjectFactory.maybeCloseFileSystemAdmin(fileSystemAdmin);
+            if(objectTypeAdmin!=null) {
+                objectTypeAdmin._release();
+            }
             throw new MethodeException(e);
         }
 
@@ -58,8 +64,14 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
 			final boolean keepCheckedOut = false;
 			file.check_in("", keepCheckedOut);
 
-			return new EomFile(file.get_uuid_string(), file.get_type_name(), file.read_all(), file.get_attributes(),
-					file.get_status_name(), file.get_system_attributes());
+            EomFile eomFile = new EomFile(file.get_uuid_string(), file.get_type_name(), file.read_all(), file.get_attributes(),
+                    file.get_status_name(), file.get_system_attributes());
+
+            file._release();
+            folder._release();
+            ea._release();
+
+			return eomFile;
 
 		} catch (TypeNotFound | RepositoryError | PermissionDenied | InvalidName | InvalidForContainer | ObjectLocked
 				| DuplicatedName | ObjectNotLocked | ObjectNotCheckedOut | ObjectNotFound e) {
@@ -68,7 +80,10 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
 			throw new InvalidEomFileException("cannot create requested file", e);
 		} catch (InvalidStatus invalidStatus) {
 			throw new InvalidEomFileException("Invalid workflow status.", invalidStatus);
-		}
+		} finally {
+            methodeObjectFactory.maybeCloseFileSystemAdmin(fileSystemAdmin);
+            objectTypeAdmin._release();
+        }
 
 	}
 

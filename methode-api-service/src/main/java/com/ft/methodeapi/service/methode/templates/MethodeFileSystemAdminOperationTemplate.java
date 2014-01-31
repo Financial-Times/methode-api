@@ -31,16 +31,16 @@ public class MethodeFileSystemAdminOperationTemplate<T> {
                     methodeObjectFactory.maybeCloseFileSystemAdmin(fileSystemAdmin);
 				}
 			}
-		};
+        };
 		
 		
 		MethodeSessionOperationTemplate<T> template = new MethodeSessionOperationTemplate<>(methodeObjectFactory);
 		return template.doOperation(callback);
 	}
 	
-	public interface FileSystemAdminCallback<T>{
+	public interface FileSystemAdminCallback<T> extends MethodeCallback<T,FileSystemAdmin> {
 		T doOperation(FileSystemAdmin fileSystemAdmin);
-	}
+    }
 
 
 }
