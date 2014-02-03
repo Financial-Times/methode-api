@@ -1,9 +1,15 @@
 package com.ft.methodeapi.service.methode;
 
+import java.util.List;
+
+import org.omg.CORBA.Object;
+
 import EOM.*;
+
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate;
+import com.google.common.collect.Lists;
 
 /**
  * WARNING
@@ -30,47 +36,20 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
 
     @Override
     public EomFile doOperation(Session session) {
+    	
+    	List<org.omg.CORBA.Object> forRelease = Lists.newArrayList(); 
+    	FileSystemAdmin fileSystemAdmin = null;
 
-        ObjectTypeAdmin objectTypeAdmin = null;
-        FileSystemAdmin fileSystemAdmin = null;
-        try {
-            objectTypeAdmin = ObjectTypeAdminHelper.narrow(session.resolve_initial_references("ObjectTypeAdmin"));
-            fileSystemAdmin = methodeObjectFactory.createFileSystemAdmin(session);
-        } catch (ObjectNotFound | RepositoryError | PermissionDenied e) {
-            methodeObjectFactory.maybeCloseFileSystemAdmin(fileSystemAdmin);
-            if(objectTypeAdmin!=null) {
-                objectTypeAdmin._release();
-            }
-            throw new MethodeException(e);
-        }
-
-        try {
-            final ObjectType objectType = objectTypeAdmin.get_object_type(eomFile.getType());
-            final Folder rootFolder = fileSystemAdmin.get_root();
-
-            final Folder folder = findOrCreateFolder(rootFolder, path);
-
-            final File file = folder.create_file(filename, objectType);
-
-            file.write_all(eomFile.getValue());
-            file.set_attributes(eomFile.getAttributes());
-			file.set_system_attributes(eomFile.getSystemAttributes());
-
-			ObjectAdmin oa = ObjectAdminHelper.narrow(session.resolve_initial_references("ObjectAdmin"));
-			oa.set_status_name(file, eomFile.getWorkflowStatus());
-			EOM.EventAdmin ea = EOM.EventAdminHelper.narrow(session.resolve_initial_references("EventAdmin"));
-			ea.fire_event(file, "set_status");
-
-			final boolean keepCheckedOut = false;
-			file.check_in("", keepCheckedOut);
+        try {   	
+        	fileSystemAdmin = methodeObjectFactory.createFileSystemAdmin(session);
+        	
+        	File file = createFile(fileSystemAdmin, session, forRelease);
+        	
+        	setStatusAndFireStatusEvent(file, session, forRelease);
 
             EomFile eomFile = new EomFile(file.get_uuid_string(), file.get_type_name(), file.read_all(), file.get_attributes(),
                     file.get_status_name(), file.get_system_attributes());
-
-            file._release();
-            folder._release();
-            ea._release();
-
+            
 			return eomFile;
 
 		} catch (TypeNotFound | RepositoryError | PermissionDenied | InvalidName | InvalidForContainer | ObjectLocked
@@ -81,11 +60,54 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
 		} catch (InvalidStatus invalidStatus) {
 			throw new InvalidEomFileException("Invalid workflow status.", invalidStatus);
 		} finally {
+			for (org.omg.CORBA.Object corbaObject: forRelease) {
+				corbaObject._release();
+			}
             methodeObjectFactory.maybeCloseFileSystemAdmin(fileSystemAdmin);
-            objectTypeAdmin._release();
         }
 
 	}
+    
+    private void setStatusAndFireStatusEvent(File file, Session session, List<Object> forRelease) 
+    		throws ObjectNotFound, RepositoryError, PermissionDenied, InvalidStatus {
+    	final ObjectAdmin oa = ObjectAdminHelper.narrow(session.resolve_initial_references("ObjectAdmin"));
+		oa.set_status_name(file, eomFile.getWorkflowStatus());
+		final EventAdmin ea = EOM.EventAdminHelper.narrow(session.resolve_initial_references("EventAdmin"));
+		ea.fire_event(file, "set_status");
+		
+		forRelease.add(oa);
+		forRelease.add(ea);
+	}
+
+	private File createFile(FileSystemAdmin fileSystemAdmin, Session session, List<Object> forRelease) 
+			throws TypeNotFound, RepositoryError, PermissionDenied, 
+    		InvalidName, InvalidForContainer, ObjectLocked, DuplicatedName, InvalidType, ObjectNotLocked, 
+    		InvalidAttributes, ObjectNotFound, ObjectNotCheckedOut {
+    	
+		final ObjectTypeAdmin objectTypeAdmin = ObjectTypeAdminHelper.narrow(session.resolve_initial_references("ObjectTypeAdmin"));
+		
+		final ObjectType objectType = objectTypeAdmin.get_object_type(eomFile.getType());
+       
+        final Folder rootFolder = fileSystemAdmin.get_root();
+        
+        final Folder folder = findOrCreateFolder(rootFolder, path);    
+
+        final File file = folder.create_file(filename, objectType);
+        
+        forRelease.add(objectTypeAdmin);
+        forRelease.add(objectType);
+        forRelease.add(rootFolder);
+        forRelease.add(folder);
+        forRelease.add(file);
+
+        file.write_all(eomFile.getValue());
+        file.set_attributes(eomFile.getAttributes());
+		file.set_system_attributes(eomFile.getSystemAttributes());
+		file.check_in("", false);
+		
+		return file;
+
+    }
 
     private Folder findOrCreateFolder(final Folder rootFolder, final String path) throws RepositoryError, PermissionDenied, InvalidName, InvalidForContainer, ObjectLocked, DuplicatedName {
         final String[] pathSegments = Utils.stringToPath(path);
