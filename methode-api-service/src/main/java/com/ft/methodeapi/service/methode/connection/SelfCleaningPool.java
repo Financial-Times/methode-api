@@ -85,6 +85,13 @@ public class SelfCleaningPool<T extends Poolable> implements LifecycledResizable
 	public SelfCleaningPool(LifecycledResizablePool<T> implementation, long dredgeDelay, Class<? extends Throwable>... recoverableExceptionTypes) {
 		this.implementation = implementation;
 		this.executorService = Executors.newSingleThreadScheduledExecutor();
+        this.executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                LOGGER.info("Pool cleanup thread initialised");
+            }
+        });
+
 		this.recoverableExceptions = new HashSet<>( recoverableExceptionTypes.length);
 		for(Class<? extends Throwable> type : recoverableExceptionTypes) {
 			recoverableExceptions.add(type);
