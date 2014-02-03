@@ -90,21 +90,23 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
     private Folder findOrCreateFolder(final Folder rootFolder, final String path) throws RepositoryError, PermissionDenied, InvalidName, InvalidForContainer, ObjectLocked, DuplicatedName {
         final String[] pathSegments = Utils.stringToPath(path);
 
-        Folder folder;
         try {
-            folder = FolderHelper.narrow(rootFolder.get_object_with_path(pathSegments));
+            return FolderHelper.narrow(rootFolder.get_object_with_path(pathSegments));
         } catch (InvalidPath invalidPath) {
             Folder currentFolder = rootFolder;
             for (String pathSegment : pathSegments) {
+                Folder parent = currentFolder;
                 try {
-                    currentFolder = FolderHelper.narrow(currentFolder.get_object_with_path(new String[]{pathSegment}));
+                    currentFolder = FolderHelper.narrow(parent.get_object_with_path(new String[]{pathSegment}));
                 } catch (InvalidPath invalidPath1) {
-                    currentFolder = currentFolder.create_folder(pathSegment);
+                    currentFolder = parent.create_folder(pathSegment);
+                }
+
+                if(parent!=rootFolder) {
+                    parent._release();
                 }
             }
-            folder = currentFolder;
+            return currentFolder;
         }
-
-        return folder;
     }
 }
