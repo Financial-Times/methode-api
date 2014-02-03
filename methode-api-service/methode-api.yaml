@@ -39,7 +39,7 @@ logging:
     archive: true
     archivedLogFilenamePattern: /var/log/apps/methode-api-dw-app-%d.log.gz
     archivedFileCount: 5
-    logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m%n%xEx"
+    logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m [%thread]%n%xEx"
 
   loggers:
     "com.sun.jersey.spi.container.ContainerResponse": OFF
