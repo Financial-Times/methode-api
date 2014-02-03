@@ -49,7 +49,7 @@ public class SelfCleaningPoolTest {
     }
 
     @Test
-    public void shouldClaimTargetSizeConnectionsShortlyAfterAnException() throws InterruptedException {
+    public void shouldClaimTargetSizeConnectionsShortlyAfterARecoverableException() throws InterruptedException {
 
         try {
             cleaningPool.claim(exampleTimeout);
@@ -61,6 +61,23 @@ public class SelfCleaningPoolTest {
         Thread.sleep(1100); // the SIT is configured to dredge quickly
 
         verify(mockPool,times(POOL_SIZE+1)).claim(any(Timeout.class));
+
+    }
+
+    @Test
+    public void shouldNotClaimTargetSizeConnectionsShortlyAfterANonRecoverableException() throws InterruptedException {
+    	// a self-cleaning pool, configured to work faster than normal
+        cleaningPool = new SelfCleaningPool<>(mockPool,1,IllegalArgumentException.class);
+        try {
+            cleaningPool.claim(exampleTimeout); // will throw RuntimeException
+            fail("Expected exception");
+        } catch (PoolException e) {
+            assertEquals(e.getCause(),exampleException);
+        }
+
+        Thread.sleep(1100); // the SIT is configured to dredge quickly
+
+        verify(mockPool,times(1)).claim(any(Timeout.class)); // just the one claim above
 
     }
 
