@@ -21,7 +21,7 @@ public class MethodeRepositoryOperationTemplate<T> {
         this.client = client;
     }
 
-    public T doOperation(RepositoryCallback<? extends T> callback) {
+    public T doOperation(RepositoryCallback<T> callback) {
 
         ORB orb = client.createOrb();
         try {
@@ -52,7 +52,7 @@ public class MethodeRepositoryOperationTemplate<T> {
         }
     }
 
-    public static interface RepositoryCallback<T> {
+    public static interface RepositoryCallback<T> extends MethodeCallback<T,Repository> {
 
         public T doOperation(Repository repository);
 

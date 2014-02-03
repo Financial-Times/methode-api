@@ -18,7 +18,7 @@ Feature: Requests for articles
     When I attempt to access the non-existent article
     Then the article should not be available from the MethodeAPI
 
-@Performance
+@Performance @Smoke
   Scenario: Should return within 2s 99% of the time
     Given an article exists in Methode
     When 10 users access the article a total of 500 times

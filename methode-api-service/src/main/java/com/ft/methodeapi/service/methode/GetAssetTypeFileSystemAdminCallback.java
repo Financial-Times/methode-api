@@ -29,7 +29,7 @@ final class GetAssetTypeFileSystemAdminCallback implements FileSystemAdminCallba
 	
 	private static final Logger logger = LoggerFactory.getLogger(MethodeFileRepository.class);
 
-	GetAssetTypeFileSystemAdminCallback(Set<String> assetIdentifiers) {
+    GetAssetTypeFileSystemAdminCallback(Set<String> assetIdentifiers) {
 		this.assetIdentifiers = assetIdentifiers;
 	}
 
@@ -75,8 +75,8 @@ final class GetAssetTypeFileSystemAdminCallback implements FileSystemAdminCallba
 	    logger.debug("Successfully resolved type for {} assets :" + assetTypes.size());
 	    return assetTypes;
 	}
-	
-	private String getAssetURI(String assetId) {
+
+    private String getAssetURI(String assetId) {
 		if(isUUID(assetId)){
 			return "eom:/uuids/" + assetId;
 		}else{
