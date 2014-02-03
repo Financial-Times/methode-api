@@ -75,8 +75,15 @@ public class SelfCleaningPool<T extends Poolable> implements LifecycledResizable
 	};
 
 	/**
-	 * Adapts a {@link LifecycledResizablePool} to add self-cleaning behavior when expected exception
-	 * types are thrown from <code>implementation.claim(to)</code>
+	 * <p>Adapts a {@link LifecycledResizablePool} to add self-cleaning behavior when expected exception
+	 * types are thrown from <code>implementation.claim(to)</code></p>
+     *
+     * <p>In order to avoid the inheritance of an {@link org.slf4j.MDC MDC} or other state from client threads,
+     * the worker thread used for clean up tasks will be spawned immediately.</p>
+     *
+     * @see ch.qos.logback.classic.util.LogbackMDCAdapter#copyOnInheritThreadLocal LogbackMDCAdapter
+     * @see org.slf4j.helpers.BasicMDCAdapter#inheritableThreadLocal BasicMDCAdapter
+     *
 	 * @param implementation the adapted {@link LifecycledResizablePool} implementation
      * @param dredgeDelay number of seconds to wait before dredging out bad connections
 	 * @param recoverableExceptionTypes white listed exception types that will be logged and discarded
@@ -85,10 +92,15 @@ public class SelfCleaningPool<T extends Poolable> implements LifecycledResizable
 	public SelfCleaningPool(LifecycledResizablePool<T> implementation, long dredgeDelay, Class<? extends Throwable>... recoverableExceptionTypes) {
 		this.implementation = implementation;
 		this.executorService = Executors.newSingleThreadScheduledExecutor();
+
+        /* Submit a task to force the executorService to spawn it's threads now.
+         * See JavaDoc for rationale and links.
+         */
         this.executorService.execute(new Runnable() {
             @Override
             public void run() {
-                LOGGER.info("Pool cleanup thread initialised");
+                // just some helpful logging, an empty Runnable would have done.
+                LOGGER.debug("Pool cleanup thread initialised");
             }
         });
 
