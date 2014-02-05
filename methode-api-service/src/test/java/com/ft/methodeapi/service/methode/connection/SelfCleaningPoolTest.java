@@ -54,7 +54,7 @@ public class SelfCleaningPoolTest {
     }
 
     @AfterClass
-    public void stopWorkerThreads() {
+    public static void stopWorkerThreads() {
         threadPool.shutdown();
     }
 
