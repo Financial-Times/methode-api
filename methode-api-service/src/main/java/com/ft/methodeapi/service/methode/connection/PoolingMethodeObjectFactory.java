@@ -7,6 +7,7 @@ import com.ft.methodeapi.metrics.FTTimer;
 import com.ft.methodeapi.metrics.RunningTimer;
 import com.ft.methodeapi.service.methode.MethodeException;
 import com.google.common.base.Preconditions;
+import com.yammer.dropwizard.lifecycle.Managed;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.TIMEOUT;
 import org.omg.CORBA.TRANSIENT;
@@ -20,6 +21,7 @@ import stormpot.PoolException;
 import stormpot.Timeout;
 import stormpot.bpool.BlazePool;
 
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -27,7 +29,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Simon.Gibbs
  */
-public class PoolingMethodeObjectFactory implements MethodeObjectFactory {
+public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Managed {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PoolingMethodeObjectFactory.class);
 
@@ -41,7 +43,7 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory {
             RunningTimer timer = claimConnectionTimer.start();
             try {
                 LOGGER.debug("Claiming MethodeConnection");
-                return pool.claim(timeout);
+                return pool.claim(claimTimeout);
             } catch (InterruptedException | PoolException e) {
                 throw new MethodeException(e);
             } finally {
@@ -52,19 +54,23 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory {
 
     private final MethodeObjectFactory implementation;
     private final LifecycledResizablePool<MethodeConnection> pool;
-    private final Timeout timeout;
+    private final Timeout claimTimeout;
 
 
-    public PoolingMethodeObjectFactory(final MethodeObjectFactory implementation, int poolSize) {
+    public PoolingMethodeObjectFactory(final MethodeObjectFactory implementation, ScheduledExecutorService executorService, int poolSize) {
+
+        Preconditions.checkNotNull(implementation,"PoolingMethodeObjectFactory must wrap another MethodeObjectFactory");
+        Preconditions.checkNotNull(executorService,"A scheduling thread pool service is required");
+        Preconditions.checkArgument(poolSize>0,"Pool size must be a positive integer");
+
         Allocator<MethodeConnection> allocator = new MethodeConnectionAllocator(implementation);
 
         Config<MethodeConnection> config = new Config<MethodeConnection>().setAllocator(allocator);
         config.setSize(poolSize);
         config.setExpiration(new TimeSpreadOrMethodeConnectionInvalidExpiration(5,10,TimeUnit.MINUTES));
 
-
-        pool = new SelfCleaningPool<>(new BlazePool<>(config), TIMEOUT.class, TRANSIENT.class);
-        timeout = new Timeout(10, TimeUnit.SECONDS);
+        pool = new SelfCleaningPool<>(new BlazePool<>(config), executorService, TIMEOUT.class, TRANSIENT.class);
+        claimTimeout = new Timeout(10, TimeUnit.SECONDS);
         this.implementation = implementation;
 
     }
@@ -131,5 +137,15 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory {
     @Override
     public String getDescription() {
         return String.format("[%d x [%s]]",pool.getTargetSize(),implementation.getDescription());
+    }
+
+    @Override
+    public void start() throws Exception {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void stop() throws Exception {
+        pool.shutdown().await(new Timeout(20, TimeUnit.SECONDS));
     }
 }

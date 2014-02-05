@@ -1,5 +1,7 @@
 package com.ft.methodeapi.service.methode.connection;
 
+import java.util.concurrent.ScheduledExecutorService;
+
 /**
 * MethodeObjectFactoryBuilder
 *
@@ -15,6 +17,7 @@ public class MethodeObjectFactoryBuilder {
     String orbClass;
     String orbSingletonClass;
     int poolSize;
+    ScheduledExecutorService executorService;
 
     public MethodeObjectFactoryBuilder withUsername(String username) {
         this.username = username;
@@ -51,11 +54,16 @@ public class MethodeObjectFactoryBuilder {
         return this;
     }
 
+    public MethodeObjectFactoryBuilder withWorkerThreadPool(ScheduledExecutorService executorService) {
+        this.executorService = executorService;
+        return this;
+    }
+
     public MethodeObjectFactory build() {
 
         MethodeObjectFactory factory = new DefaultMethodeObjectFactory(this);
         if(poolSize>0) {
-            factory = new PoolingMethodeObjectFactory(factory, poolSize);
+            factory = new PoolingMethodeObjectFactory(factory, executorService, poolSize);
         }
 
         return factory;

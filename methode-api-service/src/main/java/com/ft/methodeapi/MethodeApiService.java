@@ -5,6 +5,7 @@ import com.ft.methodeapi.service.methode.connection.DefaultMethodeObjectFactory;
 import com.ft.methodeapi.service.methode.MethodeContentRetrievalHealthCheck;
 
 import com.ft.ws.lib.swagger.SwaggerBundle;
+import com.yammer.dropwizard.lifecycle.Managed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +40,8 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
     	LOGGER.info("running with configuration: {}", configuration);
         final MethodeConnectionConfiguration methodeConnectionConfiguration = configuration.getMethodeConnectionConfiguration();
 
-        final MethodeObjectFactory methodeObjectFactory = createMethodeObjectFactory(methodeConnectionConfiguration);
-        final MethodeObjectFactory testMethodeObjectFactory = createMethodeObjectFactory(configuration.getMethodeTestConnectionConfiguration());
+        final MethodeObjectFactory methodeObjectFactory = createMethodeObjectFactory(methodeConnectionConfiguration,environment);
+        final MethodeObjectFactory testMethodeObjectFactory = createMethodeObjectFactory(configuration.getMethodeTestConnectionConfiguration(),environment);
 
         final MethodeFileRepository methodeContentRepository = new MethodeFileRepository(methodeObjectFactory, testMethodeObjectFactory);
 
@@ -55,8 +56,8 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
         environment.addFilter(new TransactionIdFilter(), "/asset-type/*");
     }
 
-    private MethodeObjectFactory createMethodeObjectFactory(MethodeConnectionConfiguration methodeConnectionConfiguration) {
-        return DefaultMethodeObjectFactory.builder()
+    private MethodeObjectFactory createMethodeObjectFactory(MethodeConnectionConfiguration methodeConnectionConfiguration,Environment environment) {
+        MethodeObjectFactory result = DefaultMethodeObjectFactory.builder()
                     .withHost(methodeConnectionConfiguration.getMethodeHostName())
                     .withPort(methodeConnectionConfiguration.getMethodePort())
                     .withUsername(methodeConnectionConfiguration.getMethodeUserName())
@@ -65,6 +66,14 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
                     .withOrbClass(methodeConnectionConfiguration.getOrbClass())
                     .withOrbSingletonClass(methodeConnectionConfiguration.getOrbSingletonClass())
                     .withPooling(methodeConnectionConfiguration.getPoolSize())
+                    .withWorkerThreadPool(environment.managedScheduledExecutorService("MOF-worker-%d",1))
                     .build();
+
+        if(result instanceof Managed) {
+            environment.manage((Managed) result);
+        }
+
+        return result;
+
     }
 }

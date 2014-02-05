@@ -7,11 +7,17 @@ import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NamingContextExt;
 
 /**
- * MethodeObjectFactory
+ * Allows access to Methode objects of various kinds. Access is guaranteed to be
+ * safe if, and only if, the client calls the corresponding "maybeCloseXXX" method
+ * for every "createXXX" methode that it calls. The suggested way to do so is
+ * by using templates.
  *
  * @author Simon.Gibbs
+ * @see com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate
+ * @see com.ft.methodeapi.service.methode.templates.MethodeRepositoryOperationTemplate
+ * @see com.ft.methodeapi.service.methode.templates.MethodeFileSystemAdminOperationTemplate
  */
-public interface MethodeObjectFactory {
+public interface MethodeObjectFactory{
 
     FileSystemAdmin createFileSystemAdmin(Session session);
 

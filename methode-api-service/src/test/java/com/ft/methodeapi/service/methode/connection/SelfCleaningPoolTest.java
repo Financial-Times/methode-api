@@ -1,5 +1,6 @@
 package com.ft.methodeapi.service.methode.connection;
 
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +13,8 @@ import stormpot.PoolException;
 import stormpot.Poolable;
 import stormpot.Timeout;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
@@ -38,14 +41,21 @@ public class SelfCleaningPoolTest {
 
     private SelfCleaningPool<Poolable> cleaningPool;
 
+    private static ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(2);
+
     @Before
     public void setUpFailingPool() throws InterruptedException {
 
         // a self-cleaning pool, configured to work faster than normal
-        cleaningPool = new SelfCleaningPool<>(mockPool,1,RuntimeException.class);
+        cleaningPool = new SelfCleaningPool<>(mockPool,threadPool,1,RuntimeException.class);
 
         when(mockPool.getTargetSize()).thenReturn(POOL_SIZE);
         when(mockPool.claim(any(Timeout.class))).thenThrow(new PoolException("Example Poison",exampleException));
+    }
+
+    @AfterClass
+    public void stopWorkerThreads() {
+        threadPool.shutdown();
     }
 
     @Test
@@ -67,7 +77,7 @@ public class SelfCleaningPoolTest {
     @Test
     public void shouldNotClaimTargetSizeConnectionsShortlyAfterANonRecoverableException() throws InterruptedException {
     	// a self-cleaning pool, configured to work faster than normal
-        cleaningPool = new SelfCleaningPool<>(mockPool,1,IllegalArgumentException.class);
+        cleaningPool = new SelfCleaningPool<>(mockPool,threadPool,1,IllegalArgumentException.class);
         try {
             cleaningPool.claim(exampleTimeout); // will throw RuntimeException
             fail("Expected exception");

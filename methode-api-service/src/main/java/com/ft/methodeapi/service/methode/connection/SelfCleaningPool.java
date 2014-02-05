@@ -13,7 +13,6 @@ import stormpot.Timeout;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -61,6 +60,8 @@ public class SelfCleaningPool<T extends Poolable> implements LifecycledResizable
 				} catch (InterruptedException ie) {
 					// never mind, we tried...
 					LOGGER.debug("Interrupted while checking Poolable {}",i);
+                    dredging = false;
+                    break;
 				} catch(Throwable t) {
 					LOGGER.warn("Pool is still producing exceptions", t);
 				} finally {
@@ -89,9 +90,9 @@ public class SelfCleaningPool<T extends Poolable> implements LifecycledResizable
 	 * @param recoverableExceptionTypes white listed exception types that will be logged and discarded
 	 */
 	@SafeVarargs
-	public SelfCleaningPool(LifecycledResizablePool<T> implementation, long dredgeDelay, Class<? extends Throwable>... recoverableExceptionTypes) {
+	public SelfCleaningPool(LifecycledResizablePool<T> implementation, ScheduledExecutorService executorService, long dredgeDelay, Class<? extends Throwable>... recoverableExceptionTypes) {
 		this.implementation = implementation;
-		this.executorService = Executors.newSingleThreadScheduledExecutor();
+		this.executorService = executorService;
 
         /* Submit a task to force the executorService to spawn it's threads now.
          * See JavaDoc for rationale and links.
@@ -111,21 +112,16 @@ public class SelfCleaningPool<T extends Poolable> implements LifecycledResizable
         this.dredgeDelay = dredgeDelay;
 	}
 
-    /**
-     * Adapts a {@link LifecycledResizablePool} to add self-cleaning behavior when expected exception
-     * types are thrown from <code>implementation.claim(to)</code>
-     * @param implementation the adapted {@link LifecycledResizablePool} implementation
-     * @param recoverableExceptionTypes white listed exception types that will be logged and discarded
-     */
     @SafeVarargs
-    public SelfCleaningPool(LifecycledResizablePool<T> implementation, Class<? extends Throwable>... recoverableExceptionTypes) {
-        this(implementation, DREDGE_PERIOD, recoverableExceptionTypes);
+    public SelfCleaningPool(LifecycledResizablePool<T> implementation, ScheduledExecutorService executorService, Class<? extends Throwable>... recoverableExceptionTypes) {
+        this(implementation, executorService, DREDGE_PERIOD, recoverableExceptionTypes);
     }
 
 	@Override
 	public Completion shutdown() {
-		executorService.shutdown();
-		return implementation.shutdown();
+        dredging = true; // stop further dredging
+        LOGGER.info("Shut down requested");
+        return implementation.shutdown();
 	}
 
 	@Override
