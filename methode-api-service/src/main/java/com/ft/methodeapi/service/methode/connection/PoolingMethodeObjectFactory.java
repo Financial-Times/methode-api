@@ -42,8 +42,12 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
 
             RunningTimer timer = claimConnectionTimer.start();
             try {
-                LOGGER.debug("Claiming MethodeConnection");
-                return pool.claim(claimTimeout);
+              LOGGER.debug("Claiming MethodeConnection");
+              MethodeConnection connection = pool.claim(claimTimeout);
+              if(connection==null) {
+                throw new MethodeException("Timeout after upon claiming MethodeConnection");
+              }
+              return connection;
             } catch (InterruptedException | PoolException e) {
                 throw new MethodeException(e);
             } finally {
