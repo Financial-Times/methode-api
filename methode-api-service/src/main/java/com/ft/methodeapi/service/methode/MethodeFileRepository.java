@@ -17,6 +17,7 @@ import EOM.Utils;
 
 import com.ft.methodeapi.model.EomAssetType;
 import com.ft.methodeapi.model.EomFile;
+import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.templates.MethodeFileSystemAdminOperationTemplate;
 import com.ft.methodeapi.service.methode.templates.MethodeRepositoryOperationTemplate;
 import com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate;
@@ -35,9 +36,9 @@ public class MethodeFileRepository {
 
     @Timed
     public void ping() {
-        new MethodeRepositoryOperationTemplate<>(client).doOperation(new MethodeRepositoryOperationTemplate.RepositoryCallback<Void>() {
+        new MethodeRepositoryOperationTemplate<>(client).doOperation(new MethodeRepositoryOperationTemplate.RepositoryCallback<Object>() {
             @Override
-            public Void doOperation(Repository repository) {
+            public Object doOperation(Repository repository) {
                 repository.ping();
                 return null;
             }
@@ -100,7 +101,7 @@ public class MethodeFileRepository {
      */
     public EomFile createNewTestFile(final String filename, final EomFile eomFile) {
         final MethodeSessionOperationTemplate<EomFile> template = new MethodeSessionOperationTemplate<>(testClient);
-        final EomFile createdEomFile = template.doOperation(new CreateFileCallback(TEST_FOLDER, filename, eomFile));
+        final EomFile createdEomFile = template.doOperation(new CreateFileCallback(testClient, TEST_FOLDER, filename, eomFile));
         return createdEomFile;
     }
 
@@ -150,6 +151,6 @@ public class MethodeFileRepository {
     
 
 	public String getClientRepositoryInfo() {
-		return String.format("hostname: %s, nsPort: %d, userName: %s", client.getHostname(), client.getPort(), client.getUsername());
+		return client.getDescription();
 	}
 }

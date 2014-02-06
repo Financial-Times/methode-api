@@ -16,6 +16,7 @@ methodeConnection:
   userName: app-methodeAPI
   password: methodeapi
   connectTimeout: 2000
+  poolSize: 5
 
 methodeTestConnection:
   hostName: preditor-methode-01.svc.ft.com
@@ -23,12 +24,13 @@ methodeTestConnection:
   userName: dynpubtest
   password: dynpubtest
   connectTimeout: 2000
+  poolSize: 0
 
 maxPingMillis: 2000
 
 logging:
   console:
-    logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m%n%xEx"
+    logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m [%thread]%n%xEx"
   file:
     threshold: INFO
     enabled: true
@@ -37,10 +39,13 @@ logging:
     archive: true
     archivedLogFilenamePattern: /var/log/apps/methode-api-dw-app-%d.log.gz
     archivedFileCount: 5
-    logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m%n%xEx"
+    logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m [%thread]%n%xEx"
 
   loggers:
     "com.sun.jersey.spi.container.ContainerResponse": OFF
+    "com.ft.methodeapi.service.methode.connection.MethodeConnectionAllocator" : DEBUG
+    "com.ft.methodeapi.service.methode.connection.PoolingMethodeObjectFactory" : DEBUG
+    "com.ft.methodeapi.service.methode.connection.SelfCleaningPool" : DEBUG
 
 swaggerConfiguration:
   apiVersion: 1.0

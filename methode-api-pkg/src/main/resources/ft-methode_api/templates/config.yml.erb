@@ -17,12 +17,14 @@ methodeConnection:
   userName: <%=scope.function_hiera('methodeUsername')%>
   password: <%=scope.function_hiera('methodePassword')%>
   connectTimeout: 2000
+  poolSize: 10
 methodeTestConnection:
   hostName: <%=scope.function_hiera('methodeHostName')%>
   nsPort: <%=scope.function_hiera('methodeNameServicePort')%>
   userName: <%=scope.function_hiera('methodeTestUsername', 'app-methodeAPI')%>
   password: <%=scope.function_hiera('methodeTestPassword', 'methodeapi')%>
   connectTimeout: 2000
+  poolSize: 2
 
 swaggerConfiguration:
   apiVersion: 1.0
@@ -39,8 +41,10 @@ logging:
     archive: true
     archivedLogFilenamePattern: /var/log/apps/methode-api-dw-app-%d.log.gz
     archivedFileCount: 5
-    logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m%n%xEx"
+    logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m [%thread]%n%xEx"
   console:
     enabled: false
   loggers:
     "com.sun.jersey.spi.container.ContainerResponse": OFF
+    "com.ft.methodeapi.service.methode.connection.MethodeConnectionAllocator" : DEBUG
+    "com.ft.methodeapi.service.methode.connection.PoolingMethodeObjectFactory" : DEBUG

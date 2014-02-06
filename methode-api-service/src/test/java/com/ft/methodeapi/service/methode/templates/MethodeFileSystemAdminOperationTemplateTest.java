@@ -16,7 +16,7 @@ import EOM.FileSystemAdmin;
 import EOM.Repository;
 import EOM.Session;
 
-import com.ft.methodeapi.service.methode.MethodeObjectFactory;
+import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 
 
 @RunWith(MockitoJUnitRunner.class)

@@ -1,18 +1,14 @@
 package com.ft.methodeapi.service.methode.templates;
 
 import EOM.FileSystemAdmin;
-import EOM.ObjectNotFound;
-import EOM.PermissionDenied;
-import EOM.RepositoryError;
 import EOM.Session;
 
-import com.ft.methodeapi.service.methode.MethodeException;
-import com.ft.methodeapi.service.methode.MethodeObjectFactory;
+import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate.SessionCallback;
 
 public class MethodeFileSystemAdminOperationTemplate<T> {
 	
-	private static final String FILE_SYSTEM_ADMIN = "FileSystemAdmin";
+
 	
 	private final MethodeObjectFactory methodeObjectFactory;
 
@@ -27,30 +23,24 @@ public class MethodeFileSystemAdminOperationTemplate<T> {
 			public T doOperation(Session session) {
 				FileSystemAdmin fileSystemAdmin = null;
 				try {
-					fileSystemAdmin = EOM.FileSystemAdminHelper.narrow(session.resolve_initial_references(FILE_SYSTEM_ADMIN));
+					fileSystemAdmin = methodeObjectFactory.createFileSystemAdmin(session);
 					
 					return fileSystemAdminCallback.doOperation(fileSystemAdmin);
 				
-				} catch (ObjectNotFound | RepositoryError | PermissionDenied e) {
-					
-					throw new MethodeException(e);
-				
-				}finally{
-				
-					if(fileSystemAdmin !=null)
-						fileSystemAdmin._release();
+				} finally{
+                    methodeObjectFactory.maybeCloseFileSystemAdmin(fileSystemAdmin);
 				}
 			}
-		};
+        };
 		
 		
 		MethodeSessionOperationTemplate<T> template = new MethodeSessionOperationTemplate<>(methodeObjectFactory);
 		return template.doOperation(callback);
 	}
 	
-	public interface FileSystemAdminCallback<T>{
+	public interface FileSystemAdminCallback<T> extends MethodeCallback<T,FileSystemAdmin> {
 		T doOperation(FileSystemAdmin fileSystemAdmin);
-	}
+    }
 
 
 }

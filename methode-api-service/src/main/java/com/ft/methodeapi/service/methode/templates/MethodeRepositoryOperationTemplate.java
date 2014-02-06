@@ -1,7 +1,7 @@
 package com.ft.methodeapi.service.methode.templates;
 
 import EOM.Repository;
-import com.ft.methodeapi.service.methode.MethodeObjectFactory;
+import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NamingContextExt;
 
@@ -21,7 +21,7 @@ public class MethodeRepositoryOperationTemplate<T> {
         this.client = client;
     }
 
-    public T doOperation(RepositoryCallback<? extends T> callback) {
+    public T doOperation(RepositoryCallback<T> callback) {
 
         ORB orb = client.createOrb();
         try {
@@ -52,7 +52,7 @@ public class MethodeRepositoryOperationTemplate<T> {
         }
     }
 
-    public static interface RepositoryCallback<T> {
+    public static interface RepositoryCallback<T> extends MethodeCallback<T,Repository> {
 
         public T doOperation(Repository repository);
 

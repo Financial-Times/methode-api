@@ -1,16 +1,18 @@
 package com.ft.methodeapi;
 
 import com.ft.api.util.transactionid.TransactionIdFilter;
+import com.ft.methodeapi.service.methode.connection.DefaultMethodeObjectFactory;
 import com.ft.methodeapi.service.methode.MethodeContentRetrievalHealthCheck;
 
 import com.ft.ws.lib.swagger.SwaggerBundle;
+import com.yammer.dropwizard.lifecycle.Managed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ft.api.jaxrs.errors.RuntimeExceptionMapper;
 import com.ft.api.util.VersionResource;
 import com.ft.api.util.buildinfo.BuildInfoResource;
-import com.ft.methodeapi.service.methode.MethodeObjectFactory;
+import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.MethodePingHealthCheck;
 import com.ft.methodeapi.service.http.EomFileResource;
 import com.ft.methodeapi.service.http.GetAssetTypeResource;
@@ -38,8 +40,8 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
     	LOGGER.info("running with configuration: {}", configuration);
         final MethodeConnectionConfiguration methodeConnectionConfiguration = configuration.getMethodeConnectionConfiguration();
 
-        final MethodeObjectFactory methodeObjectFactory = createMethodeObjectFactory(methodeConnectionConfiguration);
-        final MethodeObjectFactory testMethodeObjectFactory = createMethodeObjectFactory(configuration.getMethodeTestConnectionConfiguration());
+        final MethodeObjectFactory methodeObjectFactory = createMethodeObjectFactory(methodeConnectionConfiguration,environment);
+        final MethodeObjectFactory testMethodeObjectFactory = createMethodeObjectFactory(configuration.getMethodeTestConnectionConfiguration(),environment);
 
         final MethodeFileRepository methodeContentRepository = new MethodeFileRepository(methodeObjectFactory, testMethodeObjectFactory);
 
@@ -54,8 +56,8 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
         environment.addFilter(new TransactionIdFilter(), "/asset-type/*");
     }
 
-    private MethodeObjectFactory createMethodeObjectFactory(MethodeConnectionConfiguration methodeConnectionConfiguration) {
-        return MethodeObjectFactory.builder()
+    private MethodeObjectFactory createMethodeObjectFactory(MethodeConnectionConfiguration methodeConnectionConfiguration,Environment environment) {
+        MethodeObjectFactory result = DefaultMethodeObjectFactory.builder()
                     .withHost(methodeConnectionConfiguration.getMethodeHostName())
                     .withPort(methodeConnectionConfiguration.getMethodePort())
                     .withUsername(methodeConnectionConfiguration.getMethodeUserName())
@@ -63,6 +65,15 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
 					.withConnectionTimeout(methodeConnectionConfiguration.getConnectTimeout())
                     .withOrbClass(methodeConnectionConfiguration.getOrbClass())
                     .withOrbSingletonClass(methodeConnectionConfiguration.getOrbSingletonClass())
+                    .withPooling(methodeConnectionConfiguration.getPoolSize())
+                    .withWorkerThreadPool(environment.managedScheduledExecutorService("MOF-worker-%d",1))
                     .build();
+
+        if(result instanceof Managed) {
+            environment.manage((Managed) result);
+        }
+
+        return result;
+
     }
 }
