@@ -132,15 +132,15 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
 
     @Override
     public Repository createRepository(NamingContextExt namingService) {
-        final TimerContext timerContext = createRepositoryTimer.time();
-        try {
+      final TimerContext timerContext = createRepositoryTimer.time();
+      try {
             return RepositoryHelper.narrow(namingService.resolve_str("EOM/Repositories/cms"));
-        } catch (org.omg.CosNaming.NamingContextPackage.InvalidName
-                | CannotProceed | NotFound e) {
-            throw new MethodeException(e);
-        } finally {
-            timerContext.stop();
-        }
+      } catch (org.omg.CosNaming.NamingContextPackage.InvalidName
+              | CannotProceed | NotFound e) {
+          throw new MethodeException(e);
+      } finally {
+          timerContext.stop();
+      }
     }
 
     @Override

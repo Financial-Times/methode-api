@@ -55,4 +55,16 @@ public class MethodeConnection implements Poolable {
     public ORB getOrb() {
         return orb;
     }
+
+    @Override
+    public String toString() {
+        return "MethodeConnection{" +
+                "slot=" + System.identityHashCode(slot) +
+                ", fileSystemAdmin=" + System.identityHashCode(fileSystemAdmin) +
+                ", session=" + System.identityHashCode(session) +
+                ", repository=" + System.identityHashCode(repository) +
+                ", namingService=" + System.identityHashCode(namingService) +
+                ", orb=" + System.identityHashCode(orb) +
+                '}';
+    }
 }

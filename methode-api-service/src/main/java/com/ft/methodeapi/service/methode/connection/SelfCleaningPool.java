@@ -64,6 +64,7 @@ public class SelfCleaningPool<T extends Poolable> implements LifecycledResizable
                     break;
 				} catch(Throwable t) {
 					LOGGER.warn("Pool is still producing exceptions", t);
+                    LOGGER.debug("Invalid objects: {}",poolable);
 				} finally {
 					if(poolable!=null) {
 						poolable.release();

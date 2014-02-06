@@ -42,12 +42,14 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
 
             RunningTimer timer = claimConnectionTimer.start();
             try {
-              LOGGER.debug("Claiming MethodeConnection");
-              MethodeConnection connection = pool.claim(claimTimeout);
-              if(connection==null) {
-                throw new MethodeException("Timeout after upon claiming MethodeConnection");
-              }
-              return connection;
+                LOGGER.debug("Claiming MethodeConnection");
+                MethodeConnection connection = pool.claim(claimTimeout);
+                if(connection==null) {
+                    throw new MethodeException("Timeout after upon claiming MethodeConnection");
+                }
+                LOGGER.debug("Claimed objects: {}",connection);
+
+                return connection;
             } catch (InterruptedException | PoolException e) {
                 throw new MethodeException(e);
             } finally {
@@ -130,8 +132,11 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
         RunningTimer timer = releaseConnectionTimer.start();
         try {
             Preconditions.checkState(orb==this.createOrb());
-            LOGGER.debug("Releasing MethodeConnection");
-            allocatedConnection.get().release();
+            MethodeConnection connection = allocatedConnection.get();
+            LOGGER.debug("Releasing objects: {}", connection);
+            connection.release();
+
+            // Ensure we release the thread local, otherwise we break the contract with the pool
             allocatedConnection.remove();
         } finally {
             timer.stop();
