@@ -1,0 +1,7 @@
+methodeApiConfigs:
+  - host: ftaps03224-lvpr-uk-p
+    port: 8080
+    adminPort: 8081
+  - host: ftaps03226-lvpr-uk-p
+    port: 8080
+    adminPort: 8081
