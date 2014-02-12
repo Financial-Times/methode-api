@@ -1,0 +1,4 @@
+methodeApiConfigs:
+  - host: localhost
+    port: 9080
+    adminPort: 9081

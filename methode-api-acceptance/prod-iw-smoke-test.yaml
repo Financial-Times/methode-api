@@ -1,0 +1,7 @@
+methodeApiConfigs:
+  - host: ftaps02547-lviw-uk-p
+    port: 8080
+    adminPort: 8081
+  - host: ftaps02548-lviw-uk-p
+    port: 8080
+    adminPort: 8081
