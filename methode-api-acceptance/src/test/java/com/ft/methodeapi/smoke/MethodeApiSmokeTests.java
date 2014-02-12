@@ -68,7 +68,7 @@ public class MethodeApiSmokeTests {
             final File file = new File(configFileName).getCanonicalFile();
             methodeApiSmokeTestConfiguration = objectMapper.readValue(file, MethodeApiSmokeTestConfiguration.class);
             ApiConfig sampleApiConfig = methodeApiSmokeTestConfiguration.getMethodeApiConfigs().get(0);
-            methodeApiServiceUrl = String.format("http://%s:%s/eom-file", sampleApiConfig.getHost(), sampleApiConfig.getPort());
+            methodeApiServiceUrl = String.format("http://%s:%s/eom-file/", sampleApiConfig.getHost(), sampleApiConfig.getPort());
             LOGGER.debug("Configuration used : {}", methodeApiSmokeTestConfiguration);
         } catch (IOException e) {
             throw new RuntimeException(e);
