@@ -1,10 +1,10 @@
 package com.ft.methodeapi.service.methode;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ft.methodeapi.service.methode.connection.PoolConfiguration;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.yammer.dropwizard.validation.MinSize;
 import com.yammer.dropwizard.validation.PortRange;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -19,7 +19,7 @@ public class MethodeConnectionConfiguration {
 	private final int connectTimeout;
     private final String orbClass;
     private final String orbSingletonClass;
-    private final int poolSize;
+    private final Optional<PoolConfiguration> pool;
 
     public MethodeConnectionConfiguration(@JsonProperty("hostName") String methodeHostName,
                                           @JsonProperty("nsPort") int methodePort,
@@ -28,7 +28,7 @@ public class MethodeConnectionConfiguration {
 										  @JsonProperty("connectTimeout") int connectTimeout,
                                           @JsonProperty("orbClass") Optional<String> orbClass,
                                           @JsonProperty("orbSingletonClass") Optional<String> orbSingletonClass,
-                                          @JsonProperty("poolSize") Optional<Integer> poolSize) {
+                                          @JsonProperty("pool") Optional<PoolConfiguration> pool) {
         this.methodeHostName = methodeHostName;
         this.methodePort = methodePort;
         this.methodeUserName = methodeUserName;
@@ -36,7 +36,7 @@ public class MethodeConnectionConfiguration {
 		this.connectTimeout = connectTimeout;
         this.orbClass = orbClass.or("org.jacorb.orb.ORB");
         this.orbSingletonClass = orbSingletonClass.or("org.jacorb.orb.ORBSingleton");
-        this.poolSize = poolSize.or(0); // no pooling by default
+        this.pool = pool;
     }
 
     @NotEmpty
@@ -74,9 +74,8 @@ public class MethodeConnectionConfiguration {
         return orbSingletonClass;
     }
 
-    @Min(0)
-    public int getPoolSize() {
-        return poolSize;
+    public Optional<PoolConfiguration> getPool() {
+        return pool;
     }
 
     @Override
@@ -90,6 +89,7 @@ public class MethodeConnectionConfiguration {
 				.add("connectTimeout", connectTimeout)
                 .add("orbClass", orbClass)
                 .add("orbSingletonClass", orbSingletonClass)
+                .add("pool",pool)
                 .toString();
     }
 }
