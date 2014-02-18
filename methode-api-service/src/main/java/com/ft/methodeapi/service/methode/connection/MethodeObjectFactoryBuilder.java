@@ -1,5 +1,8 @@
 package com.ft.methodeapi.service.methode.connection;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
@@ -16,7 +19,7 @@ public class MethodeObjectFactoryBuilder {
     int connectionTimeout;
     String orbClass;
     String orbSingletonClass;
-    int poolSize;
+    Optional<PoolConfiguration> pool;
     ScheduledExecutorService executorService;
 
     public MethodeObjectFactoryBuilder withUsername(String username) {
@@ -62,15 +65,18 @@ public class MethodeObjectFactoryBuilder {
     public MethodeObjectFactory build() {
 
         MethodeObjectFactory factory = new DefaultMethodeObjectFactory(this);
-        if(poolSize>0) {
-            factory = new PoolingMethodeObjectFactory(factory, executorService, poolSize);
+        if(pool.isPresent() && pool.get().getSize()>0) {
+
+            Preconditions.checkState(executorService!=null,"Connection pooling requires a thread pool");
+
+            factory = new PoolingMethodeObjectFactory(factory, executorService, pool.get());
         }
 
         return factory;
     }
 
-    public MethodeObjectFactoryBuilder withPooling(int poolSize) {
-        this.poolSize = poolSize;
+    public MethodeObjectFactoryBuilder withPooling(Optional<PoolConfiguration> pool) {
+        this.pool = pool;
         return this;
     }
 }

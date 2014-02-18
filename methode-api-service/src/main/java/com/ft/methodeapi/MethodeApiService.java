@@ -65,7 +65,7 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
 					.withConnectionTimeout(methodeConnectionConfiguration.getConnectTimeout())
                     .withOrbClass(methodeConnectionConfiguration.getOrbClass())
                     .withOrbSingletonClass(methodeConnectionConfiguration.getOrbSingletonClass())
-                    .withPooling(methodeConnectionConfiguration.getPoolSize())
+                    .withPooling(methodeConnectionConfiguration.getPool())
                     .withWorkerThreadPool(environment.managedScheduledExecutorService("MOF-worker-%d",1))
                     .build();
 

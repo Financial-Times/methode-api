@@ -63,21 +63,28 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
     private final Timeout claimTimeout;
 
 
-    public PoolingMethodeObjectFactory(final MethodeObjectFactory implementation, ScheduledExecutorService executorService, int poolSize) {
+    public PoolingMethodeObjectFactory(final MethodeObjectFactory implementation, ScheduledExecutorService executorService, PoolConfiguration configuration) {
 
-        Preconditions.checkNotNull(implementation,"PoolingMethodeObjectFactory must wrap another MethodeObjectFactory");
-        Preconditions.checkNotNull(executorService,"A scheduling thread pool service is required");
-        Preconditions.checkArgument(poolSize>0,"Pool size must be a positive integer");
+        Preconditions.checkArgument(configuration != null, "Not configured");
+        Preconditions.checkArgument(implementation != null, "PoolingMethodeObjectFactory must wrap another MethodeObjectFactory");
+        Preconditions.checkArgument(executorService != null, "A scheduling thread pool service is required");
+
+        assert configuration != null; // suppresses warning
+        Preconditions.checkArgument(configuration.getSize()>0,"Pool size must be a positive integer");
+
+        this.implementation = implementation;
 
         Allocator<MethodeConnection> allocator = new MethodeConnectionAllocator(implementation);
 
-        Config<MethodeConnection> config = new Config<MethodeConnection>().setAllocator(allocator);
-        config.setSize(poolSize);
-        config.setExpiration(new TimeSpreadOrMethodeConnectionInvalidExpiration(5,10,TimeUnit.MINUTES));
+        Config<MethodeConnection> poolConfig = new Config<MethodeConnection>().setAllocator(allocator);
+        poolConfig.setSize(configuration.getSize());
+        poolConfig.setExpiration(new TimeSpreadOrMethodeConnectionInvalidExpiration(5, 10, TimeUnit.MINUTES));
 
-        pool = new SelfCleaningPool<>(new BlazePool<>(config), executorService, TIMEOUT.class, TRANSIENT.class);
-        claimTimeout = new Timeout(10, TimeUnit.SECONDS);
-        this.implementation = implementation;
+        pool = new SelfCleaningPool<>(new BlazePool<>(poolConfig), executorService, TIMEOUT.class, TRANSIENT.class);
+        claimTimeout = new Timeout(
+                configuration.getTimeout().getQuantity(),
+                configuration.getTimeout().getUnit()
+            );
 
     }
 
@@ -150,7 +157,7 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
 
     @Override
     public void start() throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // not used
     }
 
     @Override
