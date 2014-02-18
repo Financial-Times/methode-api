@@ -69,7 +69,7 @@ public class MethodeConnectionAllocator implements Allocator<MethodeConnection> 
     public void deallocate(final MethodeConnection connection) throws Exception {
 
         queueSize.incrementAndGet();
-        executorService.submit(new Runnable() {
+        executorService.execute(new Runnable() {
             @Override
             public void run() {
 
