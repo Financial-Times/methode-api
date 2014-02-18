@@ -19,7 +19,7 @@ public class MethodeObjectFactoryBuilder {
     int connectionTimeout;
     String orbClass;
     String orbSingletonClass;
-    Optional<PoolConfiguration> pool;
+    Optional<PoolConfiguration> pool = Optional.absent();
     ScheduledExecutorService executorService;
 
     public MethodeObjectFactoryBuilder withUsername(String username) {
