@@ -90,6 +90,8 @@ public class TimeSpreadOrMethodeConnectionInvalidExpiration implements Expiratio
 
         long age = info.getAgeMillis();
 
+        LOGGER.debug("Checking for expiration {}", info.getPoolable());
+
         if(age >= expirationAge) {
             connectionAgeActual.update(age);
             connectionAgeExpected.update(expirationAge);
@@ -101,11 +103,14 @@ public class TimeSpreadOrMethodeConnectionInvalidExpiration implements Expiratio
         
         // now check the connection
         try {
+            LOGGER.debug("Starting here I am check {}", info.getPoolable());
         	info.getPoolable().getSession().here_i_am();    	
         } catch (Exception e) {
         	LOGGER.info("Methode connection is no longer valid, expiring it", e);
             return true;
         }
+
+        LOGGER.debug("Slot is current. {}", info.getPoolable());
 
         return false;
 

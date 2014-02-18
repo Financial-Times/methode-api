@@ -69,7 +69,7 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
         Preconditions.checkNotNull(executorService,"A scheduling thread pool service is required");
         Preconditions.checkArgument(poolSize>0,"Pool size must be a positive integer");
 
-        Allocator<MethodeConnection> allocator = new MethodeConnectionAllocator(implementation);
+        Allocator<MethodeConnection> allocator = new MethodeConnectionAllocator(implementation,executorService);
 
         Config<MethodeConnection> config = new Config<MethodeConnection>().setAllocator(allocator);
         config.setSize(poolSize);

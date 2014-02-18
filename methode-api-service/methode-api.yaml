@@ -24,7 +24,7 @@ methodeTestConnection:
   userName: dynpubtest
   password: dynpubtest
   connectTimeout: 2000
-  poolSize: 0
+  poolSize: 2
 
 maxPingMillis: 2000
 
