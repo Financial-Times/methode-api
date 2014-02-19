@@ -74,7 +74,7 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
 
         this.implementation = implementation;
 
-        Allocator<MethodeConnection> allocator = new MethodeConnectionAllocator(implementation);
+        Allocator<MethodeConnection> allocator = new MethodeConnectionAllocator(implementation,executorService);
 
         Config<MethodeConnection> poolConfig = new Config<MethodeConnection>().setAllocator(allocator);
         poolConfig.setSize(configuration.getSize());
