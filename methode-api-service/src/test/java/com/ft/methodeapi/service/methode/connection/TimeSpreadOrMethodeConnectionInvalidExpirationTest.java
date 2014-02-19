@@ -3,11 +3,11 @@ package com.ft.methodeapi.service.methode.connection;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.TimeUnit;
 
+import EOM.Repository;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,12 +31,14 @@ public class TimeSpreadOrMethodeConnectionInvalidExpirationTest {
     @Mock private SlotInfo<MethodeConnection> info;
     @Mock private MethodeConnection connection;
     @Mock private Session session;
+    @Mock private Repository repository;
     
 	
 	@Before
 	public void setup() {
 		when(info.getPoolable()).thenReturn(connection);
 		when(connection.getSession()).thenReturn(session);
+        when(connection.getRepository()).thenReturn(repository);
 	}
 	
 	@Test
@@ -61,7 +63,7 @@ public class TimeSpreadOrMethodeConnectionInvalidExpirationTest {
 	}
 	
 	@Test
-	public void shouldNotExpireIfHereIAmSuccessfulAndAgeLessThanExpirationAge() {
+	public void shouldNotExpireSessionGoneCheckSuccessfulAndAgeLessThanExpirationAge() {
 		when(info.getAgeMillis()).thenReturn(1999L);
 		timeSpreadExpiration = new TimeSpreadOrMethodeConnectionInvalidExpiration(2, 10, TimeUnit.SECONDS);
 		assertThat(timeSpreadExpiration.hasExpired(info), equalTo(false));
@@ -76,11 +78,19 @@ public class TimeSpreadOrMethodeConnectionInvalidExpirationTest {
 	
 	
 	@Test
-	public void shouldExpireWhenHereIAmThrowsException() {
+	public void shouldExpireWhenGoneCheckThrowsException() {
 		when(info.getAgeMillis()).thenReturn(5000L);
 		timeSpreadExpiration = new TimeSpreadOrMethodeConnectionInvalidExpiration(2, 10, TimeUnit.SECONDS);
-		doThrow(new RuntimeException("MethodeConnection is no longer valid")).when(session).here_i_am();
+		when(session._non_existent()).thenThrow(new RuntimeException("Synthetic exception"));
 		assertThat(timeSpreadExpiration.hasExpired(info), equalTo(true));
 	}
+
+    @Test
+    public void shouldExpireWhenGoneCheckReturnsTrue() {
+        when(info.getAgeMillis()).thenReturn(5000L);
+        timeSpreadExpiration = new TimeSpreadOrMethodeConnectionInvalidExpiration(2, 10, TimeUnit.SECONDS);
+        when(session._non_existent()).thenReturn(true);
+        assertThat(timeSpreadExpiration.hasExpired(info), equalTo(true));
+    }
 	
 }
