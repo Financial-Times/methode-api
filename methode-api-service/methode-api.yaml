@@ -13,11 +13,11 @@ http:
 methodeConnection:
   hostName: preditor-methode-01.svc.ft.com
   nsPort: 9092
-  userName: app-methodeAPI
-  password: methodeapi
+  userName: automate1
+  password: automate1
   connectTimeout: 2000
   pool:
-    size: 5
+    size: 3
     timeout: 1900ms
 
 methodeTestConnection:

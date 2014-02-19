@@ -162,6 +162,8 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
 
     @Override
     public void stop() throws Exception {
+        LOGGER.info("Shutdown Requested");
         pool.shutdown().await(new Timeout(20, TimeUnit.SECONDS));
+        LOGGER.info("Shutdown Complete");
     }
 }

@@ -103,8 +103,12 @@ public class TimeSpreadOrMethodeConnectionInvalidExpiration implements Expiratio
         
         // now check the connection
         try {
-            LOGGER.debug("Starting here I am check {}", info.getPoolable());
-        	info.getPoolable().getSession().here_i_am();    	
+            LOGGER.debug("Starting ping check {}", info.getPoolable());
+        	info.getPoolable().getRepository().ping();
+            if(info.getPoolable().getSession()._non_existent()) {
+                LOGGER.warn("Session is gone");
+                return true;
+            }
         } catch (Exception e) {
         	LOGGER.info("Methode connection is no longer valid, expiring it", e);
             return true;
