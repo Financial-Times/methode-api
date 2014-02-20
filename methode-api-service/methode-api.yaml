@@ -13,8 +13,8 @@ http:
 methodeConnection:
   hostName: preditor-methode-01.svc.ft.com
   nsPort: 9092
-  userName: automate1
-  password: automate1
+  userName: dynpublocal
+  password: dynpublocal
   connectTimeout: 2000
   pool:
     size: 3
@@ -23,9 +23,9 @@ methodeConnection:
 methodeTestConnection:
   hostName: preditor-methode-01.svc.ft.com
   nsPort: 9092
-  userName: dynpubtest
-  password: dynpubtest
-  connectTimeout: 2000
+  userName: dynpublocal-rw
+  password: dynpublocal-rw
+  connectTimeout: 4000
   pool:
     size: 2
     timeout: 1900ms
