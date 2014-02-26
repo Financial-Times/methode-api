@@ -15,6 +15,8 @@ import EOM.Repository;
 import EOM.RepositoryError;
 import EOM.Utils;
 
+import com.ft.methodeapi.metrics.FTTimer;
+import com.ft.methodeapi.metrics.RunningTimer;
 import com.ft.methodeapi.model.EomAssetType;
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
@@ -22,30 +24,34 @@ import com.ft.methodeapi.service.methode.templates.MethodeFileSystemAdminOperati
 import com.ft.methodeapi.service.methode.templates.MethodeRepositoryOperationTemplate;
 import com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate;
 import com.google.common.base.Optional;
-import com.yammer.metrics.annotation.Timed;
 
 public class MethodeFileRepository {
 	
     private final MethodeObjectFactory client;
     private final MethodeObjectFactory testClient;
 
+    private static final FTTimer pingTime = FTTimer.newTimer(MethodeFileRepository.class,"ping");
+
     public MethodeFileRepository(MethodeObjectFactory client, MethodeObjectFactory testClient) {
         this.client = client;
         this.testClient = testClient;
     }
 
-    @Timed
     public void ping() {
         new MethodeRepositoryOperationTemplate<>(client).doOperation(new MethodeRepositoryOperationTemplate.RepositoryCallback<Object>() {
             @Override
             public Object doOperation(Repository repository) {
-                repository.ping();
-                return null;
+                RunningTimer timer = pingTime.start();
+                try {
+                    repository.ping();
+                    return null;
+                } finally {
+                    timer.stop();
+                }
             }
         });
     }
 
-    @Timed
     public Optional<EomFile> findFileByUuid(final String uuid) {
 
         final MethodeFileSystemAdminOperationTemplate<Optional<EomFile>> template = new MethodeFileSystemAdminOperationTemplate<>(client);
@@ -82,8 +88,7 @@ public class MethodeFileRepository {
 
        return template.doOperation(callback);
     }
-    
-    @Timed
+
     public Map<String, EomAssetType> getAssetTypes(final Set<String> assetIdentifiers){
     	final MethodeFileSystemAdminOperationTemplate<Map<String, EomAssetType>> template = new MethodeFileSystemAdminOperationTemplate<>(client);
 		return template.doOperation(new GetAssetTypeFileSystemAdminCallback(assetIdentifiers));

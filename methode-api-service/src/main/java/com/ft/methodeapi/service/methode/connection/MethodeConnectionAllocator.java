@@ -8,6 +8,8 @@ import com.ft.methodeapi.metrics.RunningTimer;
 import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.Gauge;
 import org.omg.CORBA.ORB;
+import org.omg.CORBA.TIMEOUT;
+import org.omg.CORBA.TRANSIENT;
 import org.omg.CosNaming.NamingContextExt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +62,10 @@ public class MethodeConnectionAllocator implements Allocator<MethodeConnection> 
             MethodeConnection connection = new MethodeConnection(slot, orb, namingService, repository, session, fileSystemAdmin);
             LOGGER.debug("Allocated objects: {}",connection.toString());
             return connection;
+
+        } catch (TIMEOUT | TRANSIENT se) {
+            // Adds a timestamp
+            throw new RecoverableAllocationException(se);
         } finally {
             timer.stop();
         }

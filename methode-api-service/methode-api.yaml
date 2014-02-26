@@ -25,10 +25,10 @@ methodeTestConnection:
   nsPort: 9092
   userName: dynpublocal-rw
   password: dynpublocal-rw
-  connectTimeout: 4000
+  connectTimeout: 2000
   pool:
     size: 2
-    timeout: 1900ms
+    timeout: 4000ms
 
 maxPingMillis: 2000
 

@@ -80,7 +80,7 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
         poolConfig.setSize(configuration.getSize());
         poolConfig.setExpiration(new TimeSpreadOrMethodeConnectionInvalidExpiration(5, 10, TimeUnit.MINUTES));
 
-        pool = new SelfCleaningPool<>(new BlazePool<>(poolConfig), executorService, TIMEOUT.class, TRANSIENT.class);
+        pool = new SelfCleaningPool<>(new BlazePool<>(poolConfig), executorService, RecoverableAllocationException.class);
         claimTimeout = new Timeout(
                 configuration.getTimeout().getQuantity(),
                 configuration.getTimeout().getUnit()

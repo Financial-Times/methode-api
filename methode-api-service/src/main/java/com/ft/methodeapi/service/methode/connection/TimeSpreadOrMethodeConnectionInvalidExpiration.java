@@ -1,5 +1,7 @@
 package com.ft.methodeapi.service.methode.connection;
 
+import com.ft.methodeapi.metrics.FTTimer;
+import com.ft.methodeapi.metrics.RunningTimer;
 import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.Histogram;
 import org.slf4j.Logger;
@@ -27,6 +29,7 @@ public class TimeSpreadOrMethodeConnectionInvalidExpiration implements Expiratio
 
     private final Histogram connectionAgeActual = Metrics.newHistogram(TimeSpreadOrMethodeConnectionInvalidExpiration.class,"actual","connection-age",true);
     private final Histogram connectionAgeExpected = Metrics.newHistogram(TimeSpreadOrMethodeConnectionInvalidExpiration.class,"expected","connection-age",true);
+    private final FTTimer corbaTimer = FTTimer.newTimer(TimeSpreadOrMethodeConnectionInvalidExpiration.class,"corba");
 
     private static Logger LOGGER = LoggerFactory.getLogger(TimeSpreadOrMethodeConnectionInvalidExpiration.class);
 
@@ -86,7 +89,10 @@ public class TimeSpreadOrMethodeConnectionInvalidExpiration implements Expiratio
     @Override
     public boolean hasExpired(SlotInfo<? extends MethodeConnection> info) {
         long maxDelta = upperBoundMillis - lowerBoundMillis;
-        long expirationAge = lowerBoundMillis + Math.abs(info.hashCode() % maxDelta);
+
+        MethodeConnection connection = info.getPoolable();
+
+        long expirationAge = lowerBoundMillis + Math.abs(connection.hashCode() % maxDelta);
 
         long age = info.getAgeMillis();
 
@@ -96,7 +102,13 @@ public class TimeSpreadOrMethodeConnectionInvalidExpiration implements Expiratio
             connectionAgeActual.update(age);
             connectionAgeExpected.update(expirationAge);
 
-            LOGGER.info("Expired connection after actual={}, expected={}",age,expirationAge);
+            LOGGER.info(
+                    "Expired connection={} in slot={} after actual={} expected={}",
+                    System.identityHashCode(connection),
+                    System.identityHashCode(info),
+                    age,
+                    expirationAge
+                );
 
             return true;
         }
@@ -104,11 +116,17 @@ public class TimeSpreadOrMethodeConnectionInvalidExpiration implements Expiratio
         // now check the connection
         try {
             LOGGER.debug("Starting ping check {}", info.getPoolable());
-        	info.getPoolable().getRepository().ping();
-            if(info.getPoolable().getSession()._non_existent()) {
-                LOGGER.warn("Session is gone");
-                return true;
+            RunningTimer timer = corbaTimer.start();
+        	try {
+                info.getPoolable().getRepository().ping();
+                if(info.getPoolable().getSession()._non_existent()) {
+                    LOGGER.warn("Session is gone");
+                    return true;
+                }
+            } finally {
+                timer.stop();
             }
+
         } catch (Exception e) {
         	LOGGER.info("Methode connection is no longer valid, expiring it", e);
             return true;
