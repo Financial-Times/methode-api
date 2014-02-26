@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * <p>Removes bad Poolable's from the pool in the event the <code>pool.claim()</code> method begins
@@ -44,7 +45,7 @@ public class SelfCleaningPool<T extends Poolable> implements LifecycledResizable
 	private final Set<Class<? extends Throwable>> recoverableExceptions;
     private final long dredgeDelay;
 
-    private boolean dredging = false;
+    private final AtomicBoolean dredging = new AtomicBoolean(false);
 
 	private final Runnable dredgePool = new Runnable() {
 
@@ -58,20 +59,19 @@ public class SelfCleaningPool<T extends Poolable> implements LifecycledResizable
 				try {
 					poolable = implementation.claim(claimTimeout);
 				} catch (InterruptedException ie) {
-					// never mind, we tried...
+					// Okay, let's stop then
 					LOGGER.debug("Interrupted while checking Poolable {}",i);
-                    dredging = false;
+                    dredging.set(false); // allow dredging to resume
                     break;
 				} catch(Throwable t) {
 					LOGGER.warn("Pool is still producing exceptions", t);
-                    LOGGER.debug("Invalid objects: {}",poolable);
 				} finally {
 					if(poolable!=null) {
 						poolable.release();
 					}
 				}
 			}
-			dredging = false;
+			dredging.set(false);
             timer.stop();
 		}
 	};
@@ -120,7 +120,7 @@ public class SelfCleaningPool<T extends Poolable> implements LifecycledResizable
 
 	@Override
 	public Completion shutdown() {
-        dredging = true; // stop further dredging
+        dredging.set(true); // stop further dredging
         LOGGER.info("Shut down requested");
         return implementation.shutdown();
 	}
@@ -140,8 +140,8 @@ public class SelfCleaningPool<T extends Poolable> implements LifecycledResizable
 		try {
 			return implementation.claim(timeout);
 		} catch (PoolException pe) {
-			if(!dredging && expectedException(pe)) {
-				dredging = true;
+			if(!dredging.get() && expectedException(pe)) {
+				dredging.set(true); // prevent additional dredging until this run completes
 				executorService.schedule(dredgePool, dredgeDelay, TimeUnit.SECONDS);
                 LOGGER.info("Dredging scheduled",pe);
 			}
