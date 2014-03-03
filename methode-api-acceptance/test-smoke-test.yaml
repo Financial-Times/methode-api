@@ -1,7 +1,7 @@
 methodeApiConfigs:
-  - host: ftaps02493-lvpr-uk-t
+  - host: methode-api-01-pr-uk-t.svc.ft.com
     port: 8080
     adminPort: 8081
-  - host: ftaps02494-lvpr-uk-t
+  - host: methode-api-02-pr-uk-t.svc.ft.com
     port: 8080
     adminPort: 8081
