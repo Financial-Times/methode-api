@@ -9,8 +9,6 @@ import com.ft.methodeapi.service.methode.MethodeException;
 import com.google.common.base.Preconditions;
 import com.yammer.dropwizard.lifecycle.Managed;
 import org.omg.CORBA.ORB;
-import org.omg.CORBA.TIMEOUT;
-import org.omg.CORBA.TRANSIENT;
 import org.omg.CosNaming.NamingContextExt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +17,7 @@ import stormpot.Config;
 import stormpot.LifecycledResizablePool;
 import stormpot.PoolException;
 import stormpot.Timeout;
-import stormpot.bpool.BlazePool;
+import stormpot.qpool.QueuePool;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -80,7 +78,7 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
         poolConfig.setSize(configuration.getSize());
         poolConfig.setExpiration(new TimeSpreadOrMethodeConnectionInvalidExpiration(5, 10, TimeUnit.MINUTES));
 
-        pool = new SelfCleaningPool<>(new BlazePool<>(poolConfig), executorService, RecoverableAllocationException.class);
+        pool = new SelfCleaningPool<>(new QueuePool<>(poolConfig), executorService, RecoverableAllocationException.class);
         claimTimeout = new Timeout(
                 configuration.getTimeout().getQuantity(),
                 configuration.getTimeout().getUnit()
