@@ -15,13 +15,10 @@ import EOM.Repository;
 import EOM.RepositoryError;
 import EOM.Utils;
 
-import com.ft.methodeapi.metrics.FTTimer;
-import com.ft.methodeapi.metrics.RunningTimer;
 import com.ft.methodeapi.model.EomAssetType;
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.templates.MethodeFileSystemAdminOperationTemplate;
-import com.ft.methodeapi.service.methode.templates.MethodeRepositoryOperationTemplate;
 import com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate;
 import com.google.common.base.Optional;
 
@@ -30,26 +27,9 @@ public class MethodeFileRepository {
     private final MethodeObjectFactory client;
     private final MethodeObjectFactory testClient;
 
-    private static final FTTimer pingTime = FTTimer.newTimer(MethodeFileRepository.class,"ping");
-
     public MethodeFileRepository(MethodeObjectFactory client, MethodeObjectFactory testClient) {
         this.client = client;
         this.testClient = testClient;
-    }
-
-    public void ping() {
-        new MethodeRepositoryOperationTemplate<>(client).doOperation(new MethodeRepositoryOperationTemplate.RepositoryCallback<Object>() {
-            @Override
-            public Object doOperation(Repository repository) {
-                RunningTimer timer = pingTime.start();
-                try {
-                    repository.ping();
-                    return null;
-                } finally {
-                    timer.stop();
-                }
-            }
-        });
     }
 
     public Optional<EomFile> findFileByUuid(final String uuid) {

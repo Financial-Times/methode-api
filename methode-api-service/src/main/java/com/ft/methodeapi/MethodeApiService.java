@@ -49,7 +49,8 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
         environment.addResource(new VersionResource(MethodeApiService.class));
         environment.addResource(new BuildInfoResource());
         environment.addResource(new GetAssetTypeResource(methodeContentRepository));
-        environment.addHealthCheck(new MethodePingHealthCheck(methodeContentRepository, configuration.getMaxPingMillis()));
+        environment.addHealthCheck(new MethodePingHealthCheck(methodeObjectFactory, configuration.getMaxPingMillis()));
+        environment.addHealthCheck(new MethodePingHealthCheck(testMethodeObjectFactory, configuration.getMaxPingMillis()));
         environment.addHealthCheck(new MethodeContentRetrievalHealthCheck(methodeContentRepository));
         environment.addProvider(new RuntimeExceptionMapper());
 		environment.addFilter(new TransactionIdFilter(), "/eom-file/*");

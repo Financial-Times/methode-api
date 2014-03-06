@@ -1,5 +1,6 @@
 package com.ft.methodeapi.metrics;
 
+import com.google.common.base.Optional;
 import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.Timer;
 import com.yammer.metrics.core.TimerContext;
@@ -37,10 +38,12 @@ public class FTTimer {
 
         private TimerContext timerContext;
         long startTimeMillis;
+        Optional<Long> value;
 
         public LoggingTimerContext (TimerContext timerContext, long startTimeMillis) {
             this.timerContext = timerContext;
             this.startTimeMillis = startTimeMillis;
+            value = Optional.absent();
         }
 
         @Override
@@ -48,6 +51,14 @@ public class FTTimer {
             timerContext.stop();
             long duration = System.currentTimeMillis() - startTimeMillis;
             logger.info("[{}] duration={}",label,duration);
+
+            value = Optional.of(duration);
+
+        }
+
+        @Override
+        public Optional<Long> value() {
+            return value;
         }
     }
 
