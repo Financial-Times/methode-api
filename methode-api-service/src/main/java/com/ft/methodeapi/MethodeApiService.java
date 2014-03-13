@@ -1,6 +1,8 @@
 package com.ft.methodeapi;
 
 import com.ft.api.util.transactionid.TransactionIdFilter;
+import com.ft.methodeapi.atc.AirTrafficController;
+import com.ft.methodeapi.atc.WhereIsItResource;
 import com.ft.methodeapi.service.methode.connection.DefaultMethodeObjectFactory;
 import com.ft.methodeapi.service.methode.MethodeContentRetrievalHealthCheck;
 
@@ -49,6 +51,7 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
 
         final MethodeFileRepository methodeContentRepository = new MethodeFileRepository(methodeObjectFactory, testMethodeObjectFactory);
 
+        environment.addResource(new WhereIsItResource(new AirTrafficController(configuration.getAtc())));
         environment.addResource(new EomFileResource(methodeContentRepository));
         environment.addResource(new VersionResource(MethodeApiService.class));
         environment.addResource(new BuildInfoResource());

@@ -5,11 +5,15 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ft.methodeapi.atc.DataCentre;
 import com.ft.methodeapi.service.methode.MethodeConnectionConfiguration;
 import com.ft.ws.lib.swagger.SwaggerConfiguration;
 import com.ft.ws.lib.swagger.SwaggerConfigurationStrategy;
 import com.google.common.base.Objects;
 import com.yammer.dropwizard.config.Configuration;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class MethodeApiConfiguration extends Configuration implements SwaggerConfigurationStrategy {
 
@@ -17,6 +21,7 @@ public class MethodeApiConfiguration extends Configuration implements SwaggerCon
     private final MethodeConnectionConfiguration methodeTestConnectionConfiguration;
     private final long maxPingMillis;
 	private SwaggerConfiguration swaggerConfiguration;
+    private Map<DataCentre, String> atc = new LinkedHashMap<>(3);
 
     public MethodeApiConfiguration(@JsonProperty("methodeConnection") MethodeConnectionConfiguration methodeConnectionConfiguration,
                                    @JsonProperty("methodeTestConnection") MethodeConnectionConfiguration methodeTestConnectionConfiguration,
@@ -45,8 +50,11 @@ public class MethodeApiConfiguration extends Configuration implements SwaggerCon
         return maxPingMillis;
     }
 
+    public Map<DataCentre, String> getAtc() {
+        return atc;
+    }
 
-	@NotNull
+    @NotNull
 	@Override
 	public SwaggerConfiguration getSwaggerConfiguration() {
 	    return swaggerConfiguration;

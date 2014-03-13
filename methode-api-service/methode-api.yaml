@@ -32,6 +32,11 @@ methodeTestConnection:
 
 maxPingMillis: 2000
 
+atc:
+    WATFORD: ftcms01-uviw-uk-p
+    PARK_ROYAL: ftcms01-uvpr-uk-p
+    ACTIVE: ftcms-p
+
 logging:
   console:
     logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m [%thread]%n%xEx"
