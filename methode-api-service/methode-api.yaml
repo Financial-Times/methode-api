@@ -33,9 +33,11 @@ methodeTestConnection:
 maxPingMillis: 2000
 
 atc:
-    WATFORD: ftcms01-uviw-uk-p
-    PARK_ROYAL: ftcms01-uvpr-uk-p
-    ACTIVE: ftcms-p
+    iAm: WATFORD
+    hostnames:
+        WATFORD: ftcms01-uviw-uk-p
+        PARK_ROYAL: ftcms01-uvpr-uk-p
+        ACTIVE: ftcms-p
 
 logging:
   console:

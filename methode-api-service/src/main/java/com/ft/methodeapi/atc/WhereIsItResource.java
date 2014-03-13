@@ -31,7 +31,7 @@ public class WhereIsItResource {
 
         DataCentre activeDc = atc.whois(activeIp, methodeIps);
 
-        return new WhereIsItResponse(activeDc,methodeIps);
+        return new WhereIsItResponse(atc.amI(activeDc), activeDc, methodeIps);
     }
 
 }

@@ -23,11 +23,13 @@ import java.util.regex.Pattern;
 public class AirTrafficController {
 
     private static Pattern IP_FINDER_PATTERN = Pattern.compile("Name:.*?([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)$",Pattern.DOTALL + Pattern.MULTILINE);
+
     private final Map<DataCentre, String> hostnames;
+    private final DataCentre iAm;
 
-
-    public AirTrafficController(Map<DataCentre, String> hostnames) {
-        this.hostnames = hostnames;
+    public AirTrafficController(AtcConfiguration atcConfig) {
+        this.hostnames = atcConfig.getHostnames();
+        this.iAm = atcConfig.getiAm();
     }
 
     public Map<DataCentre, String> reportIps() {
@@ -88,4 +90,12 @@ public class AirTrafficController {
         }
         return null;
     }
+
+    public boolean amI(DataCentre dataCentre) {
+        if(dataCentre.equals(iAm)) {
+            return true;
+        }
+        return false;
+    }
+
 }

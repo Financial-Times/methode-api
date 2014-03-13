@@ -5,6 +5,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ft.methodeapi.atc.AtcConfiguration;
 import com.ft.methodeapi.atc.DataCentre;
 import com.ft.methodeapi.service.methode.MethodeConnectionConfiguration;
 import com.ft.ws.lib.swagger.SwaggerConfiguration;
@@ -21,16 +22,18 @@ public class MethodeApiConfiguration extends Configuration implements SwaggerCon
     private final MethodeConnectionConfiguration methodeTestConnectionConfiguration;
     private final long maxPingMillis;
 	private SwaggerConfiguration swaggerConfiguration;
-    private Map<DataCentre, String> atc = new LinkedHashMap<>(3);
+    private AtcConfiguration atc;
 
     public MethodeApiConfiguration(@JsonProperty("methodeConnection") MethodeConnectionConfiguration methodeConnectionConfiguration,
                                    @JsonProperty("methodeTestConnection") MethodeConnectionConfiguration methodeTestConnectionConfiguration,
+                                   @JsonProperty("atc") AtcConfiguration airTrafficeControllerConfig,
                                    @JsonProperty("maxPingMillis") long maxPingMillis,
 								   @JsonProperty("swaggerConfiguration") SwaggerConfiguration swaggerConfiguration) {
         this.methodeConnectionConfiguration = methodeConnectionConfiguration;
         this.methodeTestConnectionConfiguration = methodeTestConnectionConfiguration;
         this.maxPingMillis = maxPingMillis;
 		this.swaggerConfiguration = swaggerConfiguration;
+        this.atc = airTrafficeControllerConfig;
     }
 
     @Valid
@@ -50,12 +53,12 @@ public class MethodeApiConfiguration extends Configuration implements SwaggerCon
         return maxPingMillis;
     }
 
-    public Map<DataCentre, String> getAtc() {
+    @Valid @NotNull
+    public AtcConfiguration getAtc() {
         return atc;
     }
 
-    @NotNull
-	@Override
+    @NotNull @Override
 	public SwaggerConfiguration getSwaggerConfiguration() {
 	    return swaggerConfiguration;
 	}
