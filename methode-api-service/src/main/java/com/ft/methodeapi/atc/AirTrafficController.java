@@ -52,12 +52,7 @@ public class AirTrafficController {
 
     public static String lookup(String hostname) {
 
-        CommandLine cmdLine;
-        if(SystemUtils.IS_OS_WINDOWS) {
-            cmdLine = new CommandLine("nslookup");
-        } else {
-            cmdLine = new CommandLine("host");
-        }
+        CommandLine cmdLine = new CommandLine("nslookup");
 
         cmdLine.addArgument(hostname);
 
