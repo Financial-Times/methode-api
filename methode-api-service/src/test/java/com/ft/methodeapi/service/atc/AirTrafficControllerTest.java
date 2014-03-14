@@ -55,25 +55,25 @@ public class AirTrafficControllerTest {
 
     @Test
     public void shouldReturnIPAddressFromLinuxOutput() {
-        String ip = AirTrafficController.parseLookupOutput(LINUX_NS_LOOKUP_OUTPUT);
+        String ip = AirTrafficController.parseIpFromNsLookupOutput(LINUX_NS_LOOKUP_OUTPUT);
         assertThat(ip,is("10.118.101.117"));
     }
 
     @Test
     public void shouldReturnIPAddressFromWindowsOutput() {
-        String ip = AirTrafficController.parseLookupOutput(WINDOWS_NS_LOOKUP_OUTPUT);
+        String ip = AirTrafficController.parseIpFromNsLookupOutput(WINDOWS_NS_LOOKUP_OUTPUT);
         assertThat(ip,is("10.118.101.117"));
     }
 
     @Test
     public void shouldReturnIpAddressForExampleDotComOnLinux() {
-        String ip = AirTrafficController.parseLookupOutput(LINUX_NS_LOOKUP_OUTPUT_EXAMPLE);
+        String ip = AirTrafficController.parseIpFromNsLookupOutput(LINUX_NS_LOOKUP_OUTPUT_EXAMPLE);
         assertThat(ip,is("93.184.216.119"));
     }
 
     @Test
     public void shouldReturnIpAddressForExampleDotComOnWindows() {
-        String ip = AirTrafficController.parseLookupOutput(WINDOWS_NS_LOOKUP_OUTPUT_EXAMPLE);
+        String ip = AirTrafficController.parseIpFromNsLookupOutput(WINDOWS_NS_LOOKUP_OUTPUT_EXAMPLE);
         assertThat(ip,is("93.184.216.119"));
     }
 

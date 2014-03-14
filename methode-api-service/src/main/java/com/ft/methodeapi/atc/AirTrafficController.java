@@ -5,7 +5,6 @@ import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.PumpStreamHandler;
-import org.apache.commons.lang.SystemUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,11 +24,11 @@ public class AirTrafficController {
     private static Pattern IP_FINDER_PATTERN = Pattern.compile("Name:.*?([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)$",Pattern.DOTALL + Pattern.MULTILINE);
 
     private final Map<DataCentre, String> hostnames;
-    private final DataCentre iAm;
+    private final DataCentre iAmIn;
 
     public AirTrafficController(AtcConfiguration atcConfig) {
         this.hostnames = atcConfig.getHostnames();
-        this.iAm = atcConfig.getiAm();
+        this.iAmIn = atcConfig.getiAm();
     }
 
     public Map<DataCentre, String> reportIps() {
@@ -42,7 +41,7 @@ public class AirTrafficController {
     }
 
 
-    public static String parseLookupOutput(String output) {
+    public static String parseIpFromNsLookupOutput(String output) {
         Matcher matcher = IP_FINDER_PATTERN.matcher(output);
         if(matcher.find()) {
             return matcher.group(1);
@@ -60,7 +59,7 @@ public class AirTrafficController {
 
         ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream(120);
 
-        ExecuteWatchdog watchdog = new ExecuteWatchdog(3000);
+        ExecuteWatchdog watchdog = new ExecuteWatchdog(3000); // 3s timeout
         Executor executor = new DefaultExecutor();
         executor.setExitValue(0);
         executor.setWatchdog(watchdog);
@@ -70,7 +69,7 @@ public class AirTrafficController {
             executor.execute(cmdLine);
             String rawResult = new String(outputBuffer.toByteArray(), Charset.defaultCharset());
 
-            return parseLookupOutput(rawResult);
+            return parseIpFromNsLookupOutput(rawResult);
 
         } catch (IOException e) {
             throw new AirTrafficControllerException("Failure while looking up system location", e);
@@ -91,11 +90,25 @@ public class AirTrafficController {
         return null;
     }
 
-    public boolean amI(DataCentre dataCentre) {
-        if(dataCentre.equals(iAm)) {
+    /**
+     * Find out if you are in a certain place.
+     * @param dataCentre
+     * @return true if this JVM is physically within the named DataCentre; otherwise false
+     */
+    public boolean amIIn(DataCentre dataCentre) {
+        if(dataCentre.equals(iAmIn)) {
             return true;
         }
         return false;
     }
 
+    public WhereIsMethodeResponse fullReport() {
+        Map<DataCentre,String> methodeIps = reportIps();
+
+        String activeIp = methodeIps.get(DataCentre.ACTIVE);
+
+        DataCentre activeDc = whois(activeIp, methodeIps);
+
+        return new WhereIsMethodeResponse(amIIn(activeDc), activeDc, methodeIps);
+    }
 }
