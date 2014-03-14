@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class LastKnownLocation {
 
-    public static final String IS_PASSIVE_MSG = "PASSIVE";
+    public static final String IS_PASSIVE_MSG = "CHECK DISABLED (PASSIVE DC)";
 
     private WhereIsMethodeResponse whereIsItResponse;
 

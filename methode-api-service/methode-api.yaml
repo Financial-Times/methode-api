@@ -12,7 +12,7 @@ http:
 
 methodeConnection:
   hostName: preditor-methode-01.svc.ft.com
-  nsPort: 9093
+  nsPort: 9092
   userName: dynpublocal
   password: dynpublocal
   connectTimeout: 2000
@@ -22,7 +22,7 @@ methodeConnection:
 
 methodeTestConnection:
   hostName: preditor-methode-01.svc.ft.com
-  nsPort: 9093
+  nsPort: 9092
   userName: dynpublocal-rw
   password: dynpublocal-rw
   connectTimeout: 2000
@@ -33,7 +33,7 @@ methodeTestConnection:
 maxPingMillis: 2000
 
 atc:
-    iAm: PARK_ROYAL
+    iAm: WATFORD
     hostnames:
         WATFORD: ftcms01-uviw-uk-p
         PARK_ROYAL: ftcms01-uvpr-uk-p
