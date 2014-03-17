@@ -11,5 +11,5 @@ public enum DataCentre {
      */
     ACTIVE,
     WATFORD,
-    PARK_ROYAL
+    PARK_ROYAL,
 }

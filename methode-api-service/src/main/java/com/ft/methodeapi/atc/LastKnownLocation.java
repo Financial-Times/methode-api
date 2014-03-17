@@ -17,6 +17,7 @@ public class LastKnownLocation {
     public LastKnownLocation(final AirTrafficController controller, ScheduledExecutorService scheduler) {
 
         final LastKnownLocation holder = this;
+        whereIsItResponse = controller.fullReport();
 
         scheduler.scheduleAtFixedRate(new Runnable() {
             @Override
@@ -25,8 +26,7 @@ public class LastKnownLocation {
                     holder.whereIsItResponse = controller.fullReport();
                 }
             }
-        },0,5, TimeUnit.MINUTES);
-
+        },5,5, TimeUnit.MINUTES);
     }
 
 

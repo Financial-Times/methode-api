@@ -1,5 +1,6 @@
 package com.ft.methodeapi.atc;
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteWatchdog;
@@ -96,6 +97,7 @@ public class AirTrafficController {
      * @return true if this JVM is physically within the named DataCentre; otherwise false
      */
     public boolean amIIn(DataCentre dataCentre) {
+        Preconditions.checkNotNull(dataCentre);
         if(dataCentre.equals(iAmIn)) {
             return true;
         }
