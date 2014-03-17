@@ -36,6 +36,17 @@ swaggerConfiguration:
 
 maxPingMillis: 2000
 
+atc:
+    iAm: <%=scope.function_hiera('localDataCentre')%>
+    hostnames:
+    <% if scope.function_hiera('watfordDataCentreHostname','null') %>
+        WATFORD: <%=scope.function_hiera('watfordDataCentreHostname')%>
+    <% end %>
+    <% if scope.function_hiera('parkRoyalDataCentreHostname','null') %>
+        PARK_ROYAL: <%=scope.function_hiera('parkRoyalDataCentreHostname')%>
+    <% end %>
+        ACTIVE: <%=scope.function_hiera('activeDataCentreHostname')%>
+
 logging:
   file:
     threshold: INFO
