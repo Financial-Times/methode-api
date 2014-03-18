@@ -1,10 +1,16 @@
 package com.ft.methodeapi.service.atc;
 
 import com.ft.methodeapi.atc.AirTrafficController;
+import com.ft.methodeapi.atc.AtcConfiguration;
+import com.ft.methodeapi.atc.DataCentre;
 import org.junit.Test;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * AirTrafficControllerTest
@@ -83,5 +89,18 @@ public class AirTrafficControllerTest {
         assertThat(ip,is("93.184.216.119"));
     }
 
+    @Test
+    public void shouldReturnRealDCNameForIp() {
+        Map<DataCentre,String> reportedIps = new LinkedHashMap<>(3);
+        reportedIps.put(DataCentre.ACTIVE,"192.168.0.1");
+        reportedIps.put(DataCentre.PARK_ROYAL,"192.168.0.2");
+        reportedIps.put(DataCentre.WATFORD,"192.168.0.1");
+
+        AirTrafficController sit = new AirTrafficController(mock(AtcConfiguration.class));
+
+        DataCentre result = sit.whois("192.168.0.1",reportedIps);
+
+        assertThat(result,is(DataCentre.WATFORD));
+    }
 
 }

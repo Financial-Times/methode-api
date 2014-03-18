@@ -78,14 +78,14 @@ public class AirTrafficController {
     }
 
     public DataCentre whois(String activeIp, Map<DataCentre, String> methodeIps) {
-        for(DataCentre dc : methodeIps.keySet()) {
+        for(Map.Entry<DataCentre,String> pair : methodeIps.entrySet()) {
 
-            if(dc == DataCentre.ACTIVE) {
+            if(pair.getKey() == DataCentre.ACTIVE) {
                 continue;
             }
 
-            if(activeIp.equals(methodeIps.get(dc))) {
-                return dc;
+            if(activeIp.equals(pair.getValue())) {
+                return pair.getKey();
             }
         }
         return null;
