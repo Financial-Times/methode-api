@@ -17,20 +17,26 @@ class methode_api {
     class { 'hosts::export': hostname => "$certname" }
     class { 'methode_api::monitoring': }
 
-    class { 'runnablejar':
+    runnablejar { 'methode_api_runnablejar':
         service_name => 'methode_api',
         service_description => 'Methode API',
         jar_name => 'methode-api-service.jar',
         config_file_content => template('methode_api/config.yml.erb'),
-        status_check_url => "http://localhost:8080/build-info";
+        artifact_location => 'methode_api/methode-api-service.jar',
+        status_check_url => "http://localhost:8081/ping";
     }
+
+    Class [ 'nagios::client' ] ->
+    Class [ 'methode_api::monitoring' ] ->
+    Class [ 'hosts::export' ]->
+    Runnablejar['methode_api_runnablejar']
 
 }
 
 nagios::nrpe_checks::check_http{
-  "${::certname}/1": 
-    url      => "url: http://localhost/healthcheck",
-    port    => "8081",
-    expect => "OK",
-    notes   => "Methode API is not available";
+      "${::certname}/1":
+      url      => "url: http://localhost/healthcheck",
+      port    => "8081",
+      expect => "OK",
+      notes   => "Methode API is not available";
 }

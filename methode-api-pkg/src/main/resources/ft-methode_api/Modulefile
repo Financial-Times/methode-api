@@ -9,5 +9,5 @@ project_page 'UNKNOWN'
 
 ## Add dependencies, if any:
 # dependency 'username/name', '>= 1.2.0'
-dependency 'ft/runnablejar', '0.0.12'
+dependency 'ft/runnablejar', '2.2.0'
 dependency 'ft/nagios', '>=1.1.29'
