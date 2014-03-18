@@ -11,7 +11,6 @@ import EOM.FileSystemObject;
 import EOM.InvalidURI;
 import EOM.ObjectLocked;
 import EOM.PermissionDenied;
-import EOM.Repository;
 import EOM.RepositoryError;
 import EOM.Utils;
 
@@ -21,9 +20,14 @@ import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.templates.MethodeFileSystemAdminOperationTemplate;
 import com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MethodeFileRepository {
-	
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodeFileRepository.class);
+
     private final MethodeObjectFactory client;
     private final MethodeObjectFactory testClient;
 
@@ -70,8 +74,15 @@ public class MethodeFileRepository {
     }
 
     public Map<String, EomAssetType> getAssetTypes(final Set<String> assetIdentifiers){
-    	final MethodeFileSystemAdminOperationTemplate<Map<String, EomAssetType>> template = new MethodeFileSystemAdminOperationTemplate<>(client);
-		return template.doOperation(new GetAssetTypeFileSystemAdminCallback(assetIdentifiers));
+        Preconditions.checkNotNull(assetIdentifiers);
+        long methodStart = System.currentTimeMillis();
+        try {
+            final MethodeFileSystemAdminOperationTemplate<Map<String, EomAssetType>> template = new MethodeFileSystemAdminOperationTemplate<>(client);
+            return template.doOperation(new GetAssetTypeFileSystemAdminCallback(assetIdentifiers));
+        } finally {
+            long duration = System.currentTimeMillis() - methodStart;
+            LOGGER.info("Obtained types. assetCount={}, elapsedTimeMs={}",assetIdentifiers.size(), duration);
+        }
 	}
 
     private static final String TEST_FOLDER = "/FT Website Production/Z_Test/dyn_pub_test";
