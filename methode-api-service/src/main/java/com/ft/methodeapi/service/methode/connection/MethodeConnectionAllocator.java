@@ -86,11 +86,8 @@ public class MethodeConnectionAllocator implements Allocator<MethodeConnection> 
                     implementation.maybeCloseRepository(connection.getRepository());
                     implementation.maybeCloseNamingService(connection.getNamingService());
                     implementation.maybeCloseOrb(connection.getOrb());
-                    LOGGER.debug("Deallocated objects: {}",connection.toString());
-                } catch (Exception e) {
-                    // the Pool implementation is known to swallow exceptions.
-                    LOGGER.warn("Deallocation did not complete cleanly",e);
-                    throw e;
+
+                    LOGGER.debug("Requested deallocation of objects: {}",connection.toString());
                 } finally {
                     timer.stop();
                     queueSize.decrementAndGet();

@@ -7,17 +7,21 @@ import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NamingContextExt;
 
 /**
- * Allows access to Methode objects of various kinds. Access is guaranteed to be
+ * <p>Allows access to Methode objects of various kinds. Access is guaranteed to be
  * safe if, and only if, the client calls the corresponding "maybeCloseXXX" method
  * for every "createXXX" methode that it calls. The suggested way to do so is
- * by using templates.
+ * by using templates.</p>
+ *
+ * <p>maybeCloseXXX methods are mandated to swallow exceptions. createXXX methods
+ * are mandated to throw a {@link com.ft.methodeapi.service.methode.MethodeException MethodeException}
+ * in place of checked exceptions.</p>
  *
  * @author Simon.Gibbs
  * @see com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate
  * @see com.ft.methodeapi.service.methode.templates.MethodeRepositoryOperationTemplate
  * @see com.ft.methodeapi.service.methode.templates.MethodeFileSystemAdminOperationTemplate
  */
-public interface MethodeObjectFactory{
+public interface MethodeObjectFactory {
 
     FileSystemAdmin createFileSystemAdmin(Session session);
 
@@ -25,19 +29,40 @@ public interface MethodeObjectFactory{
 
     NamingContextExt createNamingService(ORB orb);
 
-    void maybeCloseNamingService(NamingContextExt namingService);
-
     Repository createRepository(NamingContextExt namingService);
 
     ORB createOrb();
 
+
+    /**
+     * Attempt to end the object lifecycle, while suppressing any and all exceptions
+     * @param fileSystemAdmin the object
+     */
     void maybeCloseFileSystemAdmin(FileSystemAdmin fileSystemAdmin);
 
+    /**
+     * Attempt to end the object lifecycle, while suppressing any and all exceptions
+     * @param session the object
+     */
     void maybeCloseSession(Session session);
 
-    void maybeCloseOrb(ORB orb);
+    /**
+     * Attempt to end the object lifecycle, while suppressing any and all exceptions
+     * @param namingService the object
+     */
+    void maybeCloseNamingService(NamingContextExt namingService);
 
+    /**
+     * Attempt to end the object lifecycle, while suppressing any and all exceptions
+     * @param repository the object
+     */
     void maybeCloseRepository(Repository repository);
+
+    /**
+     * Attempt to end the object lifecycle, while suppressing any and all exceptions
+     * @param orb the object
+     */
+    void maybeCloseOrb(ORB orb);
 
     String getDescription();
 

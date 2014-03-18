@@ -1,7 +1,6 @@
 package com.ft.methodeapi.service.methode.connection;
 
 import EOM.FileSystemAdmin;
-import EOM.ObjectLocked;
 import EOM.ObjectNotFound;
 import EOM.PermissionDenied;
 import EOM.Repository;
@@ -134,7 +133,7 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
     public Repository createRepository(NamingContextExt namingService) {
       final TimerContext timerContext = createRepositoryTimer.time();
       try {
-            return RepositoryHelper.narrow(namingService.resolve_str("EOM/Repositories/cms"));
+            return RepositoryHelper.narrow(namingService.resolve_str("EOM/Repositories/cms2"));
       } catch (org.omg.CosNaming.NamingContextPackage.InvalidName
               | CannotProceed | NotFound e) {
           throw new MethodeException(e);
@@ -167,6 +166,8 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
             final TimerContext timerContext = closeFileSystemAdminTimer.time();
             try {
                 fileSystemAdmin._release();
+            } catch(Exception e) {
+                LOGGER.warn("Failed to release EOM.FileSystemAdmin", e);
             } finally {
                 timerContext.stop();
             }
@@ -180,8 +181,8 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
             try {
                 session.destroy();
                 session._release();
-            } catch (PermissionDenied | ObjectLocked | RepositoryError e) {
-                LOGGER.warn("failed to destroy EOM.Session", e);
+            } catch (Exception e) {
+                LOGGER.warn("Failed to destroy or release EOM.Session", e);
             } finally {
                 timerContext.stop();
             }
@@ -194,6 +195,8 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
             final TimerContext timerContext = closeOrbTimer.time();
             try {
                 orb.destroy();
+            } catch (Exception e) {
+                LOGGER.warn("Failed to destroy ORB", e);
             } finally {
                 timerContext.stop();
             }
@@ -206,6 +209,8 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
             final TimerContext timerContext = closeRepositoryTimer.time();
             try {
                 repository._release();
+            } catch (Exception e) {
+                LOGGER.warn("Failed to release EOM.Repository", e);
             } finally {
                 timerContext.stop();
             }
