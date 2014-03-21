@@ -5,7 +5,7 @@ class methode_api::monitoring::nagios {
     url           => "http://${::hostname}/healthcheck",
     port          => "8081",
     recode        => "200",
-    expect        => 'can search for content',
+    expect        => 'OK',
     size          => 1,
     wtime         => 2.0,
     action_url    => 'https://sites.google.com/a/ft.com/dynamic-publishing-team/home/methode-api',
