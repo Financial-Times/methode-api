@@ -179,10 +179,16 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
         if (session != null) {
             final TimerContext timerContext = closeSessionTimer.time();
             try {
-                session.destroy();
-                session._release();
-            } catch (Exception e) {
-                LOGGER.warn("Failed to destroy or release EOM.Session", e);
+                try {
+                    session.destroy();
+                } catch (Exception e) {
+                    LOGGER.warn("Failed to destroy EOM.Session", e);
+                }
+                try {
+                    session._release();
+                } catch (Exception e) {
+                    LOGGER.warn("Failed to release EOM.Session", e);
+                }
             } finally {
                 timerContext.stop();
             }
