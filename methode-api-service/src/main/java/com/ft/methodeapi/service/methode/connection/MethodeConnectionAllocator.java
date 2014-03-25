@@ -52,8 +52,9 @@ public class MethodeConnectionAllocator implements Allocator<MethodeConnection> 
     public MethodeConnection allocate(Slot slot) throws Exception {
 
         RunningTimer timer = allocationTimer.start();
+        ORB orb = null;
         try {
-            ORB orb = implementation.createOrb();
+            orb = implementation.createOrb();
             NamingContextExt namingService = implementation.createNamingService(orb);
             Repository repository = implementation.createRepository(namingService);
             Session session = implementation.createSession(repository);
@@ -64,6 +65,8 @@ public class MethodeConnectionAllocator implements Allocator<MethodeConnection> 
             return connection;
 
         } catch (TIMEOUT | TRANSIENT se) {
+            implementation.maybeCloseOrb(orb);
+
             // Adds a timestamp
             throw new RecoverableAllocationException(se);
         } finally {
