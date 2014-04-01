@@ -1,6 +1,7 @@
 Content Platform Methode API
 
 source="/var/log/apps/methode-api-dw-access.log"
+uri!="/ping*" uri!="/healthcheck*" uri!="/metrics*" uri!="/threads*"
 | eval resptime_secs=dw_resptime/1000
 | eval InternalError=if(status > 399,"True","False")
 | sistats count perc95(resptime_secs) by host InternalError _time
