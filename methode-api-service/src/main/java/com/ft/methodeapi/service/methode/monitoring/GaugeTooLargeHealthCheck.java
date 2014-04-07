@@ -25,7 +25,7 @@ public class GaugeTooLargeHealthCheck<T extends Number, G extends Gauge<T>> exte
         long snapshotValue = gauge.value().longValue();
 
         if(snapshotValue > max) {
-            Result.unhealthy(String.format("%d > %d",snapshotValue,max));
+            return Result.unhealthy(String.format("%d > %d",snapshotValue,max));
         }
 
         return Result.healthy(String.format("%d < %d",snapshotValue,max));
