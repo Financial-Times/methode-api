@@ -33,7 +33,7 @@ public class MethodeConnectionAllocatorTest {
         allocator.deallocate(mock(MethodeConnection.class));
         assertThat(allocator.getQueueSize(),is(1));
 
-        Thread.sleep(LAG*2);
+        Thread.sleep(LAG*4);
 
         assertThat(allocator.getQueueSize(),is(0));
 
