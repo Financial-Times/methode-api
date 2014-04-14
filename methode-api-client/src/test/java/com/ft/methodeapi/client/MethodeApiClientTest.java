@@ -2,38 +2,44 @@ package com.ft.methodeapi.client;
 
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.isIn;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.http.conn.ConnectTimeoutException;
+import org.junit.Test;
+import org.mockito.internal.util.collections.Sets;
+
 import com.ft.api.jaxrs.client.exceptions.ApiNetworkingException;
-import com.ft.jerseyhttpwrapper.config.EndpointConfiguration;
 import com.ft.methodeapi.model.EomAssetType;
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodeapi.service.http.EomFileResource;
 import com.ft.methodeapi.service.http.GetAssetTypeResource;
 import com.ft.methodeapi.service.methode.MethodeFileRepository;
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandler;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientRequest;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.GenericType;
 import com.yammer.dropwizard.testing.ResourceTest;
-
-import org.apache.http.conn.ConnectTimeoutException;
-import org.junit.Test;
-import org.mockito.internal.util.collections.Sets;
-
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 public class MethodeApiClientTest extends ResourceTest {
 
-	private final String TRANSACTION_ID = "tid_test";
+	private static final String TRANSACTION_ID = "tid_test";
 
     private MethodeFileRepository methodeFileRepository;
 
@@ -58,7 +64,7 @@ public class MethodeApiClientTest extends ResourceTest {
         final byte[] fileBytes = "blah, blah, blah".getBytes();
         when(methodeFileRepository.findFileByUuid(any(String.class))).thenReturn(Optional.of(new EomFile("asdf", "someType", fileBytes, "some attributes", "WebRevise", SYSTEM_ATTRIBUTES)));
 
-        EomFile eomFile = mockMethodeApiClient(client()).findFileByUuid("asdsfgdg", TRANSACTION_ID);
+        EomFile eomFile = getMethodeApiClientForMockJerseyClient(client()).findFileByUuid("asdsfgdg", TRANSACTION_ID);
 
         assertArrayEquals(fileBytes, eomFile.getValue());
     }
@@ -66,14 +72,14 @@ public class MethodeApiClientTest extends ResourceTest {
     @Test(expected = ApiNetworkingException.class)
     public void shouldThrowDistinctExceptionForSocketTimeout() {
         Client mockClient = primeClientToExperienceExceptionWithSpecificRootCause(new SocketTimeoutException());
-        excerciseClientForGetEomFile(mockClient);
+        exerciseClientForGetEomFile(mockClient);
     }
 
     @Test(expected = ApiNetworkingException.class)
     public void shouldThrowDistinctExceptionForAnyOtherIssueWithTheTcpSocket() {
 
         Client mockClient = primeClientToExperienceExceptionWithSpecificRootCause(new SocketException());
-        excerciseClientForGetEomFile(mockClient);
+        exerciseClientForGetEomFile(mockClient);
 
     }
 
@@ -81,55 +87,153 @@ public class MethodeApiClientTest extends ResourceTest {
     public void shouldThrowDistinctExceptionForConnectionTimeout() {
 
         Client mockClient = primeClientToExperienceExceptionWithSpecificRootCause(new ConnectTimeoutException());
-        excerciseClientForGetEomFile(mockClient);
+        exerciseClientForGetEomFile(mockClient);
 
-    }
-
-    private void excerciseClientForGetEomFile(Client mockClient) {
-        mockMethodeApiClient(mockClient).findFileByUuid("035a2fa0-d988-11e2-bce1-002128161462", TRANSACTION_ID);
-    }
-
-    private MethodeApiClient mockMethodeApiClient(Client mockClient) {
-        return new MethodeApiClient(mockClient, EndpointConfiguration.forTesting("localhost", 1234));
-    }
-
-    private void excerciseClientForGetAssetTypes(Client mockClient) {
-        mockMethodeApiClient(mockClient).findAssetTypes(Sets.newSet("035a2fa0-d988-11e2-bce1-002128161462"), TRANSACTION_ID);
     }
     
+    @Test
+    public void canGetAssetTypesInSingleRequest() { 
+    	Set<String> assetIds = Sets.newSet("test1");
+    	
+    	int numberOfAssetIdsPerRequest = 3;
+    	int numberOfThreads = 4;
+    	
+    	Map<String, EomAssetType> expectedOutput = primeMethodeFileRepositoryAndGetExpectedOutputForGetAssetTypes(assetIds, numberOfAssetIdsPerRequest);
+   	
+		Map<String, EomAssetType> assetTypes = getMethodeApiClientForMockJerseyClient(client(), numberOfAssetIdsPerRequest, numberOfThreads).findAssetTypes(assetIds, TRANSACTION_ID);
+
+		assertThat(assetTypes.entrySet(), everyItem(isIn(expectedOutput.entrySet())));
+		assertThat(expectedOutput.entrySet(), everyItem(isIn(assetTypes.entrySet())));
+    }
+    
+    @Test
+    public void canGetAssetTypesSplitBetweenFewerRequestsThanNumberOfThreads() { 
+    	Set<String> assetIds = Sets.newSet("test1", "test2", "test3", "test4", "test5");
+    	
+    	int numberOfAssetIdsPerRequest = 3;
+    	int numberOfThreads = 4;
+    	
+    	Map<String, EomAssetType> expectedOutput = primeMethodeFileRepositoryAndGetExpectedOutputForGetAssetTypes(assetIds, numberOfAssetIdsPerRequest);
+   	
+		Map<String, EomAssetType> assetTypes = getMethodeApiClientForMockJerseyClient(client(), numberOfAssetIdsPerRequest, numberOfThreads).findAssetTypes(assetIds, TRANSACTION_ID);
+
+		assertThat(assetTypes.entrySet(), everyItem(isIn(expectedOutput.entrySet())));
+		assertThat(expectedOutput.entrySet(), everyItem(isIn(assetTypes.entrySet())));
+    }
+
+    @Test
+    public void canGetAssetTypesSplitBetweenMoreRequestsThanNumberOfThreads() { 
+    	Set<String> assetIds = Sets.newSet("test1", "test2", "test3", "test4", "test5");
+    	
+    	int numberOfAssetIdsPerRequest = 1;
+    	int numberOfThreads = 2;
+    	
+    	Map<String, EomAssetType> expectedOutput = primeMethodeFileRepositoryAndGetExpectedOutputForGetAssetTypes(assetIds, numberOfAssetIdsPerRequest);
+   	
+		Map<String, EomAssetType> assetTypes = getMethodeApiClientForMockJerseyClient(client(), numberOfAssetIdsPerRequest, numberOfThreads).findAssetTypes(assetIds, TRANSACTION_ID);
+
+		assertThat(assetTypes.entrySet(), everyItem(isIn(expectedOutput.entrySet())));
+		assertThat(expectedOutput.entrySet(), everyItem(isIn(assetTypes.entrySet())));
+    }
+    
+    //one of the requests fails with socket timeout, get ApiNetworkingException 
+    @Test(expected = ApiNetworkingException.class)
+    public void shouldThrowApiNetworkingExceptionForGetAssetTypesWhenOneRequestFailsWithSocketTimeout() {
+    	
+    	Client mockClient = primeClientSoOneRequestInThreeResultsInExceptionWithSpecificRootCauseForGetAssetTypes(new SocketTimeoutException("socket timeout"));
+        getMethodeApiClientForMockJerseyClient(mockClient, 1, 3).findAssetTypes(Sets.newSet("test1", "test2", "test3"), TRANSACTION_ID);
+    }
+    
+    //one of the requests fails with connect timeout, get ApiNetworkingException
+    @Test(expected = ApiNetworkingException.class)
+    public void shouldThrowDistinctExceptionForGetAssetTypesWhenOneRequestFailsWithConnectTimeout() {
+        Client mockClient = primeClientSoOneRequestInThreeResultsInExceptionWithSpecificRootCauseForGetAssetTypes(new ConnectTimeoutException("connect timeout"));
+        getMethodeApiClientForMockJerseyClient(mockClient, 1, 3).findAssetTypes(Sets.newSet("test1", "test2", "test3"), TRANSACTION_ID);
+    }
+    
+    //two requests fail with different exceptions, get ApiNetworkingException for one of the failures
+    @Test(expected = ApiNetworkingException.class)
+    public void shouldThrowDistinctExceptionForGetAssetTypesWhenTwoRequestsFail() {
+        Client mockClient = primeClientSoTwoRequestsInThreeResultInExceptionWithSpecificRootCausesForGetAssetTypes(new ConnectTimeoutException("connect timeout"), new SocketTimeoutException("socket timeout"));
+        getMethodeApiClientForMockJerseyClient(mockClient, 1, 3).findAssetTypes(Sets.newSet("test1", "test2", "test3"), TRANSACTION_ID);
+    }
+    
+    
+    //7. RemoteApiException tests...
+    
+    //TODO - ask Simon where the test is that he used to find the best combination of values...
+    
+    
+    
+
+    private void exerciseClientForGetEomFile(Client mockClient) {
+        getMethodeApiClientForMockJerseyClient(mockClient).findFileByUuid("035a2fa0-d988-11e2-bce1-002128161462", TRANSACTION_ID);
+    }
+
+    private MethodeApiClient getMethodeApiClientForMockJerseyClient(Client mockClient) {
+        return getMethodeApiClientForMockJerseyClient(mockClient, 3, 4);
+    }
+    
+    private MethodeApiClient getMethodeApiClientForMockJerseyClient(Client mockClient, int numberOfAssetIdsPerRequest, 
+    		int numberOfParallelAssetTypeRequests) {
+        return new MethodeApiClient(mockClient, MethodeApiEndpointConfiguration.forTesting("localhost", 1234, numberOfAssetIdsPerRequest, numberOfParallelAssetTypeRequests));
+    }
+
     private Client primeClientToExperienceExceptionWithSpecificRootCause(Exception rootCause) {
         ClientHandler handler = mock(ClientHandler.class);
         Client mockClient = new Client(handler);
-
         when(handler.handle(any(ClientRequest.class))).thenThrow( new ClientHandlerException(rootCause));
         return mockClient;
     }
     
-    @Test
-    public void canGetAssetTypes() {
+    private Client primeClientSoOneRequestInThreeResultsInExceptionWithSpecificRootCauseForGetAssetTypes(Exception rootCause) {
+        ClientHandler handler = mock(ClientHandler.class);
+        Client mockClient = new Client(handler);
+        
+        ClientResponse clientResponse = mock(ClientResponse.class);
+        when(clientResponse.getStatus()).thenReturn(200);
+        when(clientResponse.getEntity((GenericType<Map<String, EomAssetType>>) any())).thenReturn(new HashMap<String, EomAssetType>());
 
-    	Set<String> assetIds = Sets.newSet("test");
-    	Map<String, EomAssetType> output = new HashMap<>();
-    	output.put("test", new EomAssetType.Builder().uuid("test").type("EOM:CompoundStory").build());
+        when(handler.handle(any(ClientRequest.class))).thenReturn(clientResponse).thenReturn(clientResponse).thenThrow( new ClientHandlerException(rootCause));
+        return mockClient;
+    }
+    
+    private Client primeClientSoTwoRequestsInThreeResultInExceptionWithSpecificRootCausesForGetAssetTypes(Exception rootCause1, Exception rootCause2) {
+        ClientHandler handler = mock(ClientHandler.class);
+        Client mockClient = new Client(handler);
+        
+        ClientResponse clientResponse = mock(ClientResponse.class);
+        when(clientResponse.getStatus()).thenReturn(200);
+        when(clientResponse.getEntity((GenericType<Map<String, EomAssetType>>) any())).thenReturn(new HashMap<String, EomAssetType>());
+
+        when(handler.handle(any(ClientRequest.class))).thenThrow( new ClientHandlerException(rootCause1)).thenReturn(clientResponse).thenThrow( new ClientHandlerException(rootCause2));
+        return mockClient;
+    }
+    
+    private Map<String, EomAssetType> primeMethodeFileRepositoryAndGetExpectedOutputForGetAssetTypes(Set<String> assetIds,
+    		int numberOfPartitions) {
+    	List<List<String>> partitionedAssetIdentifiers = Lists.partition(Lists.newArrayList(assetIds), numberOfPartitions);
     	
-        when(methodeFileRepository.getAssetTypes(assetIds)).thenReturn(output);
+    	Map<String, EomAssetType> expectedOutput = Maps.newHashMap();
+    	
+    	for (List<String> slice: partitionedAssetIdentifiers) {
+    		Map<String, EomAssetType> expectedOutputForSlice = getExpectedAssetTypesForSlice(slice);
+    		expectedOutput.putAll(expectedOutputForSlice);
+        	when(methodeFileRepository.getAssetTypes(new HashSet<String>(slice))).thenReturn(expectedOutputForSlice);
+    	}
+    	
+    	return expectedOutput;
+    }
 
-		Map<String, EomAssetType> assetTypes = mockMethodeApiClient(client()).findAssetTypes(assetIds, TRANSACTION_ID);
-		System.out.println(assetTypes);
+	private Map<String, EomAssetType> getExpectedAssetTypesForSlice(List<String> slice) {
+		Map<String, EomAssetType> expectedAssetTypesForSlice = Maps.newHashMap();
+		for(String uuid: slice) {
+			expectedAssetTypesForSlice.put(uuid, getEomAssetTypeForUuid(uuid));
+		}
+		return expectedAssetTypesForSlice;
+	}
 
-		assertThat(assetTypes.entrySet(), everyItem(isIn(output.entrySet())));
-		assertThat(output.entrySet(), everyItem(isIn(assetTypes.entrySet())));
-    }
-    
-    @Test(expected = ApiNetworkingException.class)
-    public void shouldThrowDistinctExceptionForSocketTimeoutForGetAssetTypes() {
-        Client mockClient = primeClientToExperienceExceptionWithSpecificRootCause(new SocketTimeoutException());
-        excerciseClientForGetAssetTypes(mockClient);
-    }
-    
-    @Test(expected = ApiNetworkingException.class)
-    public void shouldThrowDistinctExceptionForConnectTimeoutForGetAssetTypes() {
-        Client mockClient = primeClientToExperienceExceptionWithSpecificRootCause(new ConnectTimeoutException());
-        excerciseClientForGetAssetTypes(mockClient);
-    }
+	private EomAssetType getEomAssetTypeForUuid(String uuid) {
+		return new EomAssetType.Builder().uuid(uuid).type("EOM:CompoundStory").build();
+	}
 }
