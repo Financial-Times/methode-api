@@ -44,18 +44,18 @@ public class MethodeApiClient {
     private final int numberOfAssetIdsPerAssetTypeRequest;
     private final int numberOfParallelAssetTypeRequests;
 
-    public MethodeApiClient(Environment environment, MethodeApiEndpointConfiguration endpointConfiguration) {
+    public MethodeApiClient(Environment environment, MethodeApiEndpointConfiguration methodeApiConfiguration) {
         this(
-				ResilientClientBuilder.in(environment).using(endpointConfiguration).build(),
-				endpointConfiguration
+				ResilientClientBuilder.in(environment).using(methodeApiConfiguration.getEndpointConfiguration()).build(),
+				methodeApiConfiguration
             );
     }
 
-    public MethodeApiClient(Client client, MethodeApiEndpointConfiguration endpointConfiguration) {
+    public MethodeApiClient(Client client, MethodeApiEndpointConfiguration methodeApiConfiguration) {
         this.jerseyClient = client;
-        this.apiHost = endpointConfiguration.getHost();
-        this.apiPort = endpointConfiguration.getPort();
-        AssetTypeRequestConfiguration assetTypeRequestConfiguration = endpointConfiguration.getAssetTypeRequestConfiguration();
+        this.apiHost = methodeApiConfiguration.getEndpointConfiguration().getHost();
+        this.apiPort = methodeApiConfiguration.getEndpointConfiguration().getPort();
+        AssetTypeRequestConfiguration assetTypeRequestConfiguration = methodeApiConfiguration.getAssetTypeRequestConfiguration();
         if (assetTypeRequestConfiguration != null) {
             this.numberOfAssetIdsPerAssetTypeRequest = assetTypeRequestConfiguration.getNumberOfAssetIdsPerAssetTypeRequest();
             this.numberOfParallelAssetTypeRequests = assetTypeRequestConfiguration.getNumberOfParallelAssetTypeRequests();
