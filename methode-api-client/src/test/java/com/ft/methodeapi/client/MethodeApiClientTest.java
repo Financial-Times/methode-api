@@ -18,9 +18,12 @@ import java.util.Set;
 
 import org.apache.http.conn.ConnectTimeoutException;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.internal.util.collections.Sets;
 
 import com.ft.api.jaxrs.client.exceptions.ApiNetworkingException;
+import com.ft.api.jaxrs.client.exceptions.RemoteApiException;
+import com.ft.api.jaxrs.errors.ErrorEntity;
 import com.ft.methodeapi.model.EomAssetType;
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodeapi.service.http.EomFileResource;
@@ -80,7 +83,6 @@ public class MethodeApiClientTest extends ResourceTest {
 
         Client mockClient = primeClientToExperienceExceptionWithSpecificRootCause(new SocketException());
         exerciseClientForGetEomFile(mockClient);
-
     }
 
     @Test(expected = ApiNetworkingException.class)
@@ -88,7 +90,21 @@ public class MethodeApiClientTest extends ResourceTest {
 
         Client mockClient = primeClientToExperienceExceptionWithSpecificRootCause(new ConnectTimeoutException());
         exerciseClientForGetEomFile(mockClient);
+    }
 
+    @Test(expected = RemoteApiException.class) 
+    public void shouldThrowRemoteApiExceptionWhenRequestForEomFileFails() {
+        
+        ClientHandler handler = mock(ClientHandler.class);
+    	Client mockClient = new Client(handler);
+        
+        ClientResponse clientResponse = mock(ClientResponse.class);
+        when(clientResponse.getStatus()).thenReturn(503);
+        when(clientResponse.getEntity(ErrorEntity.class)).thenReturn(new ErrorEntity("Got error"));
+       
+        when(handler.handle(any(ClientRequest.class))).thenReturn(clientResponse);
+   
+        getMethodeApiClientForMockJerseyClient(mockClient).findFileByUuid("asdsfgdg", TRANSACTION_ID);
     }
     
     @Test
@@ -158,13 +174,22 @@ public class MethodeApiClientTest extends ResourceTest {
         getMethodeApiClientForMockJerseyClient(mockClient, 1, 3).findAssetTypes(Sets.newSet("test1", "test2", "test3"), TRANSACTION_ID);
     }
     
-    
-    //7. RemoteApiException tests...
-    
-    //TODO - ask Simon where the test is that he used to find the best combination of values...
-    
-    
-    
+
+
+    @Test(expected = RemoteApiException.class) 
+    public void shouldThrowRemoteApiExceptionWhenRequestForGetAssetTypesFails() {
+        
+        ClientHandler handler = mock(ClientHandler.class);
+    	Client mockClient = new Client(handler);
+        
+        ClientResponse clientResponse = mock(ClientResponse.class);
+        when(clientResponse.getStatus()).thenReturn(503);
+        when(clientResponse.getEntity(ErrorEntity.class)).thenReturn(new ErrorEntity("Got error"));
+       
+        when(handler.handle(any(ClientRequest.class))).thenReturn(clientResponse);
+   
+        getMethodeApiClientForMockJerseyClient(mockClient).findAssetTypes(Sets.newSet("test1", "test2", "test3"), TRANSACTION_ID);
+    }
 
     private void exerciseClientForGetEomFile(Client mockClient) {
         getMethodeApiClientForMockJerseyClient(mockClient).findFileByUuid("035a2fa0-d988-11e2-bce1-002128161462", TRANSACTION_ID);
@@ -176,7 +201,8 @@ public class MethodeApiClientTest extends ResourceTest {
     
     private MethodeApiClient getMethodeApiClientForMockJerseyClient(Client mockClient, int numberOfAssetIdsPerRequest, 
     		int numberOfParallelAssetTypeRequests) {
-        return new MethodeApiClient(mockClient, MethodeApiEndpointConfiguration.forTesting("localhost", 1234, numberOfAssetIdsPerRequest, numberOfParallelAssetTypeRequests));
+        return new MethodeApiClient(mockClient, MethodeApiEndpointConfiguration.forTesting("localhost", 1234, 
+        		new AssetTypeRequestConfiguration(numberOfAssetIdsPerRequest, numberOfParallelAssetTypeRequests)));
     }
 
     private Client primeClientToExperienceExceptionWithSpecificRootCause(Exception rootCause) {
@@ -192,8 +218,9 @@ public class MethodeApiClientTest extends ResourceTest {
         
         ClientResponse clientResponse = mock(ClientResponse.class);
         when(clientResponse.getStatus()).thenReturn(200);
-        when(clientResponse.getEntity((GenericType<Map<String, EomAssetType>>) any())).thenReturn(new HashMap<String, EomAssetType>());
-
+        
+        when(clientResponse.getEntity(Matchers.<GenericType<Map<String, EomAssetType>>>any())).thenReturn(new HashMap<String, EomAssetType>());
+        
         when(handler.handle(any(ClientRequest.class))).thenReturn(clientResponse).thenReturn(clientResponse).thenThrow( new ClientHandlerException(rootCause));
         return mockClient;
     }
@@ -204,7 +231,7 @@ public class MethodeApiClientTest extends ResourceTest {
         
         ClientResponse clientResponse = mock(ClientResponse.class);
         when(clientResponse.getStatus()).thenReturn(200);
-        when(clientResponse.getEntity((GenericType<Map<String, EomAssetType>>) any())).thenReturn(new HashMap<String, EomAssetType>());
+        when(clientResponse.getEntity(Matchers.<GenericType<Map<String, EomAssetType>>>any())).thenReturn(new HashMap<String, EomAssetType>());
 
         when(handler.handle(any(ClientRequest.class))).thenThrow( new ClientHandlerException(rootCause1)).thenReturn(clientResponse).thenThrow( new ClientHandlerException(rootCause2));
         return mockClient;

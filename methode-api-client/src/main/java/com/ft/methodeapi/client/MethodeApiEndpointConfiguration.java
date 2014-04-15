@@ -11,19 +11,19 @@ import com.google.common.base.Optional;
 import com.yammer.dropwizard.client.JerseyClientConfiguration;
 
 public class MethodeApiEndpointConfiguration extends EndpointConfiguration {
+	
+	private final AssetTypeRequestConfiguration assetTypeRequestConfiguration;
 
-	private final int numberOfAssetIdsPerAssetTypeRequest;
-	private final int numberOfParallelAssetTypeRequests;
 	
 	/**
      * Creates a simple endpoint configuration for a test host (e.g. WireMock)
      * with GZip disabled.
      * @param host the test server
      * @param port the test port
+     * @param assetTypeRequestConfiguration the configuration for requesting asset types
      * @return a simple configuration
      */
-    public static MethodeApiEndpointConfiguration forTesting(String host, int port, int numberOfAssetIdsPerAssetTypeRequest, 
-    		int numberOfParallelAssetTypeRequests) {
+    public static MethodeApiEndpointConfiguration forTesting(String host, int port, AssetTypeRequestConfiguration assetTypeRequestConfiguration) {
 
         JerseyClientConfiguration clientConfig = new JerseyClientConfiguration();
         clientConfig.setGzipEnabled(false);
@@ -35,8 +35,7 @@ public class MethodeApiEndpointConfiguration extends EndpointConfiguration {
                 Optional.<String>absent(),
 				Arrays.asList(String.format("%s:%d:%d", host, port, port + 1)),
 				Collections.<String>emptyList(),
-				numberOfAssetIdsPerAssetTypeRequest,
-				numberOfParallelAssetTypeRequests
+				assetTypeRequestConfiguration
             );
     }
 
@@ -46,26 +45,19 @@ public class MethodeApiEndpointConfiguration extends EndpointConfiguration {
             		@JsonProperty("path") Optional<String> path,
             		@JsonProperty("primaryNodes") List<String> primaryNodesRaw,
             		@JsonProperty("secondaryNodes") List<String> secondaryNodesRaw,
-            		@JsonProperty("numberOfAssetIdsPerAssetTypeRequest") int numberOfAssetIdsPerAssetTypeRequest,
-            		@JsonProperty("numberOfParallelAssetTypeRequests") int numberOfParallelAssetTypeRequests) {
+					@JsonProperty("assetTypeRequestConfiguration") AssetTypeRequestConfiguration assetTypeRequestConfiguration) {
 		super(shortName, jerseyClientConfiguration, path, primaryNodesRaw, secondaryNodesRaw);
-		this.numberOfAssetIdsPerAssetTypeRequest = numberOfAssetIdsPerAssetTypeRequest;
-		this.numberOfParallelAssetTypeRequests = numberOfParallelAssetTypeRequests;
-		
-	}
-
-	public int getNumberOfAssetIdsPerAssetTypeRequest() {
-		return numberOfAssetIdsPerAssetTypeRequest;
-	}
-
-	public int getNumberOfParallelAssetTypeRequests() {
-		return numberOfParallelAssetTypeRequests;
+		this.assetTypeRequestConfiguration = assetTypeRequestConfiguration;
 	}
 	
+	public AssetTypeRequestConfiguration getAssetTypeRequestConfiguration() {
+		return assetTypeRequestConfiguration;
+	}
+
+
 	protected Objects.ToStringHelper toStringHelper() {
         return super.toStringHelper()
-                .add("numberOfAssetIdsPerAssetTypeRequest", numberOfAssetIdsPerAssetTypeRequest)
-                .add("numberOfParallelAssetTypeRequests", numberOfParallelAssetTypeRequests);
+                .add("assetTypeRequestConfiguration", assetTypeRequestConfiguration);
     }
 
     @Override

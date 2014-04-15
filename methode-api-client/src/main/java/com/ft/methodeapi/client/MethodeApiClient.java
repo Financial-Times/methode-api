@@ -55,8 +55,14 @@ public class MethodeApiClient {
         this.jerseyClient = client;
         this.apiHost = endpointConfiguration.getHost();
         this.apiPort = endpointConfiguration.getPort();
-        this.numberOfAssetIdsPerAssetTypeRequest = endpointConfiguration.getNumberOfAssetIdsPerAssetTypeRequest();
-        this.numberOfParallelAssetTypeRequests = endpointConfiguration.getNumberOfParallelAssetTypeRequests();
+        AssetTypeRequestConfiguration assetTypeRequestConfiguration = endpointConfiguration.getAssetTypeRequestConfiguration();
+        if (assetTypeRequestConfiguration != null) {
+            this.numberOfAssetIdsPerAssetTypeRequest = assetTypeRequestConfiguration.getNumberOfAssetIdsPerAssetTypeRequest();
+            this.numberOfParallelAssetTypeRequests = assetTypeRequestConfiguration.getNumberOfParallelAssetTypeRequests();
+        } else { // choose sensible defaults
+        	this.numberOfAssetIdsPerAssetTypeRequest = 2;
+        	this.numberOfParallelAssetTypeRequests = 4;
+        }
     }
 
     /**
