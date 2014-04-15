@@ -45,36 +45,34 @@ public class MethodeApiClient {
 
     private final int numberOfAssetIdsPerAssetTypeRequest;
 
-
-    public MethodeApiClient(Environment environment, MethodeApiEndpointConfiguration endpointConfiguration) {
-
+    public MethodeApiClient(Environment environment, MethodeApiEndpointConfiguration methodeApiConfiguration) {
         this(
-				ResilientClientBuilder.in(environment).using(endpointConfiguration).build(),
-				endpointConfiguration,
-                buildExecutorService(environment, endpointConfiguration.getAssetTypeRequestConfiguration())
+				ResilientClientBuilder.in(environment).using(methodeApiConfiguration.getEndpointConfiguration()).build(),
+				methodeApiConfiguration,
+                buildExecutorService(environment, methodeApiConfiguration.getAssetTypeRequestConfiguration())
             );
     }
 
-    private MethodeApiClient(Client client, MethodeApiEndpointConfiguration endpointConfiguration, ExecutorService executorService) {
+    public MethodeApiClient(Client client, MethodeApiEndpointConfiguration methodeApiConfiguration, ExecutorService executorService) {
         this.jerseyClient = client;
-        this.apiHost = endpointConfiguration.getHost();
-        this.apiPort = endpointConfiguration.getPort();
-
+        this.apiHost = methodeApiConfiguration.getEndpointConfiguration().getHost();
+        this.apiPort = methodeApiConfiguration.getEndpointConfiguration().getPort();
+        
         this.executorService = executorService;
 
-        AssetTypeRequestConfiguration assetTypeRequestConfiguration = endpointConfiguration.getAssetTypeRequestConfiguration();
+        AssetTypeRequestConfiguration assetTypeRequestConfiguration = methodeApiConfiguration.getAssetTypeRequestConfiguration();
         if (assetTypeRequestConfiguration != null) {
             this.numberOfAssetIdsPerAssetTypeRequest = assetTypeRequestConfiguration.getNumberOfAssetIdsPerAssetTypeRequest();
         } else { // choose sensible defaults
-        	this.numberOfAssetIdsPerAssetTypeRequest = 2;
+            this.numberOfAssetIdsPerAssetTypeRequest = 2;
         }
     }
 
-    public static MethodeApiClient forTesting(Client client, MethodeApiEndpointConfiguration endpointConfiguration ) {
+    public static MethodeApiClient forTesting(Client client, MethodeApiEndpointConfiguration methodeApiConfiguration ) {
         return new MethodeApiClient(
                 client,
-                endpointConfiguration,
-                Executors.newFixedThreadPool(endpointConfiguration.getAssetTypeRequestConfiguration().getNumberOfParallelAssetTypeRequests())
+                methodeApiConfiguration,
+                Executors.newFixedThreadPool(methodeApiConfiguration.getAssetTypeRequestConfiguration().getNumberOfParallelAssetTypeRequests())
         );
     }
 

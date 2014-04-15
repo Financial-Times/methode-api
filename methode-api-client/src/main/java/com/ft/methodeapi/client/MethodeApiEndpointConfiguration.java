@@ -2,7 +2,6 @@ package com.ft.methodeapi.client;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ft.jerseyhttpwrapper.config.EndpointConfiguration;
@@ -10,13 +9,14 @@ import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.yammer.dropwizard.client.JerseyClientConfiguration;
 
-public class MethodeApiEndpointConfiguration extends EndpointConfiguration {
+public class MethodeApiEndpointConfiguration {
+	
+	private final EndpointConfiguration endpointConfiguration;
 	
 	private final AssetTypeRequestConfiguration assetTypeRequestConfiguration;
-
 	
 	/**
-     * Creates a simple endpoint configuration for a test host (e.g. WireMock)
+     * Creates a simple configuration for a test host (e.g. WireMock)
      * with GZip disabled.
      * @param host the test server
      * @param port the test port
@@ -28,35 +28,39 @@ public class MethodeApiEndpointConfiguration extends EndpointConfiguration {
         JerseyClientConfiguration clientConfig = new JerseyClientConfiguration();
         clientConfig.setGzipEnabled(false);
         clientConfig.setGzipEnabledForRequests(false);
-
-        return new MethodeApiEndpointConfiguration(
-                Optional.of(String.format("test-%s-%s",host,port)),
+        
+        EndpointConfiguration endpointConfiguration = new EndpointConfiguration(
+        		Optional.of(String.format("test-%s-%s",host,port)),
                 Optional.of(clientConfig),
                 Optional.<String>absent(),
 				Arrays.asList(String.format("%s:%d:%d", host, port, port + 1)),
-				Collections.<String>emptyList(),
+				Collections.<String>emptyList());
+
+        return new MethodeApiEndpointConfiguration(
+                endpointConfiguration,
 				assetTypeRequestConfiguration
             );
     }
 
 
-	public MethodeApiEndpointConfiguration(@JsonProperty("shortName") Optional<String> shortName,
-            		@JsonProperty("jerseyClient") Optional<JerseyClientConfiguration> jerseyClientConfiguration,
-            		@JsonProperty("path") Optional<String> path,
-            		@JsonProperty("primaryNodes") List<String> primaryNodesRaw,
-            		@JsonProperty("secondaryNodes") List<String> secondaryNodesRaw,
+	public MethodeApiEndpointConfiguration(@JsonProperty("endpointConfiguration") EndpointConfiguration endpointConfiguration,
 					@JsonProperty("assetTypeRequestConfiguration") AssetTypeRequestConfiguration assetTypeRequestConfiguration) {
-		super(shortName, jerseyClientConfiguration, path, primaryNodesRaw, secondaryNodesRaw);
+		this.endpointConfiguration = endpointConfiguration;
 		this.assetTypeRequestConfiguration = assetTypeRequestConfiguration;
 	}
 	
+	public EndpointConfiguration getEndpointConfiguration() {
+		return endpointConfiguration;
+	}
+
 	public AssetTypeRequestConfiguration getAssetTypeRequestConfiguration() {
 		return assetTypeRequestConfiguration;
 	}
 
-
 	protected Objects.ToStringHelper toStringHelper() {
-        return super.toStringHelper()
+        return Objects
+                .toStringHelper(this)
+                .add("endpointConfiguration", endpointConfiguration)
                 .add("assetTypeRequestConfiguration", assetTypeRequestConfiguration);
     }
 
