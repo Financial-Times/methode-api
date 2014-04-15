@@ -215,28 +215,30 @@ public class MethodeApiClientTest extends ResourceTest {
     private Client primeClientSoOneRequestInThreeResultsInExceptionWithSpecificRootCauseForGetAssetTypes(Exception rootCause) {
         ClientHandler handler = mock(ClientHandler.class);
         Client mockClient = new Client(handler);
-        
-        ClientResponse clientResponse = mock(ClientResponse.class);
-        when(clientResponse.getStatus()).thenReturn(200);
-        
-        when(clientResponse.getEntity(Matchers.<GenericType<Map<String, EomAssetType>>>any())).thenReturn(new HashMap<String, EomAssetType>());
+
+        ClientResponse clientResponse = mockOkResponseWithEmptyMap();
         
         when(handler.handle(any(ClientRequest.class))).thenReturn(clientResponse).thenReturn(clientResponse).thenThrow( new ClientHandlerException(rootCause));
         return mockClient;
     }
-    
+
     private Client primeClientSoTwoRequestsInThreeResultInExceptionWithSpecificRootCausesForGetAssetTypes(Exception rootCause1, Exception rootCause2) {
         ClientHandler handler = mock(ClientHandler.class);
         Client mockClient = new Client(handler);
-        
-        ClientResponse clientResponse = mock(ClientResponse.class);
-        when(clientResponse.getStatus()).thenReturn(200);
-        when(clientResponse.getEntity(Matchers.<GenericType<Map<String, EomAssetType>>>any())).thenReturn(new HashMap<String, EomAssetType>());
+
+        ClientResponse clientResponse = mockOkResponseWithEmptyMap();
 
         when(handler.handle(any(ClientRequest.class))).thenThrow( new ClientHandlerException(rootCause1)).thenReturn(clientResponse).thenThrow( new ClientHandlerException(rootCause2));
         return mockClient;
     }
-    
+
+    private ClientResponse mockOkResponseWithEmptyMap() {
+        ClientResponse clientResponse = mock(ClientResponse.class);
+        when(clientResponse.getStatus()).thenReturn(200);
+        when(clientResponse.getEntity(Matchers.<GenericType<Map<String, EomAssetType>>>any())).thenReturn(new HashMap<String, EomAssetType>());
+        return clientResponse;
+    }
+
     private Map<String, EomAssetType> primeMethodeFileRepositoryAndGetExpectedOutputForGetAssetTypes(Set<String> assetIds,
     		int numberOfPartitions) {
     	List<List<String>> partitionedAssetIdentifiers = Lists.partition(Lists.newArrayList(assetIds), numberOfPartitions);
