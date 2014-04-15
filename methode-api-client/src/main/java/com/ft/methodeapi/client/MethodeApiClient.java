@@ -40,29 +40,55 @@ public class MethodeApiClient {
     private final Client jerseyClient;
     private final String apiHost;
     private final int apiPort;
-    
+
+    ExecutorService executorService;
+
     private final int numberOfAssetIdsPerAssetTypeRequest;
-    private final int numberOfParallelAssetTypeRequests;
+
 
     public MethodeApiClient(Environment environment, MethodeApiEndpointConfiguration endpointConfiguration) {
+
         this(
 				ResilientClientBuilder.in(environment).using(endpointConfiguration).build(),
-				endpointConfiguration
+				endpointConfiguration,
+                buildExecutorService(environment, endpointConfiguration.getAssetTypeRequestConfiguration())
             );
     }
 
-    public MethodeApiClient(Client client, MethodeApiEndpointConfiguration endpointConfiguration) {
+    private MethodeApiClient(Client client, MethodeApiEndpointConfiguration endpointConfiguration, ExecutorService executorService) {
         this.jerseyClient = client;
         this.apiHost = endpointConfiguration.getHost();
         this.apiPort = endpointConfiguration.getPort();
+
+        this.executorService = executorService;
+
         AssetTypeRequestConfiguration assetTypeRequestConfiguration = endpointConfiguration.getAssetTypeRequestConfiguration();
         if (assetTypeRequestConfiguration != null) {
             this.numberOfAssetIdsPerAssetTypeRequest = assetTypeRequestConfiguration.getNumberOfAssetIdsPerAssetTypeRequest();
-            this.numberOfParallelAssetTypeRequests = assetTypeRequestConfiguration.getNumberOfParallelAssetTypeRequests();
         } else { // choose sensible defaults
         	this.numberOfAssetIdsPerAssetTypeRequest = 2;
-        	this.numberOfParallelAssetTypeRequests = 4;
         }
+    }
+
+    public static MethodeApiClient forTesting(Client client, MethodeApiEndpointConfiguration endpointConfiguration ) {
+        return new MethodeApiClient(
+                client,
+                endpointConfiguration,
+                Executors.newFixedThreadPool(endpointConfiguration.getAssetTypeRequestConfiguration().getNumberOfParallelAssetTypeRequests())
+        );
+    }
+
+    private static ExecutorService buildExecutorService(Environment environment, AssetTypeRequestConfiguration requestConfiguration) {
+
+        int numberOfParallelAssetTypeRequests = 4;
+        if(requestConfiguration!=null) {
+            numberOfParallelAssetTypeRequests = requestConfiguration.getNumberOfParallelAssetTypeRequests();
+        }
+
+        return environment.managedExecutorService("MAPI-worker-%d",
+                numberOfParallelAssetTypeRequests,
+                numberOfParallelAssetTypeRequests,
+                2, TimeUnit.MINUTES);
     }
 
     /**
@@ -129,32 +155,12 @@ public class MethodeApiClient {
     
         List<List<String>> partitionedAssetIdentifiers = Lists.partition(Lists.newArrayList(assetIdentifiers), numberOfAssetIdsPerAssetTypeRequest);
 
-        ExecutorService executorService = Executors.newFixedThreadPool(numberOfParallelAssetTypeRequests);
         List<Future<ClientResponse>> futures = Lists.newArrayList();
 		for (List<String> slice: partitionedAssetIdentifiers) {
-			futures.add((Future<ClientResponse>) executorService.submit(new MakeAssetTypeRequestTask(slice, transactionId, assetTypeUri)));
+			futures.add( executorService.submit(new MakeAssetTypeRequestTask(slice, transactionId, assetTypeUri)));
 		}
 		
-		// All tasks have been submitted, we can begin the shutdown of our executor
-        System.out.println("All requests queued, starting shutdown...");
-        executorService.shutdown();
-		
-		// Make sure all the requests have been processed 
-		// Every ten seconds we print our progress
-		int numberSeconds = 0;
-        while (!executorService.isTerminated()) {
-        	try {
-        		executorService.awaitTermination(10, TimeUnit.MILLISECONDS);
-        		numberSeconds++;
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-        	System.out.println("Been processing for " + numberSeconds + "0 seconds");
-        }
-        
-        System.out.println("ExecutorService has terminated");
-        
-        for (Future<ClientResponse> future: futures) {
+		for (Future<ClientResponse> future: futures) {
 			try {
 				Map<String, EomAssetType> resultsFromFuture = processResponse(future.get(), assetTypeUri);
 				results.putAll(resultsFromFuture);			

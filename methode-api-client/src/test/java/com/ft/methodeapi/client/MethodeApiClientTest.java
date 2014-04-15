@@ -15,8 +15,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.http.conn.ConnectTimeoutException;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.internal.util.collections.Sets;
@@ -44,6 +48,7 @@ public class MethodeApiClientTest extends ResourceTest {
 
 	private static final String TRANSACTION_ID = "tid_test";
 
+
     private MethodeFileRepository methodeFileRepository;
 
 	private final String SYSTEM_ATTRIBUTES = "<props><productInfo><name>FTcom</name>\n" +
@@ -60,6 +65,8 @@ public class MethodeApiClientTest extends ResourceTest {
         addResource(new EomFileResource(methodeFileRepository));
         addResource(new GetAssetTypeResource(methodeFileRepository));
     }
+
+
 
     @Test
     public void canRetrieveEomFile() {
@@ -201,8 +208,12 @@ public class MethodeApiClientTest extends ResourceTest {
     
     private MethodeApiClient getMethodeApiClientForMockJerseyClient(Client mockClient, int numberOfAssetIdsPerRequest, 
     		int numberOfParallelAssetTypeRequests) {
-        return new MethodeApiClient(mockClient, MethodeApiEndpointConfiguration.forTesting("localhost", 1234, 
-        		new AssetTypeRequestConfiguration(numberOfAssetIdsPerRequest, numberOfParallelAssetTypeRequests)));
+
+        MethodeApiEndpointConfiguration config = MethodeApiEndpointConfiguration.forTesting("localhost", 1234,
+                new AssetTypeRequestConfiguration(numberOfAssetIdsPerRequest, numberOfParallelAssetTypeRequests));
+
+        return MethodeApiClient.forTesting(mockClient,config);
+
     }
 
     private Client primeClientToExperienceExceptionWithSpecificRootCause(Exception rootCause) {
