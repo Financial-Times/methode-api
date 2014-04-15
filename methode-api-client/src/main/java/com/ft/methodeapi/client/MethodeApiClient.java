@@ -163,7 +163,9 @@ public class MethodeApiClient {
 				Map<String, EomAssetType> resultsFromFuture = processResponse(future.get(), assetTypeUri);
 				results.putAll(resultsFromFuture);			
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				// Restore the interrupted status of the thread that was waiting on future.get() 
+				// to preserve evidence that the interrupt occurred for code higher up the call stack
+	            Thread.currentThread().interrupt();
 			} catch (ExecutionException e) {
 		        Throwable cause = e.getCause();
 		        if(cause instanceof ClientHandlerException) {
