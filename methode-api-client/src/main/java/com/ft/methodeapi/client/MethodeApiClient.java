@@ -2,28 +2,36 @@ package com.ft.methodeapi.client;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.ft.api.jaxrs.client.exceptions.ApiNetworkingException;
 import com.ft.api.jaxrs.client.exceptions.RemoteApiException;
 import com.ft.api.jaxrs.errors.ErrorEntity;
 import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.jerseyhttpwrapper.ResilientClientBuilder;
-import com.ft.jerseyhttpwrapper.config.EndpointConfiguration;
 import com.ft.methodeapi.model.EomAssetType;
 import com.ft.methodeapi.model.EomFile;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
 import com.yammer.dropwizard.config.Environment;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MethodeApiClient {
 
@@ -33,17 +41,52 @@ public class MethodeApiClient {
     private final String apiHost;
     private final int apiPort;
 
-    public MethodeApiClient(Environment environment, EndpointConfiguration endpointConfiguration) {
+    ExecutorService executorService;
+
+    private final int numberOfAssetIdsPerAssetTypeRequest;
+
+    public MethodeApiClient(Environment environment, MethodeApiEndpointConfiguration methodeApiConfiguration) {
         this(
-				ResilientClientBuilder.in(environment).using(endpointConfiguration).build(),
-				endpointConfiguration
+				ResilientClientBuilder.in(environment).using(methodeApiConfiguration.getEndpointConfiguration()).build(),
+				methodeApiConfiguration,
+                buildExecutorService(environment, methodeApiConfiguration.getAssetTypeRequestConfiguration())
             );
     }
 
-    public MethodeApiClient(Client client, EndpointConfiguration endpointConfiguration) {
+    public MethodeApiClient(Client client, MethodeApiEndpointConfiguration methodeApiConfiguration, ExecutorService executorService) {
         this.jerseyClient = client;
-        this.apiHost = endpointConfiguration.getHost();
-        this.apiPort = endpointConfiguration.getPort();
+        this.apiHost = methodeApiConfiguration.getEndpointConfiguration().getHost();
+        this.apiPort = methodeApiConfiguration.getEndpointConfiguration().getPort();
+        
+        this.executorService = executorService;
+
+        AssetTypeRequestConfiguration assetTypeRequestConfiguration = methodeApiConfiguration.getAssetTypeRequestConfiguration();
+        if (assetTypeRequestConfiguration != null) {
+            this.numberOfAssetIdsPerAssetTypeRequest = assetTypeRequestConfiguration.getNumberOfAssetIdsPerAssetTypeRequest();
+        } else { // choose sensible defaults
+            this.numberOfAssetIdsPerAssetTypeRequest = 2;
+        }
+    }
+
+    public static MethodeApiClient forTesting(Client client, MethodeApiEndpointConfiguration methodeApiConfiguration ) {
+        return new MethodeApiClient(
+                client,
+                methodeApiConfiguration,
+                Executors.newFixedThreadPool(methodeApiConfiguration.getAssetTypeRequestConfiguration().getNumberOfParallelAssetTypeRequests())
+        );
+    }
+
+    private static ExecutorService buildExecutorService(Environment environment, AssetTypeRequestConfiguration requestConfiguration) {
+
+        int numberOfParallelAssetTypeRequests = 4;
+        if(requestConfiguration!=null) {
+            numberOfParallelAssetTypeRequests = requestConfiguration.getNumberOfParallelAssetTypeRequests();
+        }
+
+        return environment.managedExecutorService("MAPI-worker-%d",
+                numberOfParallelAssetTypeRequests,
+                numberOfParallelAssetTypeRequests,
+                2, TimeUnit.MINUTES);
     }
 
     /**
@@ -106,25 +149,40 @@ public class MethodeApiClient {
         		.port(apiPort)
         		.build();
         
-        LOGGER.debug("making POST request to methode api {}", assetTypeUri);
+        Map<String, EomAssetType> results = Maps.newHashMap();
+    
+        List<List<String>> partitionedAssetIdentifiers = Lists.partition(Lists.newArrayList(assetIdentifiers), numberOfAssetIdsPerAssetTypeRequest);
 
-        ClientResponse clientResponse;
+        List<Future<ClientResponse>> futures = Lists.newArrayList();
+		for (List<String> slice: partitionedAssetIdentifiers) {
+			futures.add( executorService.submit(new MakeAssetTypeRequestTask(slice, transactionId, assetTypeUri)));
+		}
+		
+		for (Future<ClientResponse> future: futures) {
+			try {
+				Map<String, EomAssetType> resultsFromFuture = processResponse(future.get(), assetTypeUri);
+				results.putAll(resultsFromFuture);			
+			} catch (InterruptedException e) {
+				// Restore the interrupted status of the thread that was waiting on future.get() 
+				// to preserve evidence that the interrupt occurred for code higher up the call stack
+	            Thread.currentThread().interrupt();
+			} catch (ExecutionException e) {
+		        Throwable cause = e.getCause();
+		        if(cause instanceof ClientHandlerException) {
+		        	 if (cause.getCause() instanceof IOException) {
+		        		 throw new ApiNetworkingException(assetTypeUri,"POST", cause);
+		        	 }
+		        	 throw (ClientHandlerException) cause;
+		        }
+			}
+		}
+        
+        return results;
 
-        try {
-            clientResponse = jerseyClient
-                    .resource(assetTypeUri)
-                    .accept(MediaType.APPLICATION_JSON_TYPE)
-                    .header("Content-Type", MediaType.APPLICATION_JSON_TYPE)
-					.header(TransactionIdUtils.TRANSACTION_ID_HEADER, transactionId)
-                    .post(ClientResponse.class, assetIdentifiers);
-        } catch (ClientHandlerException che) {
-            Throwable cause = che.getCause();
-            if(cause instanceof IOException) {
-                throw new ApiNetworkingException(assetTypeUri,"POST",che);
-            }
-            throw che;
-        }
+    }
 
+	
+	private Map<String, EomAssetType> processResponse(ClientResponse clientResponse, URI assetTypeUri) {
         int responseStatusCode = clientResponse.getStatus();
         int responseStatusFamily = responseStatusCode / 100;
 
@@ -141,6 +199,34 @@ public class MethodeApiClient {
         }
         throw new RemoteApiException(assetTypeUri,"GET",responseStatusCode,entity);
 
-    }
+	}
+
+
+	private class MakeAssetTypeRequestTask implements Callable<ClientResponse> {
+
+		private List<String> assetIdentifiers;
+		private String transactionId;
+		private URI assetTypeUri;
+
+		public MakeAssetTypeRequestTask(List<String> assetIdentifiers, String transactionId,
+			final URI assetTypeUri) {
+			this.assetIdentifiers = assetIdentifiers;
+			this.transactionId = transactionId;
+			this.assetTypeUri = assetTypeUri;
+		}
+		
+		@Override
+		public ClientResponse call() throws Exception {
+			LOGGER.debug("making POST request to methode api {}", assetTypeUri);
+
+	        return jerseyClient
+	                    .resource(assetTypeUri)
+	                    .accept(MediaType.APPLICATION_JSON_TYPE)
+	                    .header("Content-Type", MediaType.APPLICATION_JSON_TYPE)
+						.header(TransactionIdUtils.TRANSACTION_ID_HEADER, transactionId)
+	                    .post(ClientResponse.class, assetIdentifiers);
+		}
+	
+	}
 
 }
