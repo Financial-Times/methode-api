@@ -2,10 +2,10 @@ package com.ft.methodeapi.service.methode;
 
 import EOM.Repository;
 import com.ft.methodeapi.atc.LastKnownLocation;
-import com.ft.methodeapi.metrics.FTTimer;
-import com.ft.methodeapi.metrics.RunningTimer;
 import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.templates.MethodeRepositoryOperationTemplate;
+import com.ft.timer.FTTimer;
+import com.ft.timer.RunningTimer;
 import com.yammer.metrics.core.HealthCheck;
 
 public class MethodePingHealthCheck extends HealthCheck {

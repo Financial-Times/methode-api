@@ -1,7 +1,7 @@
 package com.ft.methodeapi.service.methode.connection;
 
-import com.ft.methodeapi.metrics.FTTimer;
-import com.ft.methodeapi.metrics.RunningTimer;
+import com.ft.timer.FTTimer;
+import com.ft.timer.RunningTimer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
