@@ -1,7 +1,8 @@
 package com.ft.methodeapi.service.methode.connection;
 
-import com.ft.methodeapi.metrics.FTTimer;
-import com.ft.methodeapi.metrics.RunningTimer;
+
+import com.ft.timer.FTTimer;
+import com.ft.timer.RunningTimer;
 import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.Histogram;
 import org.slf4j.Logger;
