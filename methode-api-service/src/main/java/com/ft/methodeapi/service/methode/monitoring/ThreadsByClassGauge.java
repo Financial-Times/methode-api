@@ -13,15 +13,17 @@ import java.util.Map;
  */
 public class ThreadsByClassGauge extends Gauge<Integer> {
 
-    final String drivingClassName;
+    private String drivingClassName;
     private MetricName metricName;
 
     public ThreadsByClassGauge(Class<?> drivingClass) {
-        this.drivingClassName = drivingClass.getCanonicalName();
-        Preconditions.checkArgument(drivingClassName!=null,"drivingClass must have a canonical name");
+        this(drivingClass.getCanonicalName());
+    }
 
+    public ThreadsByClassGauge(String drivingClassCanonicalClassName) {
+        Preconditions.checkArgument(drivingClassCanonicalClassName!=null,"must have a canonical name");
+        this.drivingClassName = drivingClassCanonicalClassName;
         metricName = new MetricName(this.getClass(),drivingClassName);
-
     }
 
     @Override

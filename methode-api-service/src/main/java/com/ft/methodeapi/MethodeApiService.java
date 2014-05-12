@@ -7,7 +7,7 @@ import com.ft.methodeapi.atc.WhereIsMethodeResource;
 import com.ft.methodeapi.service.methode.connection.DefaultMethodeObjectFactory;
 import com.ft.methodeapi.service.methode.MethodeContentRetrievalHealthCheck;
 
-import com.ft.methodeapi.service.methode.monitoring.GaugeTooLargeHealthCheck;
+import com.ft.methodeapi.service.methode.monitoring.GaugeRangeHealthCheck;
 import com.ft.methodeapi.service.methode.monitoring.ThreadsByClassGauge;
 import com.ft.ws.lib.swagger.SwaggerBundle;
 import com.yammer.dropwizard.lifecycle.Managed;
@@ -58,7 +58,11 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
 
         ThreadsByClassGauge jacorbThreadGauge = new ThreadsByClassGauge(org.jacorb.util.threadpool.ConsumerTie.class);
         Metrics.newGauge(jacorbThreadGauge.getMetricName(),jacorbThreadGauge);
-        environment.addHealthCheck(new GaugeTooLargeHealthCheck<>("Jacorb Threads",jacorbThreadGauge,900));
+        environment.addHealthCheck(new GaugeRangeHealthCheck<>("Jacorb Threads",jacorbThreadGauge,1,900));
+
+        ThreadsByClassGauge stormPotAllocatorThreadGauge = new ThreadsByClassGauge("stormpot.qpool.QAllocThread");
+        Metrics.newGauge(stormPotAllocatorThreadGauge.getMetricName(),stormPotAllocatorThreadGauge);
+        environment.addHealthCheck(new GaugeRangeHealthCheck<>("Stormpot Allocator Threads",stormPotAllocatorThreadGauge,2,2));
 
         final LastKnownLocation location = new LastKnownLocation(
                 new AirTrafficController(configuration.getAtc()),

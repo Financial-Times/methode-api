@@ -4,19 +4,22 @@ import com.yammer.metrics.core.Gauge;
 import com.yammer.metrics.core.HealthCheck;
 
 /**
- * GaugeTooLargeHealthCheck
+ * GaugeRangeHealthCheck
  *
  * @author Simon.Gibbs
  */
-public class GaugeTooLargeHealthCheck<T extends Number, G extends Gauge<T>> extends HealthCheck {
+public class GaugeRangeHealthCheck<N extends Number, G extends Gauge<N>> extends HealthCheck {
 
     private final long max;
-    private final Gauge<? extends Number> gauge;
+    private final long min;
+    private final Gauge<N> gauge;
 
-    public GaugeTooLargeHealthCheck(String name, G gauge, T maxValue) {
+
+    public GaugeRangeHealthCheck(String name, G gauge, N minValue, N maxValue) {
         super(name);
         this.gauge = gauge;
         this.max = maxValue.longValue();
+        this.min = minValue.longValue();
     }
 
     @Override
@@ -28,6 +31,10 @@ public class GaugeTooLargeHealthCheck<T extends Number, G extends Gauge<T>> exte
             return Result.unhealthy(String.format("%d > %d",snapshotValue,max));
         }
 
-        return Result.healthy(String.format("%d < %d",snapshotValue,max));
+        if(snapshotValue < min) {
+            return Result.unhealthy(String.format("%d < %d",snapshotValue,min));
+        }
+
+        return Result.healthy(String.format("%d <= %d <= %d",min, snapshotValue,max));
     }
 }
