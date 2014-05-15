@@ -2,6 +2,8 @@ package com.ft.methodeapi.service.methode.monitoring;
 
 import com.yammer.metrics.core.Gauge;
 import com.yammer.metrics.core.HealthCheck;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * GaugeRangeHealthCheck
@@ -13,6 +15,8 @@ public class GaugeRangeHealthCheck<N extends Number, G extends Gauge<N>> extends
     private final long max;
     private final long min;
     private final Gauge<N> gauge;
+
+    private final Logger LOGGER = LoggerFactory.getLogger(GaugeRangeHealthCheck.class);
 
 
     public GaugeRangeHealthCheck(String name, G gauge, N minValue, N maxValue) {
@@ -28,11 +32,14 @@ public class GaugeRangeHealthCheck<N extends Number, G extends Gauge<N>> extends
         long snapshotValue = gauge.value().longValue();
 
         if(snapshotValue > max) {
-            return Result.unhealthy(String.format("%d > %d",snapshotValue,max));
+            String message = String.format("%d > %d",snapshotValue,max);
+            LOGGER.error(message);
+            return Result.unhealthy(message);
         }
 
         if(snapshotValue < min) {
-            return Result.unhealthy(String.format("%d < %d",snapshotValue,min));
+            String message = String.format("%d < %d",snapshotValue,min);
+            return Result.unhealthy(message);
         }
 
         return Result.healthy(String.format("%d <= %d <= %d",min, snapshotValue,max));

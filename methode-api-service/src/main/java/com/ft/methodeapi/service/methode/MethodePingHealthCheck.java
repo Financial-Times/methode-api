@@ -7,6 +7,8 @@ import com.ft.methodeapi.service.methode.templates.MethodeRepositoryOperationTem
 import com.ft.timer.FTTimer;
 import com.ft.timer.RunningTimer;
 import com.yammer.metrics.core.HealthCheck;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MethodePingHealthCheck extends HealthCheck {
 
@@ -15,6 +17,8 @@ public class MethodePingHealthCheck extends HealthCheck {
     private final MethodeObjectFactory methodeObjectFactory;
     private final long maxPingMillis;
     private final LastKnownLocation location;
+
+    private final Logger LOGGER = LoggerFactory.getLogger(MethodePingHealthCheck.class);
 
     public MethodePingHealthCheck(LastKnownLocation location, MethodeObjectFactory objectFactory, long maxPingMillis) {
         super(String.format("methode ping [%s]", objectFactory.getDescription()));
@@ -28,6 +32,7 @@ public class MethodePingHealthCheck extends HealthCheck {
     protected Result check() throws Exception {
 
         if(!location.lastReport().isAmIActive()) {
+            LOGGER.debug(LastKnownLocation.IS_PASSIVE_MSG);
             return Result.healthy(LastKnownLocation.IS_PASSIVE_MSG);
         }
 
@@ -44,15 +49,20 @@ public class MethodePingHealthCheck extends HealthCheck {
             }
         });
 
+        // should never happen
         if(!timer.value().isPresent()) {
-            Result.unhealthy("Failed to time the ping"); // should never happen
+            String message = "Failed to time the ping";
+            LOGGER.error(message);
+            Result.unhealthy(message);
         }
 
         long durationMillis = timer.value().get();
 
         Result result;
         if (durationMillis > maxPingMillis) {
-            result = Result.unhealthy("ping took too long %dms, max allowed is %dms", durationMillis, maxPingMillis);
+            String message = String.format("ping took too long %dms, max allowed is %dms", durationMillis, maxPingMillis);
+            LOGGER.error(message);
+            result = Result.unhealthy(message);
         } else {
             result = Result.healthy("ping took %dms, within max allowed %dms", durationMillis, maxPingMillis);
         }
