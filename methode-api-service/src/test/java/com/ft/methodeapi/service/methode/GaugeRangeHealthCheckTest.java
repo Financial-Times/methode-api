@@ -4,7 +4,9 @@ import com.ft.methodeapi.service.methode.monitoring.GaugeRangeHealthCheck;
 import com.yammer.metrics.core.Gauge;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -38,6 +40,12 @@ public class GaugeRangeHealthCheckTest {
     public void shouldAlertWhenGaugeIsLow() {
         GaugeRangeHealthCheck check = new GaugeRangeHealthCheck<>("Foo", fixedValueGauge,2000, 4000);
         assertThat(check.execute().isHealthy(), is(false));
+    }
+
+    @Test
+    public void shouldNotPutNameInMessage() {
+        GaugeRangeHealthCheck check = new GaugeRangeHealthCheck<>("THE NAME", fixedValueGauge,2000, 4000);
+        assertThat(check.execute().getMessage(), not(containsString("THE NAME")));
     }
 
 }
