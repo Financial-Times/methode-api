@@ -33,12 +33,13 @@ public class GaugeRangeHealthCheck<N extends Number, G extends Gauge<N>> extends
 
         if(snapshotValue > max) {
             String message = String.format("%d > %d",snapshotValue,max);
-            LOGGER.error(message);
-            return Result.unhealthy(message);
+            LOGGER.warn(this.getName() + ": " +message); // use WARN to prevent duplicate alerts
+            return Result.unhealthy(this.getName() + ": " + message);
         }
 
         if(snapshotValue < min) {
             String message = String.format("%d < %d",snapshotValue,min);
+            LOGGER.warn(this.getName() + ": " + message); // use WARN to prevent duplicate alerts
             return Result.unhealthy(message);
         }
 
