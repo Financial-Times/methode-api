@@ -21,7 +21,7 @@ import static org.hamcrest.Matchers.notNullValue;
  *
  * @author Simon.Gibbs
  */
-public class AirTrafficControllerTest {
+public class AirTrafficControllerIT {
 
     private static AcceptanceTestConfiguration configuration;
 
