@@ -1,14 +1,11 @@
 package cucumber.runtime;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.ft.methodeapi.SetUpHelper;
 import com.ft.methodeapi.acceptance.AcceptanceTestConfiguration;
 import cucumber.runtime.java.ObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -34,16 +31,7 @@ public class MethodeApiObjectFactory implements ObjectFactory {
 
     public void start() {
         LOGGER.debug("starting");
-        final String configFileName = System.getProperty(CONFIG_FILE_PROPERTY_NAME);
-        LOGGER.debug("{} = {}", CONFIG_FILE_PROPERTY_NAME, configFileName);
-        final ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
-        try {
-            final File file = new File(configFileName).getCanonicalFile();
-            LOGGER.debug("using {} as config file", file);
-            configuration = objectMapper.readValue(file, AcceptanceTestConfiguration.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        configuration = SetUpHelper.readConfiguration();
     }
 
     public void stop() {

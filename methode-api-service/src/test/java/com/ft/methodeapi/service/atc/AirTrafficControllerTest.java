@@ -84,12 +84,6 @@ public class AirTrafficControllerTest {
     }
 
     @Test
-    public void shouldDoRealLookupOfExampleDotComAccurately() {
-        String ip = AirTrafficController.lookup("example.com");
-        assertThat(ip,is("93.184.216.119"));
-    }
-
-    @Test
     public void shouldReturnRealDCNameForIp() {
         Map<DataCentre,String> reportedIps = new LinkedHashMap<>(3);
         reportedIps.put(DataCentre.ACTIVE,"192.168.0.1");
