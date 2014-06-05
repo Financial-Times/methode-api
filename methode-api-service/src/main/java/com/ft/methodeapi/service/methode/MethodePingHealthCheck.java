@@ -52,7 +52,7 @@ public class MethodePingHealthCheck extends HealthCheck {
         // should never happen
         if(!timer.value().isPresent()) {
             String message = "Failed to time the ping";
-            LOGGER.error(message);
+            LOGGER.warn(message); // use WARN to prevent duplicate alerts
             Result.unhealthy(message);
         }
 
@@ -61,7 +61,7 @@ public class MethodePingHealthCheck extends HealthCheck {
         Result result;
         if (durationMillis > maxPingMillis) {
             String message = String.format("ping took too long %dms, max allowed is %dms", durationMillis, maxPingMillis);
-            LOGGER.error(message);
+            LOGGER.warn(message); // use WARN to prevent duplicate alerts
             result = Result.unhealthy(message);
         } else {
             result = Result.healthy("ping took %dms, within max allowed %dms", durationMillis, maxPingMillis);

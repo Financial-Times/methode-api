@@ -32,16 +32,18 @@ public class GaugeRangeHealthCheck<N extends Number, G extends Gauge<N>> extends
         long snapshotValue = gauge.value().longValue();
 
         if(snapshotValue > max) {
-            String message = String.format("%d > %d",snapshotValue,max);
-            LOGGER.error(message);
-            return Result.unhealthy(message);
+            return report(snapshotValue + " > " + max);
         }
 
         if(snapshotValue < min) {
-            String message = String.format("%d < %d",snapshotValue,min);
-            return Result.unhealthy(message);
+            return report(snapshotValue + " < " + min);
         }
 
-        return Result.healthy(String.format("%d <= %d <= %d",min, snapshotValue,max));
+        return Result.healthy(min + " <= " + snapshotValue + " <= " + max);
+    }
+
+    private Result report(String message) {
+        LOGGER.warn(this.getName() + ": " + message); // use WARN to prevent duplicate alerts
+        return Result.unhealthy(message);
     }
 }

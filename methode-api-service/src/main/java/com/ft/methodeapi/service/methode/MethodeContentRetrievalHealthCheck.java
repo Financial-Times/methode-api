@@ -30,7 +30,7 @@ public class MethodeContentRetrievalHealthCheck extends HealthCheck {
             return Result.healthy("can search for content");
         } catch (Exception e) {
             final String message = "cannot search for content";
-            LOGGER.error(message,e);
+            LOGGER.warn(message,e); // use WARN to prevent duplicate alerts
             return Result.unhealthy(message,e);
         }
     }
