@@ -14,7 +14,6 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import org.hamcrest.Matchers;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -22,8 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 import static com.jayway.restassured.RestAssured.expect;
@@ -32,8 +29,6 @@ import static com.jayway.restassured.config.DecoderConfig.decoderConfig;
 import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static com.jayway.restassured.path.json.JsonPath.from;
-import static org.hamcrest.Matchers.either;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
@@ -53,7 +48,6 @@ public class MethodeApiSmokeTests {
     };
 
     private MethodeApiSmokeTestConfiguration methodeApiSmokeTestConfiguration;
-    private Set<UUID> testDataUUIDs = new HashSet<>();
     private Optional<EomFile> eomFile = Optional.absent();
 
 
@@ -84,22 +78,6 @@ public class MethodeApiSmokeTests {
         ensureMethodeApiIsRunning();
     }
 
-    @After
-    public void cleanup() {
-        for(UUID uuid : testDataUUIDs) {
-            cleanupTestData(uuid);
-        }
-    }
-
-    private void cleanupTestData(UUID uuid) {
-        String deleteUrl = methodeApiServiceUrl + uuid;
-        LOGGER.debug("Calling DELETE to clean up url={}", deleteUrl);
-        expect()
-            .statusCode(either(is(204)).or(is(404)))
-        .when()
-            .delete(deleteUrl);
-    }
-
 
     public void ensureMethodeApiIsRunning() {
         for(ApiConfig methodeApiConfig: methodeApiSmokeTestConfiguration.getMethodeApiConfigs()){
@@ -127,9 +105,7 @@ public class MethodeApiSmokeTests {
                 .post(methodeApiServiceUrl)
                 .andReturn();
 
-        UUID uuidForArticleInMethode = UUID.fromString(response.jsonPath().getString("uuid"));
-        testDataUUIDs.add(uuidForArticleInMethode);
-        return uuidForArticleInMethode;
+		return UUID.fromString(response.jsonPath().getString("uuid"));
     }
 
     private void prepareTheArticle() {
@@ -177,8 +153,6 @@ public class MethodeApiSmokeTests {
 
             byte[] retreivedContent =  from(responseAsString).getObject("", EomFile.class).getValue();
             assertThat("bytes in file differed", retreivedContent, Matchers.equalTo(methodeTestArticle.getValue()));
-
-            cleanupTestData(uuid);
         }
     }
 
