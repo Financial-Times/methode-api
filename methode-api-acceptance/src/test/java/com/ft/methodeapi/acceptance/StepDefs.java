@@ -56,7 +56,6 @@ public class StepDefs {
     private UUID uuidForArticleInMethode;
     private UUID uuidForNonExistentArticle;
 
-    private List<UUID> createdArticles;
     private EomFile theExpectedArticle;
 
     private List<Long> requestTimings;
@@ -72,19 +71,7 @@ public class StepDefs {
 
     @Before
     public void setup() {
-        createdArticles = new ArrayList<>();
         requestTimings = new ArrayList<>(1000);
-    }
-
-    @After
-    public void cleanUpCreatedArticles() {
-        for(UUID uuid : createdArticles) {
-
-            String deleteUrl = acceptanceTestConfiguration.getMethodeApiServiceUrl() + uuid;
-            LOGGER.info("Calling DELETE to clean up url={}",deleteUrl);
-            expect().statusCode(either(is(204)).or(is(404)))
-                    .when().delete(deleteUrl);
-        }
     }
 
 	@Given("^the MethodeAPI service is running and connected to Methode$")
@@ -111,8 +98,6 @@ public class StepDefs {
                 .post(this.acceptanceTestConfiguration.getMethodeApiServiceUrl()).andReturn();
 
         uuidForArticleInMethode = UUID.fromString(response.jsonPath().getString("uuid"));
-
-        createdArticles.add(uuidForArticleInMethode);
 	}
 
 	@Given("^an article does not exist in Methode$")
