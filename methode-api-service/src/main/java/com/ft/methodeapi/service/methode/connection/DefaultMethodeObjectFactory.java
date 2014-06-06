@@ -150,7 +150,6 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
             Properties properties = new Properties() {
                 {
                     setProperty("org.omg.CORBA.ORBClass", orbClass);
-                    setProperty("org.omg.CORBA.ORBSingletonClass", orbSingletonClass);
 					setProperty("jacorb.connection.client.connect_timeout", "" + connectionTimeout);
                 }
             };
