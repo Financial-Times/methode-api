@@ -107,7 +107,8 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <includes>
-                                <include>com/ft/methodeapi/acceptance/AllTests.java</include>
+                              <include>com/ft/methodeapi/acceptance/AllTests.java</include>
+                              <include>com/ft/methodeapi/integration/*.java</include>
                             </includes>
                         </configuration>
                     </plugin>

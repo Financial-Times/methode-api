@@ -1,11 +1,11 @@
 package com.ft.methodeapi.acceptance;
 
+import com.ft.methodeapi.SetUpHelper;
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodetesting.MethodeArticle;
 import com.ft.methodetesting.xml.Xml;
 import com.google.common.base.Objects;
 import com.ft.methodetesting.ReferenceArticles;
-import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import cucumber.api.java.After;
@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -29,9 +28,6 @@ import java.util.concurrent.Future;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.config.DecoderConfig.decoderConfig;
-import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
-import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static com.jayway.restassured.path.json.JsonPath.from;
@@ -64,9 +60,7 @@ public class StepDefs {
     public StepDefs(AcceptanceTestConfiguration acceptanceTestConfiguration) throws IOException {
     	this.acceptanceTestConfiguration = acceptanceTestConfiguration;
 
-		RestAssured.config= newConfig()
-                .decoderConfig((decoderConfig().defaultContentCharset("UTF-8")))
-                .encoderConfig((encoderConfig().defaultContentCharset("UTF-8")));
+        SetUpHelper.configureRestAssuredEncoding();
     }
 
     @Before
