@@ -2,6 +2,8 @@ package com.ft.methodeapi.service.methode;
 
 import static com.ft.methodeapi.service.methode.PathHelper.folderIsAncestor;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
@@ -97,11 +99,16 @@ public class MethodeFileRepository {
      */
     public EomFile createNewTestFile(final String filename, final EomFile eomFile) {
         final MethodeSessionOperationTemplate<EomFile> template = new MethodeSessionOperationTemplate<>(testClient);
-        final EomFile createdEomFile = template.doOperation(new CreateFileCallback(testClient, TEST_FOLDER, filename, eomFile));
+        final EomFile createdEomFile = template.doOperation(new CreateFileCallback(testClient, TEST_FOLDER + dateStamp(), filename, eomFile));
         return createdEomFile;
     }
 
-    /**
+	private String dateStamp() {
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+		return "/" + simpleDateFormat.format(new Date());
+	}
+
+	/**
      * WARNING
      * This method is used by smoke tests in every environment including production.
      * It is very important that creating and deleting of content in production methode

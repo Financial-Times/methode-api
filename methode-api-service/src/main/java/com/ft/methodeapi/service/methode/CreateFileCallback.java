@@ -104,12 +104,12 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
         file.set_attributes(eomFile.getAttributes());
 		file.set_system_attributes(eomFile.getSystemAttributes());
 		file.check_in("", false);
-		
+
 		return file;
 
     }
 
-    private Folder findOrCreateFolder(final Folder rootFolder, final String path) throws RepositoryError, PermissionDenied, InvalidName, InvalidForContainer, ObjectLocked, DuplicatedName {
+    private Folder findOrCreateFolder(final Folder rootFolder, final String path) throws RepositoryError, PermissionDenied, InvalidName, InvalidForContainer, ObjectLocked, DuplicatedName, ObjectNotLocked {
         final String[] pathSegments = Utils.stringToPath(path);
 
         try {
@@ -128,6 +128,7 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
                     parent._release();
                 }
             }
+			currentFolder.unlock();
             return currentFolder;
         }
     }
