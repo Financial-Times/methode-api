@@ -4,6 +4,7 @@ import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.methodeapi.atc.AirTrafficController;
 import com.ft.methodeapi.atc.LastKnownLocation;
 import com.ft.methodeapi.atc.WhereIsMethodeResource;
+import com.ft.methodeapi.killswitch.KillSwitchTask;
 import com.ft.methodeapi.service.methode.connection.DefaultMethodeObjectFactory;
 import com.ft.methodeapi.service.methode.MethodeContentRetrievalHealthCheck;
 
@@ -78,7 +79,7 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
 		environment.addFilter(new TransactionIdFilter(), "/eom-file/*");
         environment.addFilter(new TransactionIdFilter(), "/asset-type/*");
 
-
+        environment.addTask(new KillSwitchTask());
     }
 
     private MethodeObjectFactory createMethodeObjectFactory(MethodeConnectionConfiguration methodeConnectionConfiguration,Environment environment) {
