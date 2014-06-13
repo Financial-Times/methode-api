@@ -153,6 +153,10 @@
             <version>0.2</version>
         </dependency>
         <dependency>
+            <groupId>com.ft.dropwizard</groupId>
+            <artifactId>kill-switch-task</artifactId>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
