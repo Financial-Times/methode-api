@@ -149,6 +149,11 @@
                 <version>${restassured.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.ft.dropwizard</groupId>
+                <artifactId>kill-switch-task</artifactId>
+                <version>0.1.2</version>
+            </dependency>
+            <dependency>
                 <groupId>com.eidosmedia.mps</groupId>
                 <artifactId>emmethodelibs</artifactId>
                 <version>2.0.1.21</version>

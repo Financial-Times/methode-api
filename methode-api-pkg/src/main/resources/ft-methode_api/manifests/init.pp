@@ -31,6 +31,13 @@ class methode_api {
     Class [ 'hosts::export' ]->
     Runnablejar['methode_api_runnablejar']
 
+    file { "heap-dumps-dir":
+        path    => "/var/log/apps/methode-api-heap-dumps",
+        owner   => 'methode_api',
+        group   => 'methode_api',
+        ensure  => 'directory',
+        mode    => 744;
+    }
 }
 
 nagios::nrpe_checks::check_http{
