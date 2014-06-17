@@ -1,16 +1,6 @@
 # Class: methode_api
 #
-# This module manages methode_api
-#
-# Parameters:
-#
-# Actions:
-#
-# Requires:
-#
-# Sample Usage:
-#
-# [Remember: No empty lines between comments and class definition]
+# vim: ts=4 sts=4 sw=4 et sr smartindent:
 class methode_api {
 
     class { 'nagios::client': }
@@ -18,12 +8,12 @@ class methode_api {
     class { 'methode_api::monitoring': }
 
     runnablejar { 'methode_api_runnablejar':
-        service_name => 'methode_api',
+        service_name        => 'methode_api',
         service_description => 'Methode API',
-        jar_name => 'methode-api-service.jar',
+        jar_name            => 'methode-api-service.jar',
         config_file_content => template('methode_api/config.yml.erb'),
-        artifact_location => 'methode_api/methode-api-service.jar',
-        status_check_url => "http://localhost:8081/ping";
+        artifact_location   => 'methode_api/methode-api-service.jar',
+        status_check_url    => "http://localhost:8081/ping";
     }
 
     Class [ 'nagios::client' ] ->
