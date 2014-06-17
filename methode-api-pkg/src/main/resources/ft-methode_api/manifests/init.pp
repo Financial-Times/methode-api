@@ -38,12 +38,11 @@ class methode_api {
         ensure  => 'directory',
         mode    => 744;
     }
+
+    file { "sysconfig":
+        path    => "/etc/sysconfig/methode_api",
+        content => template('methode_api/sysconfig.erb'),
+        mode    => 644;
+    }
 }
 
-nagios::nrpe_checks::check_http{
-      "${::certname}/1":
-      url      => "url: http://localhost/healthcheck",
-      port    => "8081",
-      expect => "OK",
-      notes   => "Methode API is not available";
-}
