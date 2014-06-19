@@ -13,37 +13,38 @@
 # [Remember: No empty lines between comments and class definition]
 class methode_api {
 
+    $jar_name = 'methode-api-service.jar'
+    $dir_heap_dumps = "/var/log/apps/methode-api-heap-dumps"
+
     class { 'nagios::client': }
     class { 'hosts::export': hostname => "$certname" }
-    class { 'methode_api::monitoring': }
+    class { "${module_name}::monitoring": }
 
-    runnablejar { 'methode_api_runnablejar':
-        service_name => 'methode_api',
+    runnablejar { "${module_name}_runnablejar":
+        service_name        => "${module_name}",
         service_description => 'Methode API',
-        jar_name => 'methode-api-service.jar',
-        config_file_content => template('methode_api/config.yml.erb'),
-        artifact_location => 'methode_api/methode-api-service.jar',
-        status_check_url => "http://localhost:8081/ping";
+        jar_name            => "${jar_name}",
+        artifact_location   => "${module_name}/methode-api-service.jar",
+        config_file_content => template("${module_name}/config.yml.erb"),
+        status_check_url    => "http://localhost:8081/ping";
     }
 
-    Class [ 'nagios::client' ] ->
-    Class [ 'methode_api::monitoring' ] ->
-    Class [ 'hosts::export' ]->
-    Runnablejar['methode_api_runnablejar']
+    file { "sysconfig":
+        path    => "/etc/sysconfig/${module_name}",
+        ensure  => 'present',
+        content => template("${module_name}/sysconfig.erb"),
+        mode    => 644;
+    }
+
+    File['sysconfig']
+    -> Runnablejar["${module_name}_runnablejar"]
+    -> Class["${module_name}::monitoring"]
 
     file { "heap-dumps-dir":
-        path    => "/var/log/apps/methode-api-heap-dumps",
-        owner   => 'methode_api',
-        group   => 'methode_api',
+        path    => "${dir_heap_dumps}",
+        owner   => "${module_name}",
+        group   => "${methode_api}",
         ensure  => 'directory',
         mode    => 744;
     }
-}
-
-nagios::nrpe_checks::check_http{
-      "${::certname}/1":
-      url      => "url: http://localhost/healthcheck",
-      port    => "8081",
-      expect => "OK",
-      notes   => "Methode API is not available";
 }
