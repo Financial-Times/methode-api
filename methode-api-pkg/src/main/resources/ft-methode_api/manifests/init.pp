@@ -1,5 +1,5 @@
 # Class: methode_api
-#
+# vim: ts=4 sts=4 sw=4 et sr smartindent:
 # This module manages methode_api
 #
 # Parameters:
@@ -36,10 +36,6 @@ class methode_api {
         mode    => 644;
     }
 
-    File['sysconfig']
-    -> Runnablejar["${module_name}_runnablejar"]
-    -> Class["${module_name}::monitoring"]
-
     file { "heap-dumps-dir":
         path    => "${dir_heap_dumps}",
         owner   => "${module_name}",
@@ -47,4 +43,9 @@ class methode_api {
         ensure  => 'directory',
         mode    => 744;
     }
+
+    File['sysconfig']
+    -> Runnablejar["${module_name}_runnablejar"]
+    -> Class["${module_name}::monitoring"]
+
 }
