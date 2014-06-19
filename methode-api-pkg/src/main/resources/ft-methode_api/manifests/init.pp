@@ -10,7 +10,6 @@
 #
 # Sample Usage:
 #
-# [Remember: No empty lines between comments and class definition]
 class methode_api {
 
     $jar_name = 'methode-api-service.jar'
@@ -49,3 +48,4 @@ class methode_api {
     -> Class["${module_name}::monitoring"]
 
 }
+
