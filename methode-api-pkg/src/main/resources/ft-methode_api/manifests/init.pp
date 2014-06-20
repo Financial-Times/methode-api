@@ -18,6 +18,7 @@ class methode_api {
     class { 'nagios::client': }
     class { 'hosts::export': hostname => "$certname" }
     class { "${module_name}::monitoring": }
+    class { 'sudoers_sudocont': }
 
     runnablejar { "${module_name}_runnablejar":
         service_name        => "${module_name}",
@@ -38,7 +39,7 @@ class methode_api {
     file { "heap-dumps-dir":
         path    => "${dir_heap_dumps}",
         owner   => "${module_name}",
-        group   => "${methode_api}",
+        group   => "${module_name}",
         ensure  => 'directory',
         mode    => 744;
     }
