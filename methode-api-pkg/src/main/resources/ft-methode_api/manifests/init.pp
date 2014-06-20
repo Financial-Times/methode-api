@@ -38,7 +38,7 @@ class methode_api {
     file { "heap-dumps-dir":
         path    => "${dir_heap_dumps}",
         owner   => "${module_name}",
-        group   => "${methode_api}",
+        group   => "${module_name}",
         ensure  => 'directory',
         mode    => 744;
     }
