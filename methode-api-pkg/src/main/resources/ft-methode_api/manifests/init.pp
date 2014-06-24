@@ -15,7 +15,7 @@ class methode_api {
     $jar_name = 'methode-api-service.jar'
     $dir_heap_dumps = "/var/log/apps/methode-api-heap-dumps"
 
-    class { 'nagios::client': }
+    class { 'content_platform_nagios::client': }
     class { 'hosts::export': hostname => "$certname" }
     class { "${module_name}::monitoring": }
     class { 'sudoers_sudocont': }
