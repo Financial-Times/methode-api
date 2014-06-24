@@ -20,7 +20,7 @@ class methode_api {
     class { "${module_name}::monitoring": }
     class { 'sudoers_sudocont': }
 
-    runnablejar { "${module_name}_runnablejar":
+    content_runnablejar { "${module_name}_runnablejar":
         service_name        => "${module_name}",
         service_description => 'Methode API',
         jar_name            => "${jar_name}",
@@ -45,7 +45,7 @@ class methode_api {
     }
 
     File['sysconfig']
-    -> Runnablejar["${module_name}_runnablejar"]
+    -> Content_runnablejar["${module_name}_runnablejar"]
     -> Class["${module_name}::monitoring"]
 
 }
