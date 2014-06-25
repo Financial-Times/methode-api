@@ -15,9 +15,10 @@ class methode_api {
     $jar_name = 'methode-api-service.jar'
     $dir_heap_dumps = "/var/log/apps/methode-api-heap-dumps"
 
-    class { 'nagios::client': }
+    class { 'content_platform_nagios::client': }
     class { 'hosts::export': hostname => "$certname" }
     class { "${module_name}::monitoring": }
+    class { 'sudoers_sudocont': }
 
     content_runnablejar { "${module_name}_runnablejar":
         service_name        => "${module_name}",
@@ -44,7 +45,7 @@ class methode_api {
     }
 
     File['sysconfig']
-    -> Content_Runnablejar["${module_name}_runnablejar"]
+    -> Content_runnablejar["${module_name}_runnablejar"]
     -> Class["${module_name}::monitoring"]
 
 }
