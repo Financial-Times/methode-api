@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export PATH=$PATH:/usr/local/bin:/usr/bin:/usr/sbin:/bin
+
 start_time=`date +%s`
 MODULEFULLPATH="${project.build.directory}/ft-methode_api"
 
