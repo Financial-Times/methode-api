@@ -42,7 +42,10 @@ public class StepDefs {
      */
     private static final String[] INSIGNIFICANT_XPATHS = {
             "/ObjectMetadata/OutputChannels/DIFTcom/DIFTcomSafeToSyndicate" ,
-            "/ObjectMetadata/EditorialDisplayIndexing//DIBylineCopy" /* TODO we can resume testing this if the methode bug goes away */
+            "/ObjectMetadata/EditorialDisplayIndexing//DIBylineCopy", /* TODO we can resume testing this if the methode bug goes away */
+            "/ObjectMetadata/EditorialDisplayIndexing/DIFirstParCopy", //TODO remove once the drop and drag new promo box component makes it through Methode environments to live
+            "/ObjectMetadata/EditorialDisplayIndexing/DIMasterImgFileRef", //TODO remove once the drop and drag new promo box component makes it through Methode environments to live"/ObjectMetadata/EditorialDisplayIndexing/DIMasterImgFileRef" //TODO remove once the drop and drag new promo box component makes it through Methode environments to live
+            "/ObjectMetadata/EditorialDisplayIndexing/DIFTNPSections[2]" //TODO remove once the drop and drag new promo box component makes it through Methode environments to live"/ObjectMetadata/EditorialDisplayIndexing/DIMasterImgFileRef" //TODO remove once the drop and drag new promo box component makes it through Methode environments to live
     };
 
     private AcceptanceTestConfiguration acceptanceTestConfiguration;
@@ -195,6 +198,8 @@ public class StepDefs {
         String significantXmlSource = Xml.removeInsignificantXml(from(theResponseEntityForSuccessfulRequest).getString("attributes"), INSIGNIFICANT_XPATHS);
         String expectedSignificantXmlSource = Xml.removeInsignificantXml(theExpectedArticle.getAttributes(), INSIGNIFICANT_XPATHS);
 
+        System.out.println("significantXmlSource=" + significantXmlSource);
+        
         assertThat("significant XML in attributes differed", significantXmlSource, equalTo(expectedSignificantXmlSource));
 	}
 
