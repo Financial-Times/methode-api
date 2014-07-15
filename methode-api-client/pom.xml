@@ -14,7 +14,7 @@
     <artifactId>methode-api-client</artifactId>
 
     <properties>
-        <resilientclient.version>0.1.32</resilientclient.version>
+        <resilientclient.version>0.2.46</resilientclient.version>
     </properties>
 
     <dependencies>
