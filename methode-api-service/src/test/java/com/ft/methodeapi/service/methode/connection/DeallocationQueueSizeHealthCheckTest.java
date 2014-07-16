@@ -35,13 +35,25 @@ public class DeallocationQueueSizeHealthCheckTest {
     }
 
     @Test
-    public void shouldPassGivenQueueUnderThreshold() {
+    public void shouldPassGivenQueueSizeUnderThreshold() {
 
         when(mockGauge.value()).thenReturn(ALERT_THRESHOLD-1);
 
         DeallocationQueueSizeHealthCheck check = new DeallocationQueueSizeHealthCheck("test",mockGauge, ALERT_THRESHOLD);
 
         assertTrue(check.execute().isHealthy());
+
+    }
+
+
+    @Test
+    public void shouldFailGivenQueueSizeAtThreshold() {
+
+        when(mockGauge.value()).thenReturn(ALERT_THRESHOLD);
+
+        DeallocationQueueSizeHealthCheck check = new DeallocationQueueSizeHealthCheck("test",mockGauge, ALERT_THRESHOLD);
+
+        assertFalse(check.execute().isHealthy());
 
     }
 
