@@ -2,9 +2,6 @@ package com.ft.methodeapi.service.methode.connection;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.yammer.metrics.Metrics;
-import com.yammer.metrics.core.Gauge;
-import stormpot.Allocator;
 
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -15,6 +12,7 @@ import java.util.concurrent.ScheduledExecutorService;
 */
 public class MethodeObjectFactoryBuilder {
 
+    String name;
     String username;
     String password;
     String host;
@@ -24,6 +22,15 @@ public class MethodeObjectFactoryBuilder {
     String orbSingletonClass;
     Optional<PoolConfiguration> pool = Optional.absent();
     ScheduledExecutorService executorService;
+
+    public static MethodeObjectFactoryBuilder named(String name) {
+        return (new MethodeObjectFactoryBuilder()).withName(name);
+    }
+
+    public MethodeObjectFactoryBuilder withName(String name) {
+        this.name = name;
+        return this;
+    }
 
     public MethodeObjectFactoryBuilder withUsername(String username) {
         this.username = username;

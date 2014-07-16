@@ -181,12 +181,17 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
 
     @Override @SuppressWarnings("unchecked")
     public List<HealthCheck> createHealthChecks() {
-        HealthCheck check = new GaugeRangeHealthCheck("Deallocation Queue Size for " + implementation.getDescription(),deallocationQueueLength,0,pool.getTargetSize());
+        HealthCheck check = new DeallocationQueueSizeHealthCheck(this.getName(),deallocationQueueLength,pool.getTargetSize());
         return Collections.singletonList(check);
     }
 
     @Override
     public boolean isPooling() {
         return true;
+    }
+
+    @Override
+    public String getName() {
+        return implementation.getName();
     }
 }

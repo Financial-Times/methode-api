@@ -70,6 +70,8 @@ public interface MethodeObjectFactory {
      */
     void maybeCloseOrb(ORB orb);
 
+    String getName();
+
     String getDescription();
 
 }

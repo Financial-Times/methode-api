@@ -5,9 +5,9 @@ import com.ft.dropwizard.killswitchtask.KillSwitchTask;
 import com.ft.methodeapi.atc.AirTrafficController;
 import com.ft.methodeapi.atc.LastKnownLocation;
 import com.ft.methodeapi.atc.WhereIsMethodeResource;
-import com.ft.methodeapi.service.methode.connection.DefaultMethodeObjectFactory;
 import com.ft.methodeapi.service.methode.MethodeContentRetrievalHealthCheck;
 
+import com.ft.methodeapi.service.methode.connection.MethodeObjectFactoryBuilder;
 import com.ft.methodeapi.service.methode.monitoring.GaugeRangeHealthCheck;
 import com.ft.methodeapi.service.methode.monitoring.ThreadsByClassGauge;
 import com.yammer.dropwizard.lifecycle.Managed;
@@ -47,8 +47,8 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
     public void run(MethodeApiConfiguration configuration, Environment environment) {
     	LOGGER.info("running with configuration: {}", configuration);
 
-        final MethodeObjectFactory methodeObjectFactory = createMethodeObjectFactory(configuration.getMethodeConnectionConfiguration(),environment);
-        final MethodeObjectFactory testMethodeObjectFactory = createMethodeObjectFactory(configuration.getMethodeTestConnectionConfiguration(),environment);
+        final MethodeObjectFactory methodeObjectFactory = createMethodeObjectFactory("main", configuration.getMethodeConnectionConfiguration(),environment);
+        final MethodeObjectFactory testMethodeObjectFactory = createMethodeObjectFactory("test-rw", configuration.getMethodeTestConnectionConfiguration(),environment);
 
         final MethodeFileRepository methodeContentRepository = new MethodeFileRepository(methodeObjectFactory, testMethodeObjectFactory);
 
@@ -96,8 +96,8 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
         return result;
     }
 
-    private MethodeObjectFactory createMethodeObjectFactory(MethodeConnectionConfiguration methodeConnectionConfiguration,Environment environment) {
-        MethodeObjectFactory result = DefaultMethodeObjectFactory.builder()
+    private MethodeObjectFactory createMethodeObjectFactory(String name, MethodeConnectionConfiguration methodeConnectionConfiguration,Environment environment) {
+        MethodeObjectFactory result = MethodeObjectFactoryBuilder.named(name)
                     .withHost(methodeConnectionConfiguration.getMethodeHostName())
                     .withPort(methodeConnectionConfiguration.getMethodePort())
                     .withUsername(methodeConnectionConfiguration.getMethodeUserName())

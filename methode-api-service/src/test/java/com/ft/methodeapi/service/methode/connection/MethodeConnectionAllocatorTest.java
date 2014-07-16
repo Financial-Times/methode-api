@@ -99,7 +99,7 @@ public class MethodeConnectionAllocatorTest {
 
         @Override
         public String getDescription() {
-            return "Mock";
+            return getName();
         }
 
         @Override
@@ -110,6 +110,11 @@ public class MethodeConnectionAllocatorTest {
         @Override
         public boolean isPooling() {
             return false;
+        }
+
+        @Override
+        public String getName() {
+            return "Mock";
         }
     };
 

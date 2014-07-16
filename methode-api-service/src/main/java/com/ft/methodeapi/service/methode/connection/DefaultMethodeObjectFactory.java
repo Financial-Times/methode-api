@@ -41,12 +41,11 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
     private final String username;
     private final String password;
     private final String orbClass;
-	private final String hostname;
+    private String name;
+    private final String hostname;
 	private final int port;
 	private final int connectionTimeout;
     private final String orbInitRef;
-
-    private final String orbSingletonClass;
 
     private final MetricsRegistry metricsRegistry = Metrics.defaultRegistry();
 
@@ -65,18 +64,18 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
     private final Timer createRepositoryTimer = metricsRegistry.newTimer(DefaultMethodeObjectFactory.class, "create-repository");
     private final Timer closeRepositoryTimer = metricsRegistry.newTimer(DefaultMethodeObjectFactory.class, "close-repository");
 
-    public DefaultMethodeObjectFactory(String hostname, int port, String username, String password, int connectionTimeout, String orbClass, String orbSingletonClass) {
-		this.hostname = hostname;
+    public DefaultMethodeObjectFactory(String name, String hostname, int port, String username, String password, int connectionTimeout, String orbClass) {
+        this.name = name;
+        this.hostname = hostname;
 		this.port = port;
         this.username = username;
         this.password = password;
 		this.connectionTimeout = connectionTimeout;
         this.orbClass = orbClass;
-        this.orbSingletonClass = orbSingletonClass;
         orbInitRef = String.format("NS=corbaloc:iiop:%s:%d/NameService", hostname, port);    }
 
     public DefaultMethodeObjectFactory(MethodeObjectFactoryBuilder builder) {
-        this(builder.host, builder.port, builder.username, builder.password, builder.connectionTimeout, builder.orbClass, builder.orbSingletonClass);
+        this(builder.name, builder.host, builder.port, builder.username, builder.password, builder.connectionTimeout, builder.orbClass);
     }
 
     @Override
@@ -225,10 +224,6 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
         }
     }
 
-    public static MethodeObjectFactoryBuilder builder() {
-        return new MethodeObjectFactoryBuilder();
-    }
-
 	public String getHostname() {
 		return hostname;
 	}
@@ -254,5 +249,9 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
     @Override
     public boolean isPooling() {
         return false;
+    }
+
+    public String getName() {
+        return name;
     }
 }
