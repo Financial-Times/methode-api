@@ -56,7 +56,3 @@ logging:
     "com.ft.methodeapi.service.methode.connection.MethodeConnectionAllocator" : DEBUG
     "com.ft.methodeapi.service.methode.connection.PoolingMethodeObjectFactory" : DEBUG
     "com.ft.methodeapi.service.methode.connection.SelfCleaningPool" : DEBUG
-
-swaggerConfiguration:
-  apiVersion: 1.0
-  basePath: http://localhost:9080

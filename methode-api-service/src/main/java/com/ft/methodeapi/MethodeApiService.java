@@ -10,7 +10,6 @@ import com.ft.methodeapi.service.methode.MethodeContentRetrievalHealthCheck;
 
 import com.ft.methodeapi.service.methode.monitoring.GaugeRangeHealthCheck;
 import com.ft.methodeapi.service.methode.monitoring.ThreadsByClassGauge;
-import com.ft.ws.lib.swagger.SwaggerBundle;
 import com.yammer.dropwizard.lifecycle.Managed;
 import com.yammer.metrics.Metrics;
 import org.slf4j.Logger;
@@ -39,7 +38,6 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
 
     @Override
     public void initialize(Bootstrap<MethodeApiConfiguration> bootstrap) {
-		bootstrap.addBundle(new SwaggerBundle());
     }
 
     @Override

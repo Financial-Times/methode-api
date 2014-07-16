@@ -23,7 +23,3 @@ atc:
     hostnames:
         PARK_ROYAL: preditor-methode-01.svc.ft.com  # this disables ATC
         ACTIVE: preditor-methode-01.svc.ft.com
-
-swaggerConfiguration:
-  apiVersion: 1.0
-  basePath: http://localhost:9080
