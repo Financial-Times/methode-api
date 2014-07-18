@@ -20,11 +20,13 @@ public class MethodeConnectionConfiguration {
     private final String orbClass;
     private final String orbSingletonClass;
     private final Optional<PoolConfiguration> pool;
+    private final int maxPingMillis;
 
     public MethodeConnectionConfiguration(@JsonProperty("hostName") String methodeHostName,
                                           @JsonProperty("nsPort") int methodePort,
                                           @JsonProperty("userName") String methodeUserName,
                                           @JsonProperty("password") String methodePassword,
+                                          @JsonProperty("maxPingMillis") Optional<Integer> maxPingMillis,
 										  @JsonProperty("connectTimeout") int connectTimeout,
                                           @JsonProperty("orbClass") Optional<String> orbClass,
                                           @JsonProperty("orbSingletonClass") Optional<String> orbSingletonClass,
@@ -33,6 +35,7 @@ public class MethodeConnectionConfiguration {
         this.methodePort = methodePort;
         this.methodeUserName = methodeUserName;
         this.methodePassword = methodePassword;
+        this.maxPingMillis = maxPingMillis.or(2000);
 		this.connectTimeout = connectTimeout;
         this.orbClass = orbClass.or("org.jacorb.orb.ORB");
         this.orbSingletonClass = orbSingletonClass.or("org.jacorb.orb.ORBSingleton");
@@ -74,6 +77,11 @@ public class MethodeConnectionConfiguration {
         return orbSingletonClass;
     }
 
+    @Min(1)
+    public int getMaxPingMillis() {
+        return maxPingMillis;
+    }
+
     public Optional<PoolConfiguration> getPool() {
         return pool;
     }
@@ -86,7 +94,8 @@ public class MethodeConnectionConfiguration {
                 .add("methodeUserName", methodeUserName)
                 // OBFUSCATE PASSWORD!
                 .add("methodePassword", Strings.repeat("*",methodePassword.length()))
-				.add("connectTimeout", connectTimeout)
+                .add("maxPingMillis", maxPingMillis)
+                .add("connectTimeout", connectTimeout)
                 .add("orbClass", orbClass)
                 .add("orbSingletonClass", orbSingletonClass)
                 .add("pool",pool)

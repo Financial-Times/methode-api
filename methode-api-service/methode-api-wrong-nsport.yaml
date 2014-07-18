@@ -8,15 +8,14 @@ methodeConnection:
   userName: automate1
   password: automate1
   connectTimeout: 2000
-
+  maxPingMillis: 500
 methodeTestConnection:
   hostName: preditor-methode-01.svc.ft.com
   nsPort: 9091 #WRONG
   userName: dynpubtest
   password: dynpubtest
   connectTimeout: 2000
-
-maxPingMillis: 500
+  maxPingMillis: 500
 
 atc:
     iAm: PARK_ROYAL

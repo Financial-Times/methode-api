@@ -10,6 +10,7 @@ import EOM.RepositoryPackage.InvalidLogin;
 import EOM.Session;
 import com.ft.methodeapi.service.methode.MethodeException;
 import com.yammer.metrics.Metrics;
+import com.yammer.metrics.core.HealthCheck;
 import com.yammer.metrics.core.MetricsRegistry;
 import com.yammer.metrics.core.Timer;
 import com.yammer.metrics.core.TimerContext;
@@ -22,6 +23,8 @@ import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -243,5 +246,13 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
         return String.format("hostname: %s, nsPort: %d, userName: %s", getHostname(), getPort(), getUsername());
     }
 
+    @Override
+    public List<HealthCheck> createHealthChecks() {
+        return Collections.emptyList();
+    }
 
+    @Override
+    public boolean isPooling() {
+        return false;
+    }
 }

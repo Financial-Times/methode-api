@@ -4,10 +4,14 @@ import EOM.FileSystemAdmin;
 import EOM.Repository;
 import EOM.Session;
 import com.ft.methodeapi.service.methode.MethodeException;
+import com.ft.methodeapi.service.methode.monitoring.GaugeRangeHealthCheck;
 import com.ft.timer.FTTimer;
 import com.ft.timer.RunningTimer;
 import com.google.common.base.Preconditions;
 import com.yammer.dropwizard.lifecycle.Managed;
+import com.yammer.metrics.Metrics;
+import com.yammer.metrics.core.Gauge;
+import com.yammer.metrics.core.HealthCheck;
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NamingContextExt;
 import org.slf4j.Logger;
@@ -19,6 +23,8 @@ import stormpot.PoolException;
 import stormpot.Timeout;
 import stormpot.qpool.QueuePool;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -60,6 +66,7 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
     private final LifecycledResizablePool<MethodeConnection> pool;
     private final Timeout claimTimeout;
 
+    private final Gauge<Integer> deallocationQueueLength;
 
     public PoolingMethodeObjectFactory(final MethodeObjectFactory implementation, ScheduledExecutorService executorService, PoolConfiguration configuration) {
 
@@ -72,7 +79,14 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
 
         this.implementation = implementation;
 
-        Allocator<MethodeConnection> allocator = new MethodeConnectionAllocator(implementation,executorService);
+        final MethodeConnectionAllocator allocator = new MethodeConnectionAllocator(implementation,executorService);
+
+        deallocationQueueLength = Metrics.newGauge(MethodeConnectionAllocator.class, "length", "deallocationQueue", new Gauge<Integer>() {
+            @Override
+            public Integer value() {
+                return allocator.getQueueSize();
+            }
+        });
 
         Config<MethodeConnection> poolConfig = new Config<MethodeConnection>().setAllocator(allocator);
         poolConfig.setSize(configuration.getSize());
@@ -163,5 +177,16 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
         LOGGER.info("Shutdown Requested");
         pool.shutdown().await(new Timeout(20, TimeUnit.SECONDS));
         LOGGER.info("Shutdown Complete");
+    }
+
+    @Override @SuppressWarnings("unchecked")
+    public List<HealthCheck> createHealthChecks() {
+        HealthCheck check = new GaugeRangeHealthCheck("Deallocation Queue Size for " + implementation.getDescription(),deallocationQueueLength,0,pool.getTargetSize());
+        return Collections.singletonList(check);
+    }
+
+    @Override
+    public boolean isPooling() {
+        return true;
     }
 }

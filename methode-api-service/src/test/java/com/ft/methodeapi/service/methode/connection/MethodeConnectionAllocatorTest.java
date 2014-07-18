@@ -3,12 +3,14 @@ package com.ft.methodeapi.service.methode.connection;
 import EOM.FileSystemAdmin;
 import EOM.Repository;
 import EOM.Session;
+import com.yammer.metrics.core.HealthCheck;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NamingContextExt;
 
+import java.util.List;
 import java.util.concurrent.Executors;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -98,6 +100,16 @@ public class MethodeConnectionAllocatorTest {
         @Override
         public String getDescription() {
             return "Mock";
+        }
+
+        @Override
+        public List<HealthCheck> createHealthChecks() {
+            return null;
+        }
+
+        @Override
+        public boolean isPooling() {
+            return false;
         }
     };
 

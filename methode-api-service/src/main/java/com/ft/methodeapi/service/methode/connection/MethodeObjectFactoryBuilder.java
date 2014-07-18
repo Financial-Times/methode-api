@@ -2,6 +2,9 @@ package com.ft.methodeapi.service.methode.connection;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.yammer.metrics.Metrics;
+import com.yammer.metrics.core.Gauge;
+import stormpot.Allocator;
 
 import java.util.concurrent.ScheduledExecutorService;
 
