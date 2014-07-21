@@ -10,8 +10,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.google.common.base.Joiner;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
 import org.omg.CORBA.SystemException;
 
 import com.ft.api.jaxrs.errors.ClientError;
@@ -24,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Path("asset-type")
-@Api(value = "/asset-type", description = "Resource for requesting asset types.")
 public class GetAssetTypeResource {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(GetAssetTypeResource.class);
@@ -36,13 +33,6 @@ public class GetAssetTypeResource {
 		this.methodeFileRepository = methodeFileRepository;
     }
 
-	@ApiOperation(
-	            value = "Returns asset types.",
-	            notes = "Returns asset types by given UUIDs.",
-	            response = EomAssetType.class,
-	            responseContainer = "Map",
-	            produces = MediaType.APPLICATION_JSON,
-				consumes = MediaType.APPLICATION_JSON)
 	@POST
     @Timed
     @Produces(MediaType.APPLICATION_JSON)
