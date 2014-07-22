@@ -17,6 +17,7 @@ methodeConnection:
   userName: <%=scope.function_hiera('methodeUsername')%>
   password: <%=scope.function_hiera('methodePassword')%>
   connectTimeout: 2000
+  maxPingMillis: 2000
   pool:
     size: 10
     timeout: 1900ms
@@ -26,6 +27,7 @@ methodeTestConnection:
   userName: <%=scope.function_hiera('methodeTestUsername', 'app-methodeAPI')%>
   password: <%=scope.function_hiera('methodeTestPassword', 'methodeapi')%>
   connectTimeout: 2000
+  maxPingMillis: 2000
   pool:
     size: 2
     timeout: 4000ms

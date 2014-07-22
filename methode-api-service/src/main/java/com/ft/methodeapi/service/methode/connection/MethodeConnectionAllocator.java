@@ -31,13 +31,6 @@ public class MethodeConnectionAllocator implements Allocator<MethodeConnection> 
     private final FTTimer allocationTimer = FTTimer.newTimer(MethodeConnectionAllocator.class, "allocate-connection");
     private final FTTimer deallocationTimer = FTTimer.newTimer(MethodeConnectionAllocator.class, "deallocate-connection");
 
-    private final Gauge<Integer> deallocationQueueLength = Metrics.newGauge(MethodeConnectionAllocator.class,"length","deallocationQueue",new Gauge<Integer>() {
-        @Override
-        public Integer value() {
-            return queueSize.get();
-        }
-    });
-
     private final MethodeObjectFactory implementation;
     private final ExecutorService executorService;
 
@@ -69,6 +62,11 @@ public class MethodeConnectionAllocator implements Allocator<MethodeConnection> 
 
             // Adds a timestamp
             throw new RecoverableAllocationException(se);
+
+        } catch (Error error) {
+            implementation.maybeCloseOrb(orb);
+            LOGGER.error("Fatal error detected",error);
+            throw error;
         } finally {
             timer.stop();
         }
@@ -91,6 +89,9 @@ public class MethodeConnectionAllocator implements Allocator<MethodeConnection> 
                     implementation.maybeCloseOrb(connection.getOrb());
 
                     LOGGER.debug("Requested deallocation of objects: {}",connection.toString());
+                } catch (Error error) {
+                    LOGGER.error("Fatal error detected",error);
+                    throw error;
                 } finally {
                     timer.stop();
                     queueSize.decrementAndGet();
@@ -102,7 +103,7 @@ public class MethodeConnectionAllocator implements Allocator<MethodeConnection> 
     }
 
     public int getQueueSize() {
-        return deallocationQueueLength.value();
+        return queueSize.get();
     }
 
 }

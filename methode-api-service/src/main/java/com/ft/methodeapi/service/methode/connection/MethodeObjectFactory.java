@@ -3,8 +3,11 @@ package com.ft.methodeapi.service.methode.connection;
 import EOM.FileSystemAdmin;
 import EOM.Repository;
 import EOM.Session;
+import com.yammer.metrics.core.HealthCheck;
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NamingContextExt;
+
+import java.util.List;
 
 /**
  * <p>Allows access to Methode objects of various kinds. Access is guaranteed to be
@@ -33,6 +36,9 @@ public interface MethodeObjectFactory {
 
     ORB createOrb();
 
+    List<HealthCheck> createHealthChecks();
+
+    boolean isPooling();
 
     /**
      * Attempt to end the object lifecycle, while suppressing any and all exceptions
@@ -63,6 +69,8 @@ public interface MethodeObjectFactory {
      * @param orb the object
      */
     void maybeCloseOrb(ORB orb);
+
+    String getName();
 
     String getDescription();
 

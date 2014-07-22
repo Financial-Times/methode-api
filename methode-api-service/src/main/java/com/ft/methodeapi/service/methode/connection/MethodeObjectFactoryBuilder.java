@@ -12,6 +12,7 @@ import java.util.concurrent.ScheduledExecutorService;
 */
 public class MethodeObjectFactoryBuilder {
 
+    String name;
     String username;
     String password;
     String host;
@@ -21,6 +22,15 @@ public class MethodeObjectFactoryBuilder {
     String orbSingletonClass;
     Optional<PoolConfiguration> pool = Optional.absent();
     ScheduledExecutorService executorService;
+
+    public static MethodeObjectFactoryBuilder named(String name) {
+        return (new MethodeObjectFactoryBuilder()).withName(name);
+    }
+
+    public MethodeObjectFactoryBuilder withName(String name) {
+        this.name = name;
+        return this;
+    }
 
     public MethodeObjectFactoryBuilder withUsername(String username) {
         this.username = username;

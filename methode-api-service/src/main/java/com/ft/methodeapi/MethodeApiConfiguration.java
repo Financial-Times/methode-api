@@ -1,7 +1,6 @@
 package com.ft.methodeapi;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,16 +13,13 @@ public class MethodeApiConfiguration extends Configuration {
 
     private final MethodeConnectionConfiguration methodeConnectionConfiguration;
     private final MethodeConnectionConfiguration methodeTestConnectionConfiguration;
-    private final long maxPingMillis;
     private AtcConfiguration atc;
 
     public MethodeApiConfiguration(@JsonProperty("methodeConnection") MethodeConnectionConfiguration methodeConnectionConfiguration,
                                    @JsonProperty("methodeTestConnection") MethodeConnectionConfiguration methodeTestConnectionConfiguration,
-                                   @JsonProperty("atc") AtcConfiguration airTrafficeControllerConfig,
-                                   @JsonProperty("maxPingMillis") long maxPingMillis) {
+                                   @JsonProperty("atc") AtcConfiguration airTrafficeControllerConfig) {
         this.methodeConnectionConfiguration = methodeConnectionConfiguration;
         this.methodeTestConnectionConfiguration = methodeTestConnectionConfiguration;
-        this.maxPingMillis = maxPingMillis;
         this.atc = airTrafficeControllerConfig;
     }
 
@@ -39,11 +35,6 @@ public class MethodeApiConfiguration extends Configuration {
         return methodeTestConnectionConfiguration;
     }
 
-    @Min(1L)
-    public long getMaxPingMillis() {
-        return maxPingMillis;
-    }
-
     @Valid @NotNull
     public AtcConfiguration getAtc() {
         return atc;
@@ -54,7 +45,7 @@ public class MethodeApiConfiguration extends Configuration {
                 .add("super", super.toString())
                 .add("methodeConnectionConfiguration", methodeConnectionConfiguration)
                 .add("methodeTestConnectionConfiguration", methodeTestConnectionConfiguration)
-                .add("maxPingMillis", maxPingMillis);
+                .add("atc",atc);
     }
     
     @Override

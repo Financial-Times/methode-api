@@ -10,6 +10,7 @@ import EOM.RepositoryPackage.InvalidLogin;
 import EOM.Session;
 import com.ft.methodeapi.service.methode.MethodeException;
 import com.yammer.metrics.Metrics;
+import com.yammer.metrics.core.HealthCheck;
 import com.yammer.metrics.core.MetricsRegistry;
 import com.yammer.metrics.core.Timer;
 import com.yammer.metrics.core.TimerContext;
@@ -22,6 +23,8 @@ import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -38,12 +41,11 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
     private final String username;
     private final String password;
     private final String orbClass;
-	private final String hostname;
+    private String name;
+    private final String hostname;
 	private final int port;
 	private final int connectionTimeout;
     private final String orbInitRef;
-
-    private final String orbSingletonClass;
 
     private final MetricsRegistry metricsRegistry = Metrics.defaultRegistry();
 
@@ -62,18 +64,18 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
     private final Timer createRepositoryTimer = metricsRegistry.newTimer(DefaultMethodeObjectFactory.class, "create-repository");
     private final Timer closeRepositoryTimer = metricsRegistry.newTimer(DefaultMethodeObjectFactory.class, "close-repository");
 
-    public DefaultMethodeObjectFactory(String hostname, int port, String username, String password, int connectionTimeout, String orbClass, String orbSingletonClass) {
-		this.hostname = hostname;
+    public DefaultMethodeObjectFactory(String name, String hostname, int port, String username, String password, int connectionTimeout, String orbClass) {
+        this.name = name;
+        this.hostname = hostname;
 		this.port = port;
         this.username = username;
         this.password = password;
 		this.connectionTimeout = connectionTimeout;
         this.orbClass = orbClass;
-        this.orbSingletonClass = orbSingletonClass;
         orbInitRef = String.format("NS=corbaloc:iiop:%s:%d/NameService", hostname, port);    }
 
     public DefaultMethodeObjectFactory(MethodeObjectFactoryBuilder builder) {
-        this(builder.host, builder.port, builder.username, builder.password, builder.connectionTimeout, builder.orbClass, builder.orbSingletonClass);
+        this(builder.name, builder.host, builder.port, builder.username, builder.password, builder.connectionTimeout, builder.orbClass);
     }
 
     @Override
@@ -222,10 +224,6 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
         }
     }
 
-    public static MethodeObjectFactoryBuilder builder() {
-        return new MethodeObjectFactoryBuilder();
-    }
-
 	public String getHostname() {
 		return hostname;
 	}
@@ -243,5 +241,17 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
         return String.format("hostname: %s, nsPort: %d, userName: %s", getHostname(), getPort(), getUsername());
     }
 
+    @Override
+    public List<HealthCheck> createHealthChecks() {
+        return Collections.emptyList();
+    }
 
+    @Override
+    public boolean isPooling() {
+        return false;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

@@ -5,13 +5,14 @@ import com.ft.dropwizard.killswitchtask.KillSwitchTask;
 import com.ft.methodeapi.atc.AirTrafficController;
 import com.ft.methodeapi.atc.LastKnownLocation;
 import com.ft.methodeapi.atc.WhereIsMethodeResource;
-import com.ft.methodeapi.service.methode.connection.DefaultMethodeObjectFactory;
 import com.ft.methodeapi.service.methode.MethodeContentRetrievalHealthCheck;
 
+import com.ft.methodeapi.service.methode.connection.MethodeObjectFactoryBuilder;
 import com.ft.methodeapi.service.methode.monitoring.GaugeRangeHealthCheck;
 import com.ft.methodeapi.service.methode.monitoring.ThreadsByClassGauge;
 import com.yammer.dropwizard.lifecycle.Managed;
 import com.yammer.metrics.Metrics;
+import com.yammer.metrics.core.HealthCheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +29,8 @@ import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
 
+import java.util.List;
+
 public class MethodeApiService extends Service<MethodeApiConfiguration> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodeApiService.class);
@@ -43,10 +46,9 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
     @Override
     public void run(MethodeApiConfiguration configuration, Environment environment) {
     	LOGGER.info("running with configuration: {}", configuration);
-        final MethodeConnectionConfiguration methodeConnectionConfiguration = configuration.getMethodeConnectionConfiguration();
 
-        final MethodeObjectFactory methodeObjectFactory = createMethodeObjectFactory(methodeConnectionConfiguration,environment);
-        final MethodeObjectFactory testMethodeObjectFactory = createMethodeObjectFactory(configuration.getMethodeTestConnectionConfiguration(),environment);
+        final MethodeObjectFactory methodeObjectFactory = createMethodeObjectFactory("main", configuration.getMethodeConnectionConfiguration(),environment);
+        final MethodeObjectFactory testMethodeObjectFactory = createMethodeObjectFactory("test-rw", configuration.getMethodeTestConnectionConfiguration(),environment);
 
         final MethodeFileRepository methodeContentRepository = new MethodeFileRepository(methodeObjectFactory, testMethodeObjectFactory);
 
@@ -55,20 +57,24 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
         environment.addResource(new BuildInfoResource());
         environment.addResource(new GetAssetTypeResource(methodeContentRepository));
 
+        int poolingConnectionCount = countPoolingConnections(methodeObjectFactory,testMethodeObjectFactory);
+        if(poolingConnectionCount>0) {
+            ThreadsByClassGauge stormPotAllocatorThreadGauge = new ThreadsByClassGauge("stormpot.qpool.QAllocThread");
+            Metrics.newGauge(stormPotAllocatorThreadGauge.getMetricName(),stormPotAllocatorThreadGauge);
+            environment.addHealthCheck(new GaugeRangeHealthCheck<>("Stormpot Allocator Threads",stormPotAllocatorThreadGauge,poolingConnectionCount,poolingConnectionCount));
+        }
+
         ThreadsByClassGauge jacorbThreadGauge = new ThreadsByClassGauge(org.jacorb.util.threadpool.ConsumerTie.class);
         Metrics.newGauge(jacorbThreadGauge.getMetricName(),jacorbThreadGauge);
         environment.addHealthCheck(new GaugeRangeHealthCheck<>("Jacorb Threads",jacorbThreadGauge,1,900));
 
-        ThreadsByClassGauge stormPotAllocatorThreadGauge = new ThreadsByClassGauge("stormpot.qpool.QAllocThread");
-        Metrics.newGauge(stormPotAllocatorThreadGauge.getMetricName(),stormPotAllocatorThreadGauge);
-        environment.addHealthCheck(new GaugeRangeHealthCheck<>("Stormpot Allocator Threads",stormPotAllocatorThreadGauge,2,2));
 
         final LastKnownLocation location = new LastKnownLocation(
                 new AirTrafficController(configuration.getAtc()),
                 environment.managedScheduledExecutorService("atc-%d",1)
         );
-        environment.addHealthCheck(new MethodePingHealthCheck(location, methodeObjectFactory, configuration.getMaxPingMillis()));
-        environment.addHealthCheck(new MethodePingHealthCheck(location, testMethodeObjectFactory, configuration.getMaxPingMillis()));
+        environment.addHealthCheck(new MethodePingHealthCheck(location, methodeObjectFactory, configuration.getMethodeConnectionConfiguration().getMaxPingMillis()));
+        environment.addHealthCheck(new MethodePingHealthCheck(location, testMethodeObjectFactory, configuration.getMethodeTestConnectionConfiguration().getMaxPingMillis()));
         environment.addResource(new WhereIsMethodeResource(location));
 
         environment.addHealthCheck(new MethodeContentRetrievalHealthCheck(location, methodeContentRepository));
@@ -80,8 +86,18 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
         environment.addTask(new KillSwitchTask());
     }
 
-    private MethodeObjectFactory createMethodeObjectFactory(MethodeConnectionConfiguration methodeConnectionConfiguration,Environment environment) {
-        MethodeObjectFactory result = DefaultMethodeObjectFactory.builder()
+    private int countPoolingConnections(MethodeObjectFactory...  factories) {
+        int result = 0;
+        for(MethodeObjectFactory factory : factories) {
+            if(factory.isPooling()) {
+                result++;
+            }
+        }
+        return result;
+    }
+
+    private MethodeObjectFactory createMethodeObjectFactory(String name, MethodeConnectionConfiguration methodeConnectionConfiguration,Environment environment) {
+        MethodeObjectFactory result = MethodeObjectFactoryBuilder.named(name)
                     .withHost(methodeConnectionConfiguration.getMethodeHostName())
                     .withPort(methodeConnectionConfiguration.getMethodePort())
                     .withUsername(methodeConnectionConfiguration.getMethodeUserName())
@@ -95,6 +111,12 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
 
         if(result instanceof Managed) {
             environment.manage((Managed) result);
+        }
+
+        List<HealthCheck> checks = result.createHealthChecks();
+
+        for(HealthCheck check : checks) {
+            environment.addHealthCheck(check);
         }
 
         return result;
