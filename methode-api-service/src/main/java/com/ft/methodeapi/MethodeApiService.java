@@ -59,7 +59,7 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
 
         int poolingConnectionCount = countPoolingConnections(methodeObjectFactory,testMethodeObjectFactory);
         if(poolingConnectionCount>0) {
-            ThreadsByClassGauge stormPotAllocatorThreadGauge = new ThreadsByClassGauge("stormpot.qpool.QAllocThread");
+            ThreadsByClassGauge stormPotAllocatorThreadGauge = new ThreadsByClassGauge("stormpot.QAllocThread");
             Metrics.newGauge(stormPotAllocatorThreadGauge.getMetricName(),stormPotAllocatorThreadGauge);
             environment.addHealthCheck(new GaugeRangeHealthCheck<>("Stormpot Allocator Threads",stormPotAllocatorThreadGauge,poolingConnectionCount,poolingConnectionCount));
         }

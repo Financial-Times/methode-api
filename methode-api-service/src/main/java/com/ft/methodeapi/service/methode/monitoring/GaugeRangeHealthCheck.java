@@ -32,11 +32,11 @@ public class GaugeRangeHealthCheck<N extends Number, G extends Gauge<N>> extends
         long snapshotValue = gauge.value().longValue();
 
         if(snapshotValue > max) {
-            return report(snapshotValue + " > " + max);
+            return report("snapshot > max: " + snapshotValue + " > " + max);
         }
 
         if(snapshotValue < min) {
-            return report(snapshotValue + " < " + min);
+            return report("snapshot < min: " + snapshotValue + " < " + min);
         }
 
         return Result.healthy(min + " <= " + snapshotValue + " <= " + max);
