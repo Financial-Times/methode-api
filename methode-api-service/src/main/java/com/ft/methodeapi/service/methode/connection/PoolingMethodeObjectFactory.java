@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import stormpot.Config;
 import stormpot.LifecycledResizablePool;
 import stormpot.PoolException;
-import stormpot.TimeSpreadExpiration;
 import stormpot.Timeout;
 import stormpot.QueuePool;
 
@@ -112,7 +111,7 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
 
     @Override
     public NamingContextExt createNamingService(ORB orb) {
-        Preconditions.checkState(orb==this.createOrb()); //TODO - why only check in THIS method?
+        Preconditions.checkState(orb==this.createOrb()); 
         return allocatedConnection.get().getNamingService();
     }
 

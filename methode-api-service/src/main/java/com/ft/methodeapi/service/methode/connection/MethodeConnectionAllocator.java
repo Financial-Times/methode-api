@@ -61,6 +61,7 @@ public class MethodeConnectionAllocator implements Reallocator<MethodeConnection
             return connection;
 
         } catch (TIMEOUT | TRANSIENT se) {
+        	LOGGER.info("Corba Error: ", se);
             implementation.maybeCloseOrb(orb);
 
             // Adds a timestamp
@@ -107,10 +108,10 @@ public class MethodeConnectionAllocator implements Reallocator<MethodeConnection
 
 	@Override
 	public MethodeConnection reallocate(Slot slot, MethodeConnection connection) throws Exception {
-		LOGGER.debug("Starting reallocation {}", connection);
+		LOGGER.debug("Starting reallocation for slot {} and connection {}", slot, connection);
         RunningTimer timer = reallocationTimer.start();
 		try {        
-            connection.getRepository().ping(); // TODO - think this can throw an exception in case of failure?
+            connection.getRepository().ping(); // this throws for example an org.omg.CORBA.COMM_FAILURE exception on failure
             Session session = connection.getSession();
             if(session._non_existent()) {
                 LOGGER.info("Session is gone");
@@ -119,7 +120,7 @@ public class MethodeConnectionAllocator implements Reallocator<MethodeConnection
             }
             session.here_i_am(); // throws exception if session isn't here any more
         } catch (Exception e) {
-        	LOGGER.info("Methode connection is no longer valid, expiring it", e);
+        	LOGGER.info("Methode connection {} is no longer valid, expiring it", connection, e);
         	deallocate(connection);
         	return allocate(slot);
         } finally {

@@ -86,6 +86,7 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
         try {
            fileSystemAdmin = EOM.FileSystemAdminHelper.narrow(session.resolve_initial_references(FILE_SYSTEM_ADMIN));
         } catch (ObjectNotFound | RepositoryError | PermissionDenied e) {
+        	LOGGER.info("Failed to create file system admin", e);
             throw new MethodeException(e);
         } finally {
             timerContext.stop();
@@ -100,6 +101,7 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
         try {
             session = repository.login(username, password, "", null);
         } catch (InvalidLogin | RepositoryError e) {
+        	LOGGER.info("Failed to create session", e);
             throw new MethodeException(e);
         } finally {
             timerContext.stop();
@@ -113,6 +115,7 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
         try {
             return NamingContextExtHelper.narrow(orb.resolve_initial_references("NS"));
         } catch (InvalidName invalidName) {
+        	LOGGER.info("Failed to create naming service", invalidName);
             throw new MethodeException(invalidName);
         } finally {
             timerContext.stop();
@@ -138,7 +141,8 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
             return RepositoryHelper.narrow(namingService.resolve_str("EOM/Repositories/cms2"));
       } catch (org.omg.CosNaming.NamingContextPackage.InvalidName
               | CannotProceed | NotFound e) {
-          throw new MethodeException(e);
+    	  LOGGER.info("Failed to create repository", e);
+    	  throw new MethodeException(e);
       } finally {
           timerContext.stop();
       }
