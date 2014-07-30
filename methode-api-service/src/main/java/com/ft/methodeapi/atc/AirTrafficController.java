@@ -42,13 +42,13 @@ public class AirTrafficController {
     }
 
 
-    public static String parseIpFromNsLookupOutput(String output) {
+    public static String parseIpFromNsLookupOutput(String output, String hostname) {
         Matcher matcher = IP_FINDER_PATTERN.matcher(output);
         if(matcher.find()) {
             return matcher.group(1);
         }
 
-        return null;
+        throw new AirTrafficControllerException("Cannot parse an IP for hostname " + hostname + " from output: " + output);
     }
 
 
@@ -70,14 +70,17 @@ public class AirTrafficController {
             executor.execute(cmdLine);
             String rawResult = new String(outputBuffer.toByteArray(), Charset.defaultCharset());
 
-            return parseIpFromNsLookupOutput(rawResult);
+            return parseIpFromNsLookupOutput(rawResult, hostname);
 
         } catch (IOException e) {
-            throw new AirTrafficControllerException("Failure while looking up system location", e);
+            throw new AirTrafficControllerException("Failure while looking up system location for cmdLine " + cmdLine, e);
         }
     }
 
     public DataCentre whois(String activeIp, Map<DataCentre, String> methodeIps) {
+    	if (activeIp == null) {
+    		return null;
+    	}
         for(Map.Entry<DataCentre,String> pair : methodeIps.entrySet()) {
 
             if(pair.getKey() == DataCentre.ACTIVE) {

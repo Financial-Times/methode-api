@@ -10,4 +10,8 @@ public class AirTrafficControllerException extends RuntimeException {
     public AirTrafficControllerException(String message, Throwable cause) {
         super(message,cause);
     }
+
+	public AirTrafficControllerException(String message) {
+		super(message);
+	}
 }
