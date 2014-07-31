@@ -84,7 +84,7 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
 
         this.implementation = implementation;
 
-        final MethodeConnectionAllocator allocator = new MethodeConnectionAllocator(implementation,executorService);
+        final MethodeConnectionAllocator allocator = new MethodeConnectionAllocator(implementation,executorService, configuration.getMethodeStaleConnectionTimeout());
 
         deallocationQueueLength = Metrics.newGauge(MethodeConnectionAllocator.class, "length", "deallocationQueue", new Gauge<Integer>() {
             @Override
@@ -159,6 +159,7 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
             MethodeConnection connection = allocatedConnection.get();
             LOGGER.debug("Releasing connection from slot: {}", connection);
             connection.release();
+            connection.updateTimeSinceLastUsed();
 
             // Ensure we release the thread local, otherwise we break the contract with the pool
             allocatedConnection.remove();

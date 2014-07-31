@@ -17,7 +17,7 @@ public class MethodeObjectFactoryBuilderTest {
 
     @Test(expected = IllegalStateException.class)
     public void shouldMandateAThreadPoolIfPoolingConfigured() {
-        PoolConfiguration configuration = new PoolConfiguration(Optional.of(5), Optional.of(Duration.milliseconds(1900)));
+        PoolConfiguration configuration = new PoolConfiguration(Optional.of(5), Optional.of(Duration.milliseconds(1900)), Optional.of(Duration.milliseconds(100 * 60 * 30)));
 
         MethodeObjectFactoryBuilder builder = new MethodeObjectFactoryBuilder();
         builder.withPooling(Optional.of(configuration));
@@ -26,7 +26,7 @@ public class MethodeObjectFactoryBuilderTest {
 
     @Test
     public void shouldNotWireInPoolingIfPoolSizeIsZero() {
-        PoolConfiguration configuration = new PoolConfiguration(Optional.of(0), Optional.of(Duration.milliseconds(1900)));
+        PoolConfiguration configuration = new PoolConfiguration(Optional.of(0), Optional.of(Duration.milliseconds(1900)), Optional.of(Duration.milliseconds(100 * 60 * 30)));
 
         MethodeObjectFactoryBuilder builder = new MethodeObjectFactoryBuilder();
         builder.withPooling(Optional.of(configuration));

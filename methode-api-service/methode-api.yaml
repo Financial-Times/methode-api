@@ -20,6 +20,7 @@ methodeConnection:
   pool:
     size: 3
     timeout: 1900ms
+    methodeStaleConnectionTimeout: 30minutes
 
 methodeTestConnection:
   hostName: preditor-methode-01.svc.ft.com

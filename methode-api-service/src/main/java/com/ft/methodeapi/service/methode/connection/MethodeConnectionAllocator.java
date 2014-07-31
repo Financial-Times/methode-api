@@ -1,21 +1,24 @@
 package com.ft.methodeapi.service.methode.connection;
 
-import EOM.FileSystemAdmin;
-import EOM.Repository;
-import EOM.Session;
-import com.ft.timer.FTTimer;
-import com.ft.timer.RunningTimer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.TIMEOUT;
 import org.omg.CORBA.TRANSIENT;
 import org.omg.CosNaming.NamingContextExt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import stormpot.Reallocator;
 import stormpot.Slot;
+import EOM.FileSystemAdmin;
+import EOM.Repository;
+import EOM.Session;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.ft.timer.FTTimer;
+import com.ft.timer.RunningTimer;
+import com.yammer.dropwizard.util.Duration;
 
 /**
  * Responsible for EOM object creation and clean up. 
@@ -29,6 +32,9 @@ public class MethodeConnectionAllocator implements Reallocator<MethodeConnection
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodeConnectionAllocator.class);
 
+	// if the methode connection isn't used for a long time (configurable), it's very likely to be stale anyway, so shortcircuit any checks on staleness
+    private final Duration methodeStaleConnectionTimeout;
+
     private final FTTimer allocationTimer = FTTimer.newTimer(MethodeConnectionAllocator.class, "allocate-connection");
     private final FTTimer deallocationTimer = FTTimer.newTimer(MethodeConnectionAllocator.class, "deallocate-connection");
     private final FTTimer reallocationTimer = FTTimer.newTimer(MethodeConnectionAllocator.class,"reallocate-connection");
@@ -39,9 +45,10 @@ public class MethodeConnectionAllocator implements Reallocator<MethodeConnection
 
     private AtomicInteger numberOfConnectionsAwaitingDeallocation = new AtomicInteger(0);
 
-    public MethodeConnectionAllocator(MethodeObjectFactory implementation, ExecutorService executorService) {
+    public MethodeConnectionAllocator(MethodeObjectFactory implementation, ExecutorService executorService, Duration methodeStaleConnectionTimeout) {
         this.implementation = implementation;
         this.executorService = executorService;
+        this.methodeStaleConnectionTimeout = methodeStaleConnectionTimeout;
     }
 
     @Override
@@ -110,6 +117,12 @@ public class MethodeConnectionAllocator implements Reallocator<MethodeConnection
 	public MethodeConnection reallocate(Slot slot, MethodeConnection connection) throws Exception {
 		LOGGER.debug("Starting reallocation for slot {} and connection {}", slot, connection);
         RunningTimer timer = reallocationTimer.start();
+        
+        if (connectionIsStale(connection)) {
+        	deallocate(connection);
+            return allocate(slot);
+        }
+        
 		try {        
             connection.getRepository().ping(); // this throws for example an org.omg.CORBA.COMM_FAILURE exception on failure
             Session session = connection.getSession();
@@ -129,7 +142,14 @@ public class MethodeConnectionAllocator implements Reallocator<MethodeConnection
         return connection;
 	}
 
-    public int getNumberOfConnectionsAwaitingDeallocation() {
+    private boolean connectionIsStale(MethodeConnection connection) {
+    	Duration durationSinceLastUsed = connection.getDurationSinceLastUsed();
+    	long countSinceLastUsed = methodeStaleConnectionTimeout.getUnit().convert(durationSinceLastUsed.getQuantity(), durationSinceLastUsed.getUnit());
+
+        return countSinceLastUsed > methodeStaleConnectionTimeout.getQuantity();
+	}
+
+	public int getNumberOfConnectionsAwaitingDeallocation() {
         return numberOfConnectionsAwaitingDeallocation.get();
     }
 

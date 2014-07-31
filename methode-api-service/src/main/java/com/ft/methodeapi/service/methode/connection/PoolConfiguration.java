@@ -17,10 +17,13 @@ public class PoolConfiguration {
 
     private final int size;
     private final Duration timeout;
+    private final Duration methodeStaleConnectionTimeout;
 
-    public PoolConfiguration(@JsonProperty("size") Optional<Integer> size, @JsonProperty("timeout") Optional<Duration> timeout) {
+    public PoolConfiguration(@JsonProperty("size") Optional<Integer> size, @JsonProperty("timeout") Optional<Duration> timeout,
+    		@JsonProperty("methodeStaleConnectionTimeout") Optional<Duration> methodeStaleConnectionTimeout) {
         this.size = size.or(0); // implies no pooling by default
         this.timeout = timeout.or(Duration.milliseconds(1900)); // based on 99.9 percentile in TEST
+        this.methodeStaleConnectionTimeout = methodeStaleConnectionTimeout.or(Duration.seconds(60 * 30)); 
     }
 
     /**
@@ -43,11 +46,23 @@ public class PoolConfiguration {
         return timeout;
     }
 
+	/**
+	 * Gets a timeout for when to consider that a methode connection is stale - if it's not been used 
+	 * for this amount of time, don't even do any checks, just deallocate and reallocate
+	 * 
+	 * @return the timeout for when to consider a methode connection is stale
+	 */
+    public Duration getMethodeStaleConnectionTimeout() {
+		return methodeStaleConnectionTimeout;
+	}
+
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
                 .add("size",size)
-                .add("timeout",timeout).toString();
+                .add("timeout",timeout)
+                .add("methodeStaleConnectionTimeout", methodeStaleConnectionTimeout)
+                .toString();
     }
 
 }

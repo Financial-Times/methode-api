@@ -3,6 +3,8 @@ package com.ft.methodeapi.service.methode.connection;
 import EOM.FileSystemAdmin;
 import EOM.Repository;
 import EOM.Session;
+
+import com.yammer.dropwizard.util.Duration;
 import com.yammer.metrics.core.HealthCheck;
 
 import org.junit.Before;
@@ -55,7 +57,7 @@ public class MethodeConnectionAllocatorTest {
     
     @Before
     public void setup() {
-        methodeConnectionAllocator = new MethodeConnectionAllocator(mockMethodeObjectFactory, Executors.newFixedThreadPool(1));
+        methodeConnectionAllocator = new MethodeConnectionAllocator(mockMethodeObjectFactory, Executors.newFixedThreadPool(1), Duration.minutes(30));
         methodeConnection = new MethodeConnection(
     			mockSlot, mockOrb, mockNamingService, 
     			mockRepository, mockSession, mockFileSystemAdmin);
@@ -90,6 +92,19 @@ public class MethodeConnectionAllocatorTest {
     	verify(mockMethodeObjectFactory, never()).maybeCloseRepository(mockRepository);
     	verify(mockMethodeObjectFactory, never()).maybeCloseSession(mockSession);
     }
+    
+    @Test
+    public void shouldDeallocateAndAllocateMethodeConnectionWhenMethodeConnectionHasNotBeenUsedForLongerThanStaleTimeout() throws Exception {
+    	methodeConnection.updateTimeSinceLastUsed();
+    	methodeConnectionAllocator = new MethodeConnectionAllocator(mockMethodeObjectFactory, Executors.newFixedThreadPool(1), Duration.milliseconds(1));
+    	Thread.sleep(2); //so our methode connection is stale
+    	MethodeConnection returnedMethodeConnection = methodeConnectionAllocator.reallocate(mockSlot, methodeConnection);
+    	Thread.sleep(200);
+    	assertThat(returnedMethodeConnection, not(equalTo(methodeConnection)));
+    	verifyCloseWasAttempted(); 	
+    	validateMethodeConnectionParameters(returnedMethodeConnection);
+    }
+    
     
     @Test
     public void shouldDeallocateAndAllocateMethodeConnectionWhenSessionIsNonExistent() throws Exception {
@@ -134,7 +149,7 @@ public class MethodeConnectionAllocatorTest {
     // this metric is used in GaugeRangeHealthcheck
     @Test
     public void shouldCorrectlyTrackNumberOfConnectionsAwaitingDeallocation() throws Exception {
-        MethodeConnectionAllocator allocator = new MethodeConnectionAllocator(slowFailingObjectFactory, Executors.newFixedThreadPool(1));
+        MethodeConnectionAllocator allocator = new MethodeConnectionAllocator(slowFailingObjectFactory, Executors.newFixedThreadPool(1), Duration.minutes(30));
         allocator.deallocate(mock(MethodeConnection.class));
         assertThat(allocator.getNumberOfConnectionsAwaitingDeallocation(),is(1));
 
