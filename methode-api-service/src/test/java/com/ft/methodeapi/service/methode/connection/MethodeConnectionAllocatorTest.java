@@ -50,7 +50,7 @@ public class MethodeConnectionAllocatorTest {
     @Mock private Repository mockRepository;
     @Mock private Slot mockSlot;
     
-    private MethodeConnection methodeConnection;
+    private MethodeConnection existingMethodeConnection;
 
 
     public static final int LAG = 50;
@@ -58,7 +58,7 @@ public class MethodeConnectionAllocatorTest {
     @Before
     public void setup() {
         methodeConnectionAllocator = new MethodeConnectionAllocator(mockMethodeObjectFactory, Executors.newFixedThreadPool(1), Duration.minutes(30));
-        methodeConnection = new MethodeConnection(
+        existingMethodeConnection = new MethodeConnection(
     			mockSlot, mockOrb, mockNamingService, 
     			mockRepository, mockSession, mockFileSystemAdmin);
         when(mockMethodeObjectFactory.createOrb()).thenReturn(mockOrb);
@@ -76,7 +76,7 @@ public class MethodeConnectionAllocatorTest {
     
     @Test
     public void shouldCleanupMethodeConnectionOnDeallocate() throws Exception {
-    	methodeConnectionAllocator.deallocate(methodeConnection);
+    	methodeConnectionAllocator.deallocate(existingMethodeConnection);
     	Thread.sleep(200);
     	verifyCloseWasAttempted();
     }
@@ -84,8 +84,8 @@ public class MethodeConnectionAllocatorTest {
     @Test
     public void shouldReturnALiveMethodeConnectionWithoutReallocating() throws Exception {
     	when(mockSession._non_existent()).thenReturn(false);
-    	MethodeConnection returnedMethodeConnection = methodeConnectionAllocator.reallocate(mockSlot, methodeConnection);
-    	assertThat(returnedMethodeConnection, equalTo(methodeConnection));
+    	MethodeConnection returnedMethodeConnection = methodeConnectionAllocator.reallocate(mockSlot, existingMethodeConnection);
+    	assertThat(returnedMethodeConnection, equalTo(existingMethodeConnection));
     	verify(mockMethodeObjectFactory, never()).maybeCloseFileSystemAdmin(mockFileSystemAdmin);
     	verify(mockMethodeObjectFactory, never()).maybeCloseNamingService(mockNamingService);
     	verify(mockMethodeObjectFactory, never()).maybeCloseOrb(mockOrb);
@@ -95,12 +95,12 @@ public class MethodeConnectionAllocatorTest {
     
     @Test
     public void shouldDeallocateAndAllocateMethodeConnectionWhenMethodeConnectionHasNotBeenUsedForLongerThanStaleTimeout() throws Exception {
-    	methodeConnection.updateTimeSinceLastUsed();
+    	existingMethodeConnection.updateTimeSinceLastUsed();
     	methodeConnectionAllocator = new MethodeConnectionAllocator(mockMethodeObjectFactory, Executors.newFixedThreadPool(1), Duration.milliseconds(1));
     	Thread.sleep(2); //so our methode connection is stale
-    	MethodeConnection returnedMethodeConnection = methodeConnectionAllocator.reallocate(mockSlot, methodeConnection);
+    	MethodeConnection returnedMethodeConnection = methodeConnectionAllocator.reallocate(mockSlot, existingMethodeConnection);
     	Thread.sleep(200);
-    	assertThat(returnedMethodeConnection, not(equalTo(methodeConnection)));
+    	assertThat(returnedMethodeConnection, not(equalTo(existingMethodeConnection)));
     	verifyCloseWasAttempted(); 	
     	validateMethodeConnectionParameters(returnedMethodeConnection);
     }
@@ -109,9 +109,9 @@ public class MethodeConnectionAllocatorTest {
     @Test
     public void shouldDeallocateAndAllocateMethodeConnectionWhenSessionIsNonExistent() throws Exception {
     	when(mockSession._non_existent()).thenReturn(true);
-    	MethodeConnection returnedMethodeConnection = methodeConnectionAllocator.reallocate(mockSlot, methodeConnection);
+    	MethodeConnection returnedMethodeConnection = methodeConnectionAllocator.reallocate(mockSlot, existingMethodeConnection);
     	Thread.sleep(200);
-    	assertThat(returnedMethodeConnection, not(equalTo(methodeConnection)));
+    	assertThat(returnedMethodeConnection, not(equalTo(existingMethodeConnection)));
     	verifyCloseWasAttempted(); 	
     	validateMethodeConnectionParameters(returnedMethodeConnection);
     }
@@ -119,9 +119,9 @@ public class MethodeConnectionAllocatorTest {
     @Test
     public void shouldDeallocateAndAllocateMethodeConnectionWhenSessionNonExistentThrowsException() throws Exception {
     	when(mockSession._non_existent()).thenThrow(new RuntimeException("Session does not exist"));
-    	MethodeConnection returnedMethodeConnection = methodeConnectionAllocator.reallocate(mockSlot, methodeConnection);
+    	MethodeConnection returnedMethodeConnection = methodeConnectionAllocator.reallocate(mockSlot, existingMethodeConnection);
     	Thread.sleep(200);
-    	assertThat(returnedMethodeConnection, not(equalTo(methodeConnection)));
+    	assertThat(returnedMethodeConnection, not(equalTo(existingMethodeConnection)));
     	verifyCloseWasAttempted(); 	
     	validateMethodeConnectionParameters(returnedMethodeConnection);
     }
@@ -129,9 +129,9 @@ public class MethodeConnectionAllocatorTest {
     @Test
     public void shouldDeallocateAndAllocateAMethodeConnectionWhenSessionHereIAmThrowsException() throws Exception {
     	doThrow(new RuntimeException("MethodeConnection is no longer valid")).when(mockSession).here_i_am();		
-    	MethodeConnection returnedMethodeConnection = methodeConnectionAllocator.reallocate(mockSlot, methodeConnection);
+    	MethodeConnection returnedMethodeConnection = methodeConnectionAllocator.reallocate(mockSlot, existingMethodeConnection);
     	Thread.sleep(200);
-    	assertThat(returnedMethodeConnection, not(equalTo(methodeConnection)));
+    	assertThat(returnedMethodeConnection, not(equalTo(existingMethodeConnection)));
     	verifyCloseWasAttempted(); 	
     	validateMethodeConnectionParameters(returnedMethodeConnection);
     }
@@ -139,9 +139,9 @@ public class MethodeConnectionAllocatorTest {
     @Test
     public void shouldDeallocateAndAllocateAMethodeConnectionWhenRepositoryPingThrowsException() throws Exception {
     	doThrow(new RuntimeException("MethodeConnection is no longer valid")).when(mockRepository).ping();		
-    	MethodeConnection returnedMethodeConnection = methodeConnectionAllocator.reallocate(mockSlot, methodeConnection);
+    	MethodeConnection returnedMethodeConnection = methodeConnectionAllocator.reallocate(mockSlot, existingMethodeConnection);
     	Thread.sleep(200);
-    	assertThat(returnedMethodeConnection, not(equalTo(methodeConnection)));
+    	assertThat(returnedMethodeConnection, not(equalTo(existingMethodeConnection)));
     	verifyCloseWasAttempted(); 	
     	validateMethodeConnectionParameters(returnedMethodeConnection);
     }
