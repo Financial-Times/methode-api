@@ -32,6 +32,7 @@ methodeTestConnection:
   pool:
     size: 2
     timeout: 4000ms
+    methodeStaleConnectionTimeout: 30minutes
 
 atc:
     iAm: PARK_ROYAL
