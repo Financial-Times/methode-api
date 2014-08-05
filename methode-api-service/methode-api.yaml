@@ -20,6 +20,7 @@ methodeConnection:
   pool:
     size: 3
     timeout: 1900ms
+    methodeStaleConnectionTimeout: 30minutes
 
 methodeTestConnection:
   hostName: preditor-methode-01.svc.ft.com
@@ -31,6 +32,7 @@ methodeTestConnection:
   pool:
     size: 2
     timeout: 4000ms
+    methodeStaleConnectionTimeout: 30minutes
 
 atc:
     iAm: PARK_ROYAL

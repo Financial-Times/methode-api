@@ -1,12 +1,17 @@
 package com.ft.methodeapi.service.methode.connection;
 
+import org.joda.time.DateTime;
+import org.joda.time.Seconds;
+import org.omg.CORBA.ORB;
+import org.omg.CosNaming.NamingContextExt;
+
+import stormpot.Poolable;
+import stormpot.Slot;
 import EOM.FileSystemAdmin;
 import EOM.Repository;
 import EOM.Session;
-import org.omg.CORBA.ORB;
-import org.omg.CosNaming.NamingContextExt;
-import stormpot.Poolable;
-import stormpot.Slot;
+
+import com.yammer.dropwizard.util.Duration;
 
 /**
  * MethodeConnection
@@ -21,6 +26,8 @@ public class MethodeConnection implements Poolable {
     private final Repository repository;
     private final NamingContextExt namingService;
     private final ORB orb;
+    private final DateTime creationTimestamp;
+    private DateTime lastUsedTimestamp;
 
     public MethodeConnection(Slot slot, ORB orb, NamingContextExt namingService, Repository repository, Session session, FileSystemAdmin fileSystemAdmin ) {
         this.slot = slot;
@@ -29,6 +36,8 @@ public class MethodeConnection implements Poolable {
         this.repository = repository;
         this.namingService = namingService;
         this.orb = orb;
+        this.creationTimestamp = DateTime.now();
+        this.lastUsedTimestamp = DateTime.now();
     }
 
     @Override
@@ -55,6 +64,18 @@ public class MethodeConnection implements Poolable {
     public ORB getOrb() {
         return orb;
     }
+    
+    public int getAgeInSeconds() {
+    	return Seconds.secondsBetween(creationTimestamp, DateTime.now()).getSeconds();
+    }
+    
+    public Duration getDurationSinceLastUsed() {
+    	return Duration.milliseconds(DateTime.now().getMillis() - lastUsedTimestamp.getMillis());
+    }
+    
+    public void updateTimeSinceLastUsed() {
+    	lastUsedTimestamp = DateTime.now();
+    }
 
     @Override
     public String toString() {
@@ -65,6 +86,8 @@ public class MethodeConnection implements Poolable {
                 ", repository=" + System.identityHashCode(repository) +
                 ", namingService=" + System.identityHashCode(namingService) +
                 ", orb=" + System.identityHashCode(orb) +
+                ", ageInSeconds=" + getAgeInSeconds() +
+                ", timeSinceLastUsedInSeconds=" + getDurationSinceLastUsed().toSeconds() +
                 '}';
     }
 }

@@ -4,7 +4,6 @@ import EOM.FileSystemAdmin;
 import EOM.Repository;
 import EOM.Session;
 import com.ft.methodeapi.service.methode.MethodeException;
-import com.ft.methodeapi.service.methode.monitoring.GaugeRangeHealthCheck;
 import com.ft.timer.FTTimer;
 import com.ft.timer.RunningTimer;
 import com.google.common.base.Preconditions;
@@ -16,12 +15,11 @@ import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NamingContextExt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import stormpot.Allocator;
 import stormpot.Config;
 import stormpot.LifecycledResizablePool;
 import stormpot.PoolException;
 import stormpot.Timeout;
-import stormpot.qpool.QueuePool;
+import stormpot.QueuePool;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +27,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * PoolingMethodeObjectFactory
+ * Creating and destroying EOM objects is a performance overhead. This factory uses Stormpot
+ * (https://github.com/chrisvest/stormpot) to pool these objects for re-use. The Poolable object, 
+ * MethodeConnection, has all required EOM objects.
+ * 
+ * All create methods return the appropriate object associated with the allocated methodeConnection.
+ * 
+ * Methods intended for clean up are largely unimplemented here as we just want to return the MethodeConnection
+ * to the pool - this is done in the maybeCloseOrb method.
  *
  * @author Simon.Gibbs
  */
@@ -49,7 +54,7 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
                 LOGGER.debug("Claiming MethodeConnection");
                 MethodeConnection connection = pool.claim(claimTimeout);
                 if(connection==null) {
-                    throw new MethodeException("Timeout after upon claiming MethodeConnection");
+                    throw new MethodeException("Timeout while claiming MethodeConnection");
                 }
                 LOGGER.debug("Claimed objects: {}",connection);
 
@@ -79,20 +84,19 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
 
         this.implementation = implementation;
 
-        final MethodeConnectionAllocator allocator = new MethodeConnectionAllocator(implementation,executorService);
+        final MethodeConnectionAllocator allocator = new MethodeConnectionAllocator(implementation,executorService, configuration.getMethodeStaleConnectionTimeout());
 
         deallocationQueueLength = Metrics.newGauge(MethodeConnectionAllocator.class, "length", "deallocationQueue", new Gauge<Integer>() {
             @Override
             public Integer value() {
-                return allocator.getQueueSize();
+                return allocator.getNumberOfConnectionsAwaitingDeallocation();
             }
         });
 
         Config<MethodeConnection> poolConfig = new Config<MethodeConnection>().setAllocator(allocator);
         poolConfig.setSize(configuration.getSize());
-        poolConfig.setExpiration(new TimeSpreadOrMethodeConnectionInvalidExpiration(5, 10, TimeUnit.MINUTES));
 
-        pool = new SelfCleaningPool<>(new QueuePool<>(poolConfig), executorService, RecoverableAllocationException.class);
+        pool = new QueuePool<>(poolConfig);
         claimTimeout = new Timeout(
                 configuration.getTimeout().getQuantity(),
                 configuration.getTimeout().getUnit()
@@ -102,12 +106,12 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
 
     @Override
     public ORB createOrb() {
-        return allocatedConnection.get().getOrb();  //To change body of implemented methods use File | Settings | File Templates.
+        return allocatedConnection.get().getOrb();  
     }
 
     @Override
     public NamingContextExt createNamingService(ORB orb) {
-        Preconditions.checkState(orb==this.createOrb());
+        Preconditions.checkState(orb==this.createOrb()); 
         return allocatedConnection.get().getNamingService();
     }
 
@@ -128,32 +132,34 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
 
     @Override
     public void maybeCloseFileSystemAdmin(FileSystemAdmin fileSystemAdmin) {
-        // deferred to allocator
+        // intentionally not implemented - clean up is done via the wrapped methodeObjectFactory, in the MethodeConnectionAllocator
     }
 
     @Override
     public void maybeCloseSession(Session session) {
-        // deferred to allocator
+        // intentionally not implemented - clean up is done via the wrapped methodeObjectFactory, in the MethodeConnectionAllocator
     }
 
     @Override
     public void maybeCloseRepository(Repository repository) {
-        // deferred to allocator
+        // intentionally not implemented - clean up is done via the wrapped methodeObjectFactory, in the MethodeConnectionAllocator
     }
 
     @Override
     public void maybeCloseNamingService(NamingContextExt namingService) {
-        // deferred to allocator
+        // intentionally not implemented - clean up is done via the wrapped methodeObjectFactory, in the MethodeConnectionAllocator
     }
 
     @Override
     public void maybeCloseOrb(ORB orb) {
+    	// this is final clean up call from our Methode...Template classes, so this is where to release the MethodeConnection back to the pool
         RunningTimer timer = releaseConnectionTimer.start();
         try {
             Preconditions.checkState(orb==this.createOrb());
             MethodeConnection connection = allocatedConnection.get();
-            LOGGER.debug("Releasing objects: {}", connection);
+            LOGGER.debug("Releasing connection from slot: {}", connection);
             connection.release();
+            connection.updateTimeSinceLastUsed();
 
             // Ensure we release the thread local, otherwise we break the contract with the pool
             allocatedConnection.remove();
@@ -179,8 +185,7 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
         LOGGER.info("Shutdown Complete");
     }
 
-    @Override @SuppressWarnings("unchecked")
-    public List<HealthCheck> createHealthChecks() {
+    @Override public List<HealthCheck> createHealthChecks() {
         HealthCheck check = new DeallocationQueueSizeHealthCheck(this.getName(),deallocationQueueLength,pool.getTargetSize());
         return Collections.singletonList(check);
     }

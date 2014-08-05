@@ -22,10 +22,10 @@ import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+
 
 /**
  * Encapsulates logic to create and destroy Methode objects and holds the connection and credential details.
@@ -82,11 +82,11 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
     public FileSystemAdmin createFileSystemAdmin(Session session) {
 
         final TimerContext timerContext = createFileSystemAdminTimer.time();
-        FileSystemAdmin fileSystemAdmin;
+        FileSystemAdmin fileSystemAdmin = null;
         try {
            fileSystemAdmin = EOM.FileSystemAdminHelper.narrow(session.resolve_initial_references(FILE_SYSTEM_ADMIN));
         } catch (ObjectNotFound | RepositoryError | PermissionDenied e) {
-            throw new MethodeException(e);
+        	throw new MethodeException("Failed to create file system admin", e);
         } finally {
             timerContext.stop();
         }
@@ -100,7 +100,7 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
         try {
             session = repository.login(username, password, "", null);
         } catch (InvalidLogin | RepositoryError e) {
-            throw new MethodeException(e);
+            throw new MethodeException("Failed to create session", e);
         } finally {
             timerContext.stop();
         }
@@ -113,21 +113,9 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
         try {
             return NamingContextExtHelper.narrow(orb.resolve_initial_references("NS"));
         } catch (InvalidName invalidName) {
-            throw new MethodeException(invalidName);
+            throw new MethodeException("Failed to create naming service", invalidName);
         } finally {
             timerContext.stop();
-        }
-    }
-
-    @Override
-    public void maybeCloseNamingService(NamingContextExt namingService) {
-        if (namingService != null) {
-            final TimerContext timerContext = closeNameServiceTimer.time();
-            try {
-                namingService._release();
-            } finally {
-                timerContext.stop();
-            }
         }
     }
 
@@ -138,7 +126,7 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
             return RepositoryHelper.narrow(namingService.resolve_str("EOM/Repositories/cms2"));
       } catch (org.omg.CosNaming.NamingContextPackage.InvalidName
               | CannotProceed | NotFound e) {
-          throw new MethodeException(e);
+    	  throw new MethodeException("Failed to create repository", e);
       } finally {
           timerContext.stop();
       }
@@ -169,6 +157,18 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
                 fileSystemAdmin._release();
             } catch(Exception e) {
                 LOGGER.warn("Failed to release EOM.FileSystemAdmin", e);
+            } finally {
+                timerContext.stop();
+            }
+        }
+    }
+
+    @Override
+    public void maybeCloseNamingService(NamingContextExt namingService) {
+        if (namingService != null) {
+            final TimerContext timerContext = closeNameServiceTimer.time();
+            try {
+                namingService._release();
             } finally {
                 timerContext.stop();
             }

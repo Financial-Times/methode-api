@@ -1,4 +1,4 @@
-package com.ft.methodeapi.service.atc;
+package com.ft.methodeapi.atc;
 
 import com.ft.methodeapi.atc.AirTrafficController;
 import com.ft.methodeapi.atc.AtcConfiguration;
@@ -19,7 +19,9 @@ import static org.mockito.Mockito.mock;
  */
 public class AirTrafficControllerTest {
 
-    /**
+    private static final String HOSTNAME = "only present for logging";
+
+	/**
      * Output of the DOS command "nslookup"
      */
     private static String WINDOWS_NS_LOOKUP_OUTPUT = "Server:  UnKnown\n" +
@@ -61,25 +63,25 @@ public class AirTrafficControllerTest {
 
     @Test
     public void shouldReturnIPAddressFromLinuxOutput() {
-        String ip = AirTrafficController.parseIpFromNsLookupOutput(LINUX_NS_LOOKUP_OUTPUT);
+        String ip = AirTrafficController.parseIpFromNsLookupOutput(LINUX_NS_LOOKUP_OUTPUT, HOSTNAME);
         assertThat(ip,is("10.118.101.117"));
     }
 
     @Test
     public void shouldReturnIPAddressFromWindowsOutput() {
-        String ip = AirTrafficController.parseIpFromNsLookupOutput(WINDOWS_NS_LOOKUP_OUTPUT);
+        String ip = AirTrafficController.parseIpFromNsLookupOutput(WINDOWS_NS_LOOKUP_OUTPUT, HOSTNAME);
         assertThat(ip,is("10.118.101.117"));
     }
 
     @Test
     public void shouldReturnIpAddressForExampleDotComOnLinux() {
-        String ip = AirTrafficController.parseIpFromNsLookupOutput(LINUX_NS_LOOKUP_OUTPUT_EXAMPLE);
+        String ip = AirTrafficController.parseIpFromNsLookupOutput(LINUX_NS_LOOKUP_OUTPUT_EXAMPLE, HOSTNAME);
         assertThat(ip,is("93.184.216.119"));
     }
 
     @Test
     public void shouldReturnIpAddressForExampleDotComOnWindows() {
-        String ip = AirTrafficController.parseIpFromNsLookupOutput(WINDOWS_NS_LOOKUP_OUTPUT_EXAMPLE);
+        String ip = AirTrafficController.parseIpFromNsLookupOutput(WINDOWS_NS_LOOKUP_OUTPUT_EXAMPLE, HOSTNAME);
         assertThat(ip,is("93.184.216.119"));
     }
 
