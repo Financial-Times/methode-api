@@ -11,7 +11,6 @@
     <modules>
         <module>methode-api-service</module>
         <module>methode-api-model</module>
-        <module>methode-api-client</module>
         <module>methode-api-acceptance</module>
         <module>methode-api-pkg</module>
     </modules>
