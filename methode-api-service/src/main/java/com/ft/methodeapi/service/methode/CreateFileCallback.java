@@ -47,10 +47,9 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
         	
         	setStatusAndFireStatusEvent(file, session, forRelease);
 
-            EomFile eomFile = new EomFile(file.get_uuid_string(), file.get_type_name(), file.read_all(), file.get_attributes(),
-                    file.get_status_name(), file.get_system_attributes());
-            
-			return eomFile;
+            return new EomFile(file.get_uuid_string(), file.get_type_name(), file.read_all(),
+                    file.get_attributes(), file.get_status_name(), file.get_system_attributes(),
+                    file.get_usage_tickets(""));
 
 		} catch (TypeNotFound | RepositoryError | PermissionDenied | InvalidName | InvalidForContainer | ObjectLocked
 				| DuplicatedName | ObjectNotLocked | ObjectNotCheckedOut | ObjectNotFound e) {

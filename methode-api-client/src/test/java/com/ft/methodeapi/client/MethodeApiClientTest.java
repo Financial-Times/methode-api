@@ -68,7 +68,7 @@ public class MethodeApiClientTest extends ResourceTest {
     public void canRetrieveEomFile() {
 
         final byte[] fileBytes = "blah, blah, blah".getBytes();
-        when(methodeFileRepository.findFileByUuid(any(String.class))).thenReturn(Optional.of(new EomFile("asdf", "someType", fileBytes, "some attributes", "WebRevise", SYSTEM_ATTRIBUTES)));
+        when(methodeFileRepository.findFileByUuid(any(String.class))).thenReturn(Optional.of(new EomFile("asdf", "someType", fileBytes, "some attributes", "WebRevise", SYSTEM_ATTRIBUTES, "usage tickets")));
 
         EomFile eomFile = getMethodeApiClientForMockJerseyClient(client()).findFileByUuid("asdsfgdg", TRANSACTION_ID);
 
