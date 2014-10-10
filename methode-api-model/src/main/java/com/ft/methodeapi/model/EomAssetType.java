@@ -2,12 +2,12 @@ package com.ft.methodeapi.model;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class EomAssetType {
-	
-	
 
 	private final String uuid;
     private final String type;
