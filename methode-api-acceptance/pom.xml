@@ -27,7 +27,7 @@
         <dependency>
             <groupId>com.ft.methode-testing</groupId>
             <artifactId>methode-testing</artifactId>
-            <version>0.1.31</version>
+            <version>0.1.169</version>
             <scope>test</scope>
         </dependency>
 
