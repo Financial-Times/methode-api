@@ -1,9 +1,11 @@
 package com.ft.methodeapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class EomFile {
 
 	public static final String WEB_REVISE = "Stories/WebRevise";
