@@ -44,4 +44,8 @@ public class LastKnownLocation {
         }
     }
 
+    public boolean iAmActive() {
+        return lastReport().isAmIActive();
+    }
+
 }
