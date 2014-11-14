@@ -69,11 +69,8 @@ public class MethodeConnectionAllocator implements Reallocator<MethodeConnection
             return connection;
 
         } catch (TIMEOUT | TRANSIENT se) {
-            if(LOGGER.isDebugEnabled()) {
-                LOGGER.warn("Corba error",se);
-            } else {
-        	    LOGGER.warn("Corba error: {}", se.getClass().getSimpleName());
-            }
+            LOGGER.debug("Corba error",se);
+        	LOGGER.warn("Corba error: {}", se.getClass().getSimpleName());
 
             implementation.maybeCloseOrb(orb);
 
