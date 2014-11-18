@@ -9,9 +9,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.LogLevel;
@@ -26,8 +24,6 @@ import com.ft.methodeapi.service.methode.NotFoundException;
 import com.google.common.base.Optional;
 import com.yammer.metrics.annotation.Timed;
 import org.omg.CORBA.SystemException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Path("eom-file")
 public class EomFileResource {
@@ -49,7 +45,7 @@ public class EomFileResource {
             return methodeContentRepository.findFileByUuid(uuid);
         } catch(MethodeException | SystemException ex) {
             ServerError.ServerErrorBuilder builder = ServerError.status(503).error("error accessing upstream system");
-            if(!location.iAmActive()) {
+            if(!location.isActiveLocation()) {
                 builder.logLevel(LogLevel.DEBUG);
             }
             throw builder.exception(ex);

@@ -71,7 +71,7 @@ public class EomFileGetResourceTest  extends ResourceTest {
 
     @Test
     public void shouldLogFailureAtErrorWhenInActiveLocation() {
-        when(location.iAmActive()).thenReturn(true);
+        when(location.isActiveLocation()).thenReturn(true);
 
         when(methodeFileRepository.findFileByUuid(anyString())).thenThrow(methodeException());
 
@@ -85,7 +85,7 @@ public class EomFileGetResourceTest  extends ResourceTest {
 
     @Test
     public void shouldLogFailureAtDebugWhenInPassiveLocation() {
-        when(location.iAmActive()).thenReturn(false);
+        when(location.isActiveLocation()).thenReturn(false);
 
         when(methodeFileRepository.findFileByUuid(anyString())).thenThrow(methodeException());
 
