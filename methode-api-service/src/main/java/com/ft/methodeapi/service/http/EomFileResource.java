@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 @Path("eom-file")
 public class EomFileResource {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(EomFileResource.class);
+    private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
     private final MethodeFileRepository methodeContentRepository;
 
@@ -39,7 +39,7 @@ public class EomFileResource {
     @GET
     @Timed
     @Path("/{uuid}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
     public Optional<EomFile> getByUuid(@PathParam("uuid") String uuid) {
         try {
             return methodeContentRepository.findFileByUuid(uuid);
