@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import EOM.PermissionDenied;
 
 import com.ft.api.util.transactionid.TransactionIdUtils;
+import com.ft.methodeapi.atc.LastKnownLocation;
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodeapi.service.http.EomFileResource;
 import com.ft.methodeapi.service.methode.MethodeException;
@@ -31,6 +32,8 @@ public class MethodeOutageStepDefs extends ResourceTest {
 	private MethodeFileRepository methodeFileRepository;
 	private ClientResponse response;
 
+    LastKnownLocation location = mock(LastKnownLocation.class);
+
     @Before
     public void setup() throws Exception {
     	// forces the @Before behaviour that is marked with a Junit @Before in the super class not a Cucumber one
@@ -40,7 +43,7 @@ public class MethodeOutageStepDefs extends ResourceTest {
 	@Override
     protected void setUpResources() throws Exception {
         methodeFileRepository = mock(MethodeFileRepository.class);
-        addResource(new EomFileResource(methodeFileRepository));
+        addResource(new EomFileResource(methodeFileRepository, location));
     }
     
     @Given("^that Methode is down$")
