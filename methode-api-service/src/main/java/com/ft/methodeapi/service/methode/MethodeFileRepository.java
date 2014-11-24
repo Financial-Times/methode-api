@@ -2,6 +2,7 @@ package com.ft.methodeapi.service.methode;
 
 import static com.ft.methodeapi.service.methode.PathHelper.folderIsAncestor;
 
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -30,6 +31,10 @@ public class MethodeFileRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodeFileRepository.class);
 
+    private static final Charset METHODE_ENCODING = Charset.forName("iso-8859-1");
+    private static final Charset UTF8 = Charset.forName("UTF8");
+
+
     private final MethodeObjectFactory client;
     private final MethodeObjectFactory testClient;
 
@@ -56,7 +61,7 @@ public class MethodeFileRepository {
 
 					final String typeName = eomFile.get_type_name();
 					final byte[] bytes = eomFile.read_all();
-					final String attributes = eomFile.get_attributes();
+                    final String attributes = new String(eomFile.get_attributes().getBytes(METHODE_ENCODING), UTF8);
 					final String workflowStatus = eomFile.get_status_name();
 					final String systemAttributes = eomFile.get_system_attributes();
                     final String usageTickets = eomFile.get_usage_tickets("");
