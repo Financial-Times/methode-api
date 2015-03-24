@@ -1,5 +1,6 @@
 package com.ft.methodeapi.service.methode;
 
+import java.util.Date;
 import java.util.List;
 
 import org.omg.CORBA.Object;
@@ -10,6 +11,7 @@ import com.ft.methodeapi.model.EomFile;
 import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate;
 import com.google.common.collect.Lists;
+import org.omg.CORBA.UserException;
 
 /**
  * WARNING
@@ -103,8 +105,14 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
         file.set_attributes(eomFile.getAttributes());
 		file.set_system_attributes(eomFile.getSystemAttributes());
 		file.check_in("", false);
-
-		return file;
+        try {
+            String now = new Date().toString();
+            file.append_usage_ticket("web_publication","<dt><publishedDate>" + now + "</publishedDate></dt>", 0);
+            file.append_usage_ticket("Publisher","<dt><publishedDate>" + now + "</publishedDate></dt>", 0);
+        } catch (UserException ignored) {
+            //just carry on
+        }
+        return file;
 
     }
 
