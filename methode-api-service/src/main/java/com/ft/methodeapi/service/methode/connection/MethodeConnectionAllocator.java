@@ -79,7 +79,8 @@ public class MethodeConnectionAllocator implements Reallocator<MethodeConnection
             implementation.maybeCloseOrb(orb);
             LOGGER.error("Fatal error detected",error);
             throw error;
-        } catch (MethodeException e) {
+        }
+        catch (Throwable e) {
         	implementation.maybeCloseOrb(orb);
         	LOGGER.error(e.getMessage(), e); // logging here because Stormpot will poison this connection and swallow the exception without logging it
         	throw e;
