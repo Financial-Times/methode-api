@@ -12,7 +12,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.ft.api.jaxrs.errors.ClientError;
+import com.ft.api.jaxrs.errors.LogLevel;
 import com.ft.api.jaxrs.errors.ServerError;
+import com.ft.methodeapi.atc.LastKnownLocation;
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodeapi.service.methode.ActionNotPermittedException;
 import com.ft.methodeapi.service.methode.InvalidEomFileException;
@@ -22,29 +24,33 @@ import com.ft.methodeapi.service.methode.NotFoundException;
 import com.google.common.base.Optional;
 import com.yammer.metrics.annotation.Timed;
 import org.omg.CORBA.SystemException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Path("eom-file")
 public class EomFileResource {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(EomFileResource.class);
+    private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
     private final MethodeFileRepository methodeContentRepository;
+    private final LastKnownLocation location;
 
-    public EomFileResource(MethodeFileRepository methodeContentRepository) {
+    public EomFileResource(MethodeFileRepository methodeContentRepository, LastKnownLocation location) {
         this.methodeContentRepository = methodeContentRepository;
+        this.location = location;
     }
 
     @GET
     @Timed
     @Path("/{uuid}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
     public Optional<EomFile> getByUuid(@PathParam("uuid") String uuid) {
         try {
             return methodeContentRepository.findFileByUuid(uuid);
         } catch(MethodeException | SystemException ex) {
-            throw ServerError.status(503).error("error accessing upstream system").exception(ex);
+            ServerError.ServerErrorBuilder builder = ServerError.status(503).error("error accessing upstream system");
+            if(!location.isActiveLocation()) {
+                builder.logLevel(LogLevel.DEBUG);
+            }
+            throw builder.exception(ex);
         }
     }
 

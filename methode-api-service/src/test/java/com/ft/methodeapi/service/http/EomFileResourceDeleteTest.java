@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import java.util.UUID;
 
 import com.ft.api.util.transactionid.TransactionIdUtils;
+import com.ft.methodeapi.atc.LastKnownLocation;
 import com.ft.methodeapi.service.methode.ActionNotPermittedException;
 import com.ft.methodeapi.service.methode.MethodeFileRepository;
 import com.ft.methodeapi.service.methode.NotFoundException;
@@ -20,10 +21,12 @@ public class EomFileResourceDeleteTest extends ResourceTest {
 
     private MethodeFileRepository methodeFileRepository;
 
+    LastKnownLocation location = mock(LastKnownLocation.class);
+
     @Override
     protected void setUpResources() throws Exception {
         methodeFileRepository = mock(MethodeFileRepository.class);
-        addResource(new EomFileResource(methodeFileRepository));
+        addResource(new EomFileResource(methodeFileRepository,location));
     }
 
     @Test
