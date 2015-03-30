@@ -16,7 +16,6 @@ import EOM.FileSystemAdmin;
 import EOM.Repository;
 import EOM.Session;
 
-import com.ft.methodeapi.service.methode.MethodeException;
 import com.ft.timer.FTTimer;
 import com.ft.timer.RunningTimer;
 import com.yammer.dropwizard.util.Duration;
@@ -81,8 +80,7 @@ public class MethodeConnectionAllocator implements Reallocator<MethodeConnection
             implementation.maybeCloseOrb(orb);
             LOGGER.error("Fatal error detected",error);
             throw error;
-        }
-        catch (Throwable e) {
+        } catch (Throwable e) {
         	implementation.maybeCloseOrb(orb);
         	LOGGER.error(e.getMessage(), e); // logging here because Stormpot will poison this connection and swallow the exception without logging it
         	throw e;
@@ -139,7 +137,7 @@ public class MethodeConnectionAllocator implements Reallocator<MethodeConnection
                 return replaceConnection(slot, connection);
             }
             session.here_i_am(); // throws exception if session isn't here any more
-        } catch (Exception e) {
+        } catch (Throwable e) {
         	LOGGER.info("Methode connection {} is no longer valid, expiring it", connection, e);
         	return replaceConnection(slot, connection);
         } finally {
