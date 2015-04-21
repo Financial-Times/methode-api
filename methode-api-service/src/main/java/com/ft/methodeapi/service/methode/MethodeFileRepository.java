@@ -4,7 +4,9 @@ import static com.ft.methodeapi.service.methode.PathHelper.folderIsAncestor;
 
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,12 +17,19 @@ import EOM.InvalidURI;
 import EOM.ObjectLocked;
 import EOM.PermissionDenied;
 import EOM.RepositoryError;
+import EOM.Session;
 import EOM.Utils;
 
+import com.eidosmedia.wa.render.EomDbHelperFactory;
+import com.eidosmedia.wa.render.WebContainer;
+import com.eidosmedia.wa.render.WebObject;
+import com.eidosmedia.wa.render.WebZone;
 import com.ft.methodeapi.model.EomAssetType;
 import com.ft.methodeapi.model.EomFile;
+import com.ft.methodeapi.model.LinkedObject;
 import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.templates.MethodeFileSystemAdminOperationTemplate;
+import com.ft.methodeapi.service.methode.templates.MethodeSessionFileOperationTemplate;
 import com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -45,11 +54,11 @@ public class MethodeFileRepository {
 
     public Optional<EomFile> findFileByUuid(final String uuid) {
 
-        final MethodeFileSystemAdminOperationTemplate<Optional<EomFile>> template = new MethodeFileSystemAdminOperationTemplate<>(client);
+        final MethodeSessionFileOperationTemplate<Optional<EomFile>> template = new MethodeSessionFileOperationTemplate<>(client);
 
-        MethodeFileSystemAdminOperationTemplate.FileSystemAdminCallback<Optional<EomFile>> callback = new MethodeFileSystemAdminOperationTemplate.FileSystemAdminCallback<Optional<EomFile>>() {
+        MethodeSessionFileOperationTemplate.SessionFileOperationCallback<Optional<EomFile>> callback = new MethodeSessionFileOperationTemplate.SessionFileOperationCallback<Optional<EomFile>>() {
             @Override
-            public Optional<EomFile> doOperation(FileSystemAdmin fileSystemAdmin) {
+            public Optional<EomFile> doOperation(FileSystemAdmin fileSystemAdmin, Session session) {
 				String uri = "eom:/uuids/" + uuid;
 
 				FileSystemObject fso;
@@ -65,11 +74,44 @@ public class MethodeFileRepository {
 					final String workflowStatus = eomFile.get_status_name();
 					final String systemAttributes = eomFile.get_system_attributes();
                     final String usageTickets = eomFile.get_usage_tickets("");
-					EomFile content = new EomFile(uuid, typeName, bytes, attributes, workflowStatus, systemAttributes,
-                            usageTickets);
-					foundContent = Optional.of(content);
 
-					eomFile._release();
+                    try {
+
+                        List<LinkedObject> links = null;
+
+                        /* Try to avoid slowing article functionality by limiting this feature to work
+                         * only on objects similar to lists */
+                        if("EOM::WebContainer".equals(typeName)) {
+
+                            links = new ArrayList<>(3);
+
+                            try {
+                                WebContainer webObject = (WebContainer) EomDbHelperFactory.create(session).getWebObjectByUuid(uuid);
+
+                                WebZone[] zones = webObject.getZones();
+
+                                for(WebZone zone : zones) {
+                                    for(WebObject linked : zone.getLinked()) {
+                                        links.add(new LinkedObject(
+                                                linked.getUuid(),
+                                                linked.getEomFile().get_type_name()
+                                        ));
+                                    }
+                                }
+                            } catch (Exception e) {
+                                throw new MethodeException("Failed to load zones data", e);
+                            }
+                        }
+
+
+                        EomFile content = new EomFile(uuid, typeName, bytes, attributes, workflowStatus, systemAttributes,
+                                usageTickets, links);
+                        foundContent = Optional.of(content);
+
+                    } finally {
+                        eomFile._release();
+                    }
+
 				} catch (InvalidURI invalidURI) {
 					return Optional.absent();
 				} catch (RepositoryError | PermissionDenied e) {
