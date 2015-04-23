@@ -97,7 +97,7 @@ public class MethodeConnectionAllocatorTest {
     public void shouldDeallocateAndAllocateMethodeConnectionWhenMethodeConnectionHasNotBeenUsedForLongerThanStaleTimeout() throws Exception {
     	existingMethodeConnection.updateTimeSinceLastUsed();
     	methodeConnectionAllocator = new MethodeConnectionAllocator(mockMethodeObjectFactory, Executors.newFixedThreadPool(1), Duration.milliseconds(1));
-    	Thread.sleep(2); //so our methode connection is stale
+    	Thread.sleep(10); //so our methode connection is stale
     	MethodeConnection returnedMethodeConnection = methodeConnectionAllocator.reallocate(mockSlot, existingMethodeConnection);
     	Thread.sleep(200);
     	assertThat(returnedMethodeConnection, not(equalTo(existingMethodeConnection)));
