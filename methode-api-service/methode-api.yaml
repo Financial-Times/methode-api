@@ -11,10 +11,10 @@ http:
       archivedFileCount: 5
 
 methodeConnection:
-  hostName: preditor-methode-01.svc.ft.com
+  hostName: ftcms01-uvpr-uk-pi.osb.ft.com
   nsPort: 9092
-  userName: app-methodeAPI
-  password: methodeapi
+  userName: dynpublocal
+  password: dynpublocal
   connectTimeout: 2000
   maxPingMillis: 2000
   pool:
