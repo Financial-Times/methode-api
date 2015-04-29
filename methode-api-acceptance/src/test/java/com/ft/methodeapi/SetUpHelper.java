@@ -3,8 +3,10 @@ package com.ft.methodeapi;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.ft.methodeapi.acceptance.AcceptanceTestConfiguration;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.jayway.restassured.RestAssured;
-import cucumber.runtime.MethodeApiObjectFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +16,7 @@ import java.io.IOException;
 import static com.jayway.restassured.config.DecoderConfig.decoderConfig;
 import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
+import static cucumber.runtime.MethodeApiObjectFactory.CONFIG_FILE_PROPERTY_NAME;
 
 /**
  * SetUpHelper
@@ -31,8 +34,16 @@ public class SetUpHelper {
     }
 
     public static AcceptanceTestConfiguration readConfiguration() {
-        final String configFileName = System.getProperty(MethodeApiObjectFactory.CONFIG_FILE_PROPERTY_NAME);
-        LOGGER.debug("{} = {}", MethodeApiObjectFactory.CONFIG_FILE_PROPERTY_NAME, configFileName);
+        return readConfiguration(null);
+    }
+    
+    public static AcceptanceTestConfiguration readConfiguration(String defaultConfigFile) {
+        final String configFileName = System.getProperty(CONFIG_FILE_PROPERTY_NAME, defaultConfigFile);
+        
+        Preconditions.checkNotNull(Strings.emptyToNull(configFileName),
+                "System property %s is null", CONFIG_FILE_PROPERTY_NAME);
+        
+        LOGGER.debug("{} = {}", CONFIG_FILE_PROPERTY_NAME, configFileName);
         final ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
         try {
             final File file = new File(configFileName).getCanonicalFile();

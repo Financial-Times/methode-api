@@ -15,7 +15,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
 
-public class MethodeContentRetrievalHealthCheckIT {
+public class MethodeContentRetrievalHealthCheckTest {
 
 	@ClassRule
 	public static final DropwizardServiceRule<MethodeApiConfiguration> serviceRule = new DropwizardServiceRule<>(MethodeApiService.class, "methode-api-wrong-nsport.yaml");
@@ -23,7 +23,7 @@ public class MethodeContentRetrievalHealthCheckIT {
 	@Test
 	public void shouldTimeOutWhenInvalidPort() {
         final Client client = Client.create();
-        client.setReadTimeout(10000);
+        client.setReadTimeout(20000);
         final URI uri = buildHealthCheckUri();
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
