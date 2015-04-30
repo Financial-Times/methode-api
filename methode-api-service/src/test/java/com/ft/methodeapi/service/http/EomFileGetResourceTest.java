@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
+import com.ft.api.jaxrs.errors.ServerError.ServerErrorBuilder;
 import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.methodeapi.atc.LastKnownLocation;
 import com.ft.methodeapi.service.methode.MethodeException;
@@ -12,6 +13,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.sun.jersey.api.client.ClientResponse;
 import com.yammer.dropwizard.testing.ResourceTest;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +21,7 @@ import org.mockito.ArgumentCaptor;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -53,9 +56,10 @@ public class EomFileGetResourceTest  extends ResourceTest {
         addResource(new EomFileResource(methodeFileRepository, location));
     }
 
+    @SuppressWarnings("unchecked")
     @Before
     public void setupMockAppender() {
-        rootLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+        rootLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ServerErrorBuilder.class);
 
         mockAppender = mock(Appender.class);
         when(mockAppender.getName()).thenReturn("MOCK");
