@@ -75,7 +75,9 @@ public class EomFileGetResourceTest  extends ResourceTest {
     @After
     public void tearDown() {
         logger.detachAppender(mockAppender);
-        logger.setLevel(logLevel);
+        if (logLevel != null) {
+            logger.setLevel(logLevel);
+        }
     }
 
     @Test
