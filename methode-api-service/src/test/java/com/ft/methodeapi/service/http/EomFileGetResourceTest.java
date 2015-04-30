@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
+
 import com.ft.api.jaxrs.errors.ServerError.ServerErrorBuilder;
 import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.methodeapi.atc.LastKnownLocation;
@@ -44,12 +45,13 @@ public class EomFileGetResourceTest  extends ResourceTest {
 
     LastKnownLocation location = mock(LastKnownLocation.class);
 
-    ch.qos.logback.classic.Logger rootLogger;
-
+    ch.qos.logback.classic.Logger logger;
+    Level logLevel;
+    
     Appender<ILoggingEvent> mockAppender;
 
     private String uuid;
-
+    
     @Override
     protected void setUpResources() throws Exception {
         methodeFileRepository = mock(MethodeFileRepository.class);
@@ -59,18 +61,21 @@ public class EomFileGetResourceTest  extends ResourceTest {
     @SuppressWarnings("unchecked")
     @Before
     public void setupMockAppender() {
-        rootLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ServerErrorBuilder.class);
+        logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ServerErrorBuilder.class);
 
         mockAppender = mock(Appender.class);
         when(mockAppender.getName()).thenReturn("MOCK");
-        rootLogger.addAppender(mockAppender);
-
+        logger.addAppender(mockAppender);
+        logLevel = logger.getLevel();
+        logger.setLevel(Level.DEBUG);
+        
         uuid = UUID.randomUUID().toString();
     }
 
     @After
     public void tearDown() {
-        rootLogger.detachAppender(mockAppender);
+        logger.detachAppender(mockAppender);
+        logger.setLevel(logLevel);
     }
 
     @Test
@@ -110,18 +115,20 @@ public class EomFileGetResourceTest  extends ResourceTest {
         verify(mockAppender,atLeastOnce()).doAppend(argument.capture());
 
         List<LoggingEvent> values = argument.getAllValues();
+        
         Iterable<LoggingEvent> matches = Iterables.filter(values, new Predicate<LoggingEvent>() {
             @Override
             public boolean apply(@Nullable LoggingEvent input) {
                 if(input==null) {
                     return false;
                 }
+                
                 return input.getMessage().contains(keyPhrase);
             }
         });
-
+        
         LoggingEvent match = matches.iterator().next();
-
+        
         assertThat(match.getLevel(), is(level));
     }
 
