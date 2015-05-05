@@ -21,14 +21,14 @@ import static org.hamcrest.Matchers.notNullValue;
  *
  * @author Simon.Gibbs
  */
-public class AirTrafficControllerIT {
+public class AirTrafficControllerTest {
 
     private static AcceptanceTestConfiguration configuration;
 
     @BeforeClass
     public static void  preSetUp() {
         SetUpHelper.configureRestAssuredEncoding();
-        configuration = SetUpHelper.readConfiguration();
+        configuration = SetUpHelper.readConfiguration("int-acceptance-test.yaml");
     }
 
     @Test
