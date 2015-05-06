@@ -31,7 +31,17 @@ public class EomFile {
 	private final String usageTickets;
     private final List<LinkedObject> linkedObjects;
 
-
+    public EomFile(@JsonProperty("uuid") String uuid,
+                   @JsonProperty("type") String type,
+                   @JsonProperty("value") byte[] value,
+                   @JsonProperty("attributes") String attributes,
+                   @JsonProperty("workflowStatus") String workflowStatus,
+                   @JsonProperty("systemAttributes") String systemAttributes,
+                   @JsonProperty("usageTickets") String usageTickets) {
+        
+        this(uuid, type, value, attributes, workflowStatus, systemAttributes, usageTickets, null);
+    }
+    
     public EomFile(
             @JsonProperty("uuid") String uuid,
             @JsonProperty("type") String type,
