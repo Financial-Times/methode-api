@@ -5,6 +5,7 @@ import static com.ft.methodeapi.service.methode.PathHelper.folderIsAncestor;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,6 @@ import EOM.Session;
 import EOM.Utils;
 
 import com.eidosmedia.wa.render.EomDbHelperFactory;
-import com.eidosmedia.wa.render.WebContainer;
 import com.eidosmedia.wa.render.WebObject;
 import com.eidosmedia.wa.render.WebZone;
 import com.ft.methodeapi.model.EomAssetType;
@@ -33,6 +33,7 @@ import com.ft.methodeapi.service.methode.templates.MethodeSessionFileOperationTe
 import com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,31 +79,28 @@ public class MethodeFileRepository {
                     try {
 
                         List<LinkedObject> links = null;
-
-                        /* Try to avoid slowing article functionality by limiting this feature to work
-                         * only on objects similar to lists */
-                        if("EOM::WebContainer".equals(typeName)) {
-
-                            links = new ArrayList<>(3);
-
-                            try {
-                                WebContainer webObject = (WebContainer) EomDbHelperFactory.create(session).getWebObjectByUuid(uuid);
-
-                                WebZone[] zones = webObject.getZones();
-
-                                for(WebZone zone : zones) {
-                                    for(WebObject linked : zone.getLinked()) {
-                                        links.add(new LinkedObject(
-                                                linked.getUuid(),
-                                                linked.getEomFile().get_type_name()
-                                        ));
+                        
+                        try {
+                            WebObject webObject = EomDbHelperFactory.create(session).getWebObjectByUuid(uuid);
+                            
+                            @SuppressWarnings("unchecked")
+                            Collection<WebZone> zones = webObject.getZonesMap().values();
+                            
+                            for(WebZone zone : zones) {
+                                for(WebObject linked : zone.getLinked()) {
+                                    if (links == null) {
+                                        links = new ArrayList<>(3);
                                     }
+                                    
+                                    links.add(new LinkedObject(
+                                            linked.getUuid(),
+                                            linked.getEomFile().get_type_name()
+                                            ));
                                 }
-                            } catch (Exception e) {
-                                throw new MethodeException("Failed to load zones data", e);
                             }
+                        } catch (Exception e) {
+                            throw new MethodeException("Failed to load zones data", e);
                         }
-
 
                         EomFile content = new EomFile(uuid, typeName, bytes, attributes, workflowStatus, systemAttributes,
                                 usageTickets, links);
