@@ -77,8 +77,7 @@ public class MethodeFileRepository {
                     final String usageTickets = eomFile.get_usage_tickets("");
 
                     try {
-
-                        List<LinkedObject> links = null;
+                        List<LinkedObject> links = new ArrayList<>();
                         
                         try {
                             WebObject webObject = EomDbHelperFactory.create(session).getWebObjectByUuid(uuid);
@@ -88,10 +87,6 @@ public class MethodeFileRepository {
                             
                             for(WebZone zone : zones) {
                                 for(WebObject linked : zone.getLinked()) {
-                                    if (links == null) {
-                                        links = new ArrayList<>(3);
-                                    }
-                                    
                                     links.add(new LinkedObject(
                                             linked.getUuid(),
                                             linked.getEomFile().get_type_name()
