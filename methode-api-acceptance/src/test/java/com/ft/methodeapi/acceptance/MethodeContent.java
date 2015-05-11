@@ -1,6 +1,7 @@
 package com.ft.methodeapi.acceptance;
 
 import com.ft.methodeapi.model.EomFile;
+import com.ft.methodeapi.model.LinkedObject;
 import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -9,6 +10,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 public class MethodeContent {
@@ -36,13 +38,14 @@ public class MethodeContent {
     private String attributesXml;
     private String workflowStatus;
     private String systemAttributes;
+    private List<LinkedObject> linkedObjects;
 
-    public MethodeContent( String articleXml, String attributesXml, String workflowStatus, String systemAttributes) { //String typeName,
-//        this.typeName = typeName;
+    public MethodeContent( String articleXml, String attributesXml, String workflowStatus, String systemAttributes, List linkedObjects) {
         this.articleXml = articleXml;
         this.attributesXml = attributesXml;
         this.workflowStatus = workflowStatus;
         this.systemAttributes = systemAttributes;
+        this.linkedObjects = linkedObjects;
     }
 
 //    public String getTypeName() { return typeName; }
@@ -61,41 +64,43 @@ public class MethodeContent {
         return systemAttributes;
     }
 
+    public List getLinkedObjects() {return linkedObjects; }
+
     public EomFile getEomFile() {
         return new EomFile("","EOM::CompoundStory",
                 articleXml.getBytes(Charsets.UTF_8),
-                attributesXml, workflowStatus, systemAttributes, "usageTickets");
+                attributesXml, workflowStatus, systemAttributes, "usageTickets", linkedObjects);
     }
 
     @Override
     public String toString() {
         return Objects.toStringHelper(this.getClass())
-//                .add("typeName", typeName)
                 .add("articleXml", articleXml)
                 .add("attributesXml", attributesXml)
                 .add("workflowStatus", workflowStatus)
                 .add("systemAttributes", systemAttributes)
+                .add("linkedObjects", linkedObjects)
                 .toString();
     }
 
-    public static Builder builder(String articleXml, String attributesXml, String workflowStatus, String systemAttributes) { //String typeName,
+    public static Builder builder(String articleXml, String attributesXml, String workflowStatus, String systemAttributes, List linkedObjects) {
         Builder builder = new Builder();
-//        builder.typeName = typeName;
         builder.articleXml = articleXml;
         builder.attributesXml = attributesXml;
         builder.workflowStatus = workflowStatus;
         builder.systemAttributes = systemAttributes;
+        builder.linkedObjects = linkedObjects;
         return builder;
     }
 
     public static class Builder {
 
-        private String typeName;
         private String articleXml;
         private String attributesXml;
         private String workflowStatus;
         private String systemAttributes = SYSTEM_ATTRIBUTES_WEB;
         private static final String EMBARGO_DATE = "<EmbargoDate/>";
+        public List<LinkedObject> linkedObjects;
 
         private Builder() { }
 
@@ -126,10 +131,10 @@ public class MethodeContent {
             return this;
         }
 
-//        public Builder withTypeName(String typeName) {
-//            this.typeName = typeName;
-//            return this;
-//        }
+        public Builder withLinkedObject(List linkedObjects) {
+            this.linkedObjects = linkedObjects;
+            return this;
+        }
 
         private String inMethodeFormat(Date date) {
             Calendar cal = Calendar.getInstance();
@@ -161,7 +166,7 @@ public class MethodeContent {
         public MethodeContent build() {
             Xml.assertParseable(articleXml);
             Xml.assertParseable(attributesXml);
-            return new MethodeContent(articleXml, attributesXml, workflowStatus, systemAttributes); //typeName,
+            return new MethodeContent(articleXml, attributesXml, workflowStatus, systemAttributes, linkedObjects);
         }
     }
 

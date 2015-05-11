@@ -61,9 +61,10 @@ public class EomFileTest {
         String workflowStatus = "junitstatus";
         String systemAttributes = "junitsysattrs";
         String usageTickets = "junitusagetickets";
-        
+        List<LinkedObject> linkedObjects = Collections.emptyList();
+
         final EomFile eomFile =
-                new EomFile(uuid, type, value, attributes, workflowStatus, systemAttributes, usageTickets);
+                new EomFile(uuid, type, value, attributes, workflowStatus, systemAttributes, usageTickets, linkedObjects);
         
         String json = (new ObjectMapper()).writer().writeValueAsString(eomFile);
         assertThat("eomFile without linked objects", json, not(containsString("\"linkedObjects\"")));

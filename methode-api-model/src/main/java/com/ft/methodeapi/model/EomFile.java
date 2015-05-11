@@ -32,16 +32,17 @@ public class EomFile {
 	private final String usageTickets;
     private final List<LinkedObject> linkedObjects;
 
-    public EomFile(@JsonProperty("uuid") String uuid,
-                   @JsonProperty("type") String type,
-                   @JsonProperty("value") byte[] value,
-                   @JsonProperty("attributes") String attributes,
-                   @JsonProperty("workflowStatus") String workflowStatus,
-                   @JsonProperty("systemAttributes") String systemAttributes,
-                   @JsonProperty("usageTickets") String usageTickets) {
-        
-        this(uuid, type, value, attributes, workflowStatus, systemAttributes, usageTickets, null);
-    }
+//    public EomFile(@JsonProperty("uuid") String uuid,
+//                   @JsonProperty("type") String type,
+//                   @JsonProperty("value") byte[] value,
+//                   @JsonProperty("attributes") String attributes,
+//                   @JsonProperty("workflowStatus") String workflowStatus,
+//                   @JsonProperty("systemAttributes") String systemAttributes,
+//                   @JsonProperty("usageTickets") String usageTickets,
+//                   @JsonProperty("linkedObjects")List<LinkedObject> linkedObjects) {
+//
+//        this(uuid, type, value, attributes, workflowStatus, systemAttributes, usageTickets, linkedObjects);
+//    }
     
     public EomFile(
             @JsonProperty("uuid") String uuid,
@@ -142,6 +143,11 @@ public class EomFile {
             return this;
         }
 
+        private Builder withLinkedObjects(List<LinkedObject> linkedLinkedObjects) {
+            this.linkedLinkedObjects = linkedLinkedObjects;
+            return this;
+        }
+
         public Builder withValuesFrom(EomFile eomFile) {
             return withUuid(eomFile.getUuid())
                     .withType(eomFile.getType())
@@ -151,11 +157,6 @@ public class EomFile {
                     .withSystemAttributes(eomFile.getSystemAttributes())
                     .withUsageTickets(eomFile.getUsageTickets())
                     .withLinkedObjects(eomFile.getLinkedObjects());
-        }
-
-        private Builder withLinkedObjects(List<LinkedObject> linkedLinkedObjects) {
-            this.linkedLinkedObjects = linkedLinkedObjects;
-            return this;
         }
 
         public EomFile build() {
