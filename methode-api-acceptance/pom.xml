@@ -24,12 +24,6 @@
             <artifactId>methode-api-model</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.ft.methode-testing</groupId>
-            <artifactId>methode-testing</artifactId>
-            <version>0.1.169</version>
-            <scope>test</scope>
-        </dependency>
 
         <!-- TODO move up to parent (rest of project gets these via dropwizard) -->
         <dependency>
