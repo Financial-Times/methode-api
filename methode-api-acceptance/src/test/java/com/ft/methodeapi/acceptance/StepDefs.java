@@ -2,13 +2,9 @@ package com.ft.methodeapi.acceptance;
 
 import com.ft.methodeapi.SetUpHelper;
 import com.ft.methodeapi.model.EomFile;
-import com.ft.methodetesting.MethodeArticle;
-import com.ft.methodetesting.xml.Xml;
 import com.google.common.base.Objects;
-import com.ft.methodetesting.ReferenceArticles;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -107,7 +103,7 @@ public class StepDefs {
         String stampedHeadline = String.format("Proudly tested with robotic consistency [Build %s]", buildNo());
         theExpectedArticle = ReferenceArticles.publishedKitchenSinkArticle()
                 .withHeadline(stampedHeadline)
-                .withWorkflowStatus(MethodeArticle.WEB_READY).build().getEomFile();
+                .withWorkflowStatus(MethodeContent.WEB_READY).build().getEomFile();
 
         LOGGER.debug("Test article headline={}, articleXml={}, attributeXml={}",stampedHeadline, theExpectedArticle.getValue(),theExpectedArticle.getAttributes());
     }

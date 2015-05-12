@@ -61,7 +61,7 @@ public class EomFileTest {
         String workflowStatus = "junitstatus";
         String systemAttributes = "junitsysattrs";
         String usageTickets = "junitusagetickets";
-        List<LinkedObject> linkedObjects = Collections.emptyList();
+        List<LinkedObject> linkedObjects = null;
 
         final EomFile eomFile =
                 new EomFile(uuid, type, value, attributes, workflowStatus, systemAttributes, usageTickets, linkedObjects);

@@ -3,10 +3,10 @@ package com.ft.methodeapi.smoke;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.ft.methodeapi.acceptance.ApiConfig;
+import com.ft.methodeapi.acceptance.MethodeContent;
+import com.ft.methodeapi.acceptance.ReferenceArticles;
+import com.ft.methodeapi.acceptance.Xml;
 import com.ft.methodeapi.model.EomFile;
-import com.ft.methodetesting.MethodeArticle;
-import com.ft.methodetesting.ReferenceArticles;
-import com.ft.methodetesting.xml.Xml;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -115,7 +115,7 @@ public class MethodeApiSmokeTests {
         String stampedHeadline = String.format("Proudly tested with robotic consistency [Build %s]", buildNo());
         EomFile kitchenSinkArticle = ReferenceArticles.publishedKitchenSinkArticle()
                 .withHeadline(stampedHeadline)
-                .withWorkflowStatus(MethodeArticle.WEB_READY)
+                .withWorkflowStatus(MethodeContent.WEB_READY)
                 .build()
                 .getEomFile();
         eomFile = Optional.fromNullable(kitchenSinkArticle);

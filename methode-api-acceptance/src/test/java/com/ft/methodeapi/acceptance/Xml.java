@@ -98,7 +98,7 @@ public class Xml {
     public static void emitDocumentWithoutWhitespace(Node document, OutputStream oFileOut)
             throws TransformerException {
 
-        Source xsltSource = new StreamSource( Xml.class.getResourceAsStream("strip-space.xslt") );
+        Source xsltSource = new StreamSource( Xml.class.getResourceAsStream("com/ft/methodeapi/acceptance/strip-space.xslt") );
 
         TransformerFactory oTransFactory = TransformerFactory.newInstance();
         Transformer oTrans = oTransFactory.newTransformer(xsltSource);

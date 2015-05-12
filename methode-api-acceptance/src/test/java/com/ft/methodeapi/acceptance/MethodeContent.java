@@ -60,11 +60,9 @@ public class MethodeContent {
         return workflowStatus;
     }
 
-    public String getSystemAttributes() {
-        return systemAttributes;
-    }
+    public String getSystemAttributes() { return systemAttributes; }
 
-    public List getLinkedObjects() {return linkedObjects; }
+    public List getLinkedObjects() { return linkedObjects; }
 
     public EomFile getEomFile() {
         return new EomFile("","EOM::CompoundStory",
@@ -100,12 +98,12 @@ public class MethodeContent {
         private String workflowStatus;
         private String systemAttributes = SYSTEM_ATTRIBUTES_WEB;
         private static final String EMBARGO_DATE = "<EmbargoDate/>";
-        public List<LinkedObject> linkedObjects;
+        private List<LinkedObject> linkedObjects;
 
         private Builder() { }
 
         public Builder withHeadline(String expectedPublishedArticleHeadline) {
-            attributesXml = attributesXml.replace(HEADLINE_FROM_TEST_FILE,expectedPublishedArticleHeadline);
+            attributesXml = attributesXml.replace(HEADLINE_FROM_TEST_FILE, expectedPublishedArticleHeadline);
             articleXml = articleXml.replace(HEADLINE_FROM_TEST_FILE, expectedPublishedArticleHeadline);
             return this;
         }
