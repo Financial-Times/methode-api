@@ -34,12 +34,6 @@ methodeTestConnection:
     timeout: 4000ms
     methodeStaleConnectionTimeout: 30minutes
 
-atc:
-    iAm: PARK_ROYAL
-    hostnames:
-        PARK_ROYAL: ftcms01-uvpr-uk-pi.osb.ft.com  # this disables ATC
-        ACTIVE: ftcms01-uvpr-uk-pi.osb.ft.com
-
 logging:
   console:
     logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m [%thread]%n%xEx"

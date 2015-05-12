@@ -1,7 +1,6 @@
 package com.ft.methodeapi.service.methode;
 
 import EOM.Repository;
-import com.ft.methodeapi.atc.LastKnownLocation;
 import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.templates.MethodeRepositoryOperationTemplate;
 import com.ft.timer.FTTimer;
@@ -16,25 +15,18 @@ public class MethodePingHealthCheck extends HealthCheck {
 
     private final MethodeObjectFactory methodeObjectFactory;
     private final long maxPingMillis;
-    private final LastKnownLocation location;
 
     private final Logger LOGGER = LoggerFactory.getLogger(MethodePingHealthCheck.class);
 
-    public MethodePingHealthCheck(LastKnownLocation location, MethodeObjectFactory objectFactory, long maxPingMillis) {
+    public MethodePingHealthCheck(MethodeObjectFactory objectFactory, long maxPingMillis) {
         super(String.format("methode ping [%s]", objectFactory.getDescription()));
 
         this.methodeObjectFactory = objectFactory;
         this.maxPingMillis = maxPingMillis;
-        this.location = location;
     }
 
     @Override
     protected Result check() throws Exception {
-
-        if(!location.lastReport().isAmIActive()) {
-            LOGGER.debug(LastKnownLocation.IS_PASSIVE_MSG);
-            return Result.healthy(LastKnownLocation.IS_PASSIVE_MSG);
-        }
 
         final RunningTimer timer = pingTime.start();
         new MethodeRepositoryOperationTemplate<>(methodeObjectFactory).doOperation(new MethodeRepositoryOperationTemplate.RepositoryCallback<Object>() {

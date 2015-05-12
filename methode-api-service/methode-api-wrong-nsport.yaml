@@ -16,9 +16,3 @@ methodeTestConnection:
   password: dynpubtest
   connectTimeout: 2000
   maxPingMillis: 500
-
-atc:
-    iAm: PARK_ROYAL
-    hostnames:
-        PARK_ROYAL: preditor-methode-01.svc.ft.com  # this disables ATC
-        ACTIVE: preditor-methode-01.svc.ft.com
