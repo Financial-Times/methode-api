@@ -11,7 +11,7 @@ http:
       archivedFileCount: 5
 
 methodeConnection:
-  hostName: ftcms01-uvpr-uk-pi.osb.ft.com
+  hostName: staging.methode.int.internal.ft.com
   nsPort: 9092
   userName: dynpublocal
   password: dynpublocal
@@ -23,7 +23,7 @@ methodeConnection:
     methodeStaleConnectionTimeout: 30minutes
 
 methodeTestConnection:
-  hostName: ftcms01-uvpr-uk-pi.osb.ft.com
+  hostName: staging.methode.int.internal.ft.com
   nsPort: 9092
   userName: dynpublocal-rw
   password: dynpublocal-rw
