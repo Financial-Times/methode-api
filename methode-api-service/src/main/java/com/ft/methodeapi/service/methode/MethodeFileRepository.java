@@ -23,7 +23,6 @@ import EOM.Utils;
 
 import com.eidosmedia.wa.render.EomDbHelperFactory;
 import com.eidosmedia.wa.render.WebObject;
-import com.eidosmedia.wa.render.WebZone;
 import com.ft.methodeapi.model.EomAssetType;
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodeapi.model.LinkedObject;
@@ -82,11 +81,16 @@ public class MethodeFileRepository {
                         try {
                             WebObject webObject = EomDbHelperFactory.create(session).getWebObjectByUuid(uuid);
                             
+                            /* zonesMap is a Map of zone name <-> another map.
+                             * The nested map contains a "linkedObjects" key, whose value is an array of WebObject ...
+                             * We need the links from these WebObjects. 
+                             */
                             @SuppressWarnings("unchecked")
-                            Collection<WebZone> zones = webObject.getZonesMap().values();
+                            Collection<Map<String,Object>> zones = webObject.getZonesMap().values();
                             
-                            for(WebZone zone : zones) {
-                                for(WebObject linked : zone.getLinked()) {
+                            for (Map zone : zones) {
+                                WebObject[] linkedObjects = (WebObject[])zone.get("linkedObjects");
+                                for(WebObject linked : linkedObjects) {
                                     links.add(new LinkedObject(
                                             linked.getUuid(),
                                             linked.getEomFile().get_type_name()
