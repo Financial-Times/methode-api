@@ -81,20 +81,22 @@ public class MethodeFileRepository {
                         try {
                             WebObject webObject = EomDbHelperFactory.create(session).getWebObjectByUuid(uuid);
                             
-                            /* zonesMap is a Map of zone name <-> another map.
-                             * The nested map contains a "linkedObjects" key, whose value is an array of WebObject ...
-                             * We need the links from these WebObjects. 
-                             */
-                            @SuppressWarnings("unchecked")
-                            Collection<Map<String,Object>> zones = webObject.getZonesMap().values();
-                            
-                            for (Map zone : zones) {
-                                WebObject[] linkedObjects = (WebObject[])zone.get("linkedObjects");
-                                for(WebObject linked : linkedObjects) {
-                                    links.add(new LinkedObject(
-                                            linked.getUuid(),
-                                            linked.getEomFile().get_type_name()
+                            if ("EOM::WebContainer".equals(typeName)) {
+                                /* zonesMap is a Map of zone name <-> another map.
+                                 * The nested map contains a "linkedObjects" key, whose value is an array of WebObject ...
+                                 * We need the links from these WebObjects. 
+                                 */
+                                @SuppressWarnings("unchecked")
+                                Collection<Map<String,Object>> zones = webObject.getZonesMap().values();
+                                
+                                for (Map zone : zones) {
+                                    WebObject[] linkedObjects = (WebObject[])zone.get("linkedObjects");
+                                    for (WebObject linked : linkedObjects) {
+                                        links.add(new LinkedObject(
+                                                linked.getUuid(),
+                                                linked.getEomFile().get_type_name()
                                             ));
+                                    }
                                 }
                             }
                         } catch (Exception e) {
