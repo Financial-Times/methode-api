@@ -2,7 +2,7 @@ package com.ft.methodeapi.acceptance;
 
 import com.ft.methodeapi.SetUpHelper;
 import com.ft.methodeapi.model.EomFile;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import cucumber.api.java.Before;
@@ -24,7 +24,9 @@ import java.util.concurrent.Future;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static com.jayway.restassured.path.json.JsonPath.from;
 
@@ -49,8 +51,7 @@ public class StepDefs {
 	private Response theResponseForNotFoundRequest;
     private String theResponseEntityForSuccessfulRequest;
     private UUID uuidForArticleInMethode;
-    private UUID uuidForNonExistentArticle;
-    private UUID uuidForNonExistentList;
+    private UUID uuidForNonExistentContent;
     private UUID uuidForListInMethode;
 
     private EomFile theExpectedArticle;
@@ -117,16 +118,10 @@ public class StepDefs {
         uuidForListInMethode = UUID.fromString(response.jsonPath().getString("uuid"));
     }
 
-	@Given("^an article does not exist in Methode$")
-	public void an_article_does_not_exist_in_Methode() throws Throwable {
-		uuidForNonExistentArticle = UUID.randomUUID();
+	@Given("^an? (article|list) does not exist in Methode$")
+	public void content_does_not_exist_in_Methode(String contentType) throws Throwable {
+		uuidForNonExistentContent = UUID.randomUUID();
 	}
-
-    @Given("^a list does not exist in Methode$")
-    public void a_list_does_not_exist_in_Methode() throws Throwable {
-        uuidForNonExistentList = UUID.randomUUID();
-    }
-
 
     private void prepareTheArticle() throws IOException {
 
@@ -149,12 +144,13 @@ public class StepDefs {
     }
 
     private String buildNo() {
-        return Objects.firstNonNull(System.getProperty("BUILD_NUMBER"),"LOCAL BUILD");
+        return MoreObjects.firstNonNull(System.getProperty("BUILD_NUMBER"), "LOCAL BUILD");
     }
 
-    @When("^I attempt to access the article$")
-	public void i_attempt_to_access_the_article() throws Throwable {
-		String url = acceptanceTestConfiguration.getMethodeApiServiceUrl() + uuidForArticleInMethode.toString();
+    @When("^I attempt to access the (article|list)$")
+	public void i_attempt_to_access_the_content(String contentType) throws Throwable {
+		String url = getUrlForContent(contentType);
+
 		LOGGER.info("Calling Methode API: url=" + url);
 		Response theResponse =
 			given()
@@ -167,24 +163,13 @@ public class StepDefs {
 		theResponseEntityForSuccessfulRequest = theResponse.asString();
 	}
 
-    @When("^I attempt to access the list$")
-    public void i_attempt_to_access_the_list() throws Throwable {
-        String url = acceptanceTestConfiguration.getMethodeApiServiceUrl() + uuidForListInMethode.toString();
-        LOGGER.info("Calling Methode API: url=" + url);
-        Response theResponse =
-            given()
-                .contentType(ContentType.JSON)
-            .expect().statusCode(200)
-                .log().ifError()
-            .when()
-                .get(url);
-
-        theResponseEntityForSuccessfulRequest = theResponse.asString();
+    private String getUrlForContent(String contentType) {
+        return acceptanceTestConfiguration.getMethodeApiServiceUrl() + ("article".equals(contentType) ? uuidForArticleInMethode : uuidForListInMethode).toString();
     }
 
-    @When("^(\\d+) users access the article a total of (\\d+) times$")
-    public void i_attempt_to_access_the_article_count_times(int users, int count) throws Throwable {
-        final String url = acceptanceTestConfiguration.getMethodeApiServiceUrl() + uuidForArticleInMethode.toString();
+    @When("^(\\d+) users access the (article|list) a total of (\\d+) times$")
+    public void i_attempt_to_access_the_content_count_times(int users,String contentType, int count) throws Throwable {
+        final String url = getUrlForContent(contentType);
         LOGGER.info("Calling Methode API: url=" + url);
 
         ExecutorService userPool = Executors.newFixedThreadPool(users);
@@ -221,103 +206,41 @@ public class StepDefs {
 
     }
 
-    @When("^(\\d+) users access the list a total of (\\d+) times$")
-    public void i_attempt_to_access_the_list_count_times(int users, int count) throws Throwable {
-        final String url = acceptanceTestConfiguration.getMethodeApiServiceUrl() + uuidForListInMethode.toString();
-        LOGGER.info("Calling Methode API: url=" + url);
-
-        ExecutorService userPool = Executors.newFixedThreadPool(users);
-        List<Future<Long>> futureTimings = new ArrayList<>(count);
-
-        for(int i=0; i<count; i++) {
-
-            futureTimings.add(userPool.submit(new Callable<Long>() {
-
-                @Override
-                public Long call() throws Exception {
-                    long startTime = System.currentTimeMillis();
-                    Response theResponse =
-                        given()
-                            .contentType(ContentType.JSON)
-                        .expect().statusCode(200)
-                            .log().ifError()
-                        .when()
-                            .get(url);
-
-                    theResponseEntityForSuccessfulRequest = theResponse.asString();
-
-                    return System.currentTimeMillis() - startTime;
-                }
-            }));
-
-        }
-
-        for(Future<Long> timing : futureTimings) {
-            requestTimings.add(timing.get());
-        }
-
-        userPool.shutdown();
-
-    }
-
-    @When("^I attempt to access the non-existent article$")
-	public void i_attempt_to_access_the_non_existent_article() throws Throwable {
-		String url = acceptanceTestConfiguration.getMethodeApiServiceUrl() + uuidForNonExistentArticle.toString();
+    @When("^I attempt to access the non-existent (article|list)$")
+	public void i_attempt_to_access_the_non_existent_content(String contentType) throws Throwable {
+		String url = acceptanceTestConfiguration.getMethodeApiServiceUrl() + uuidForNonExistentContent.toString();
 		LOGGER.info("Calling Methode API: url=" + url);
 		theResponseForNotFoundRequest =
 			given()
 				.contentType(ContentType.JSON)
 			.get(url);
 	}
-
-    @When("^I attempt to access the non-existent list$")
-    public void i_attempt_to_access_the_non_existent_list() throws Throwable {
-        String url = acceptanceTestConfiguration.getMethodeApiServiceUrl() + uuidForNonExistentList.toString();
-        LOGGER.info("Calling Methode API: url=" + url);
-        theResponseForNotFoundRequest =
-            given()
-                .contentType(ContentType.JSON)
-            .get(url);
-    }
 	
-	@Then("^the article should be available from the MethodeAPI$")
-	public void the_article_should_be_available_from_the_MethodeAPI() throws Throwable {
+	@Then("^the (article|list) should be available from the MethodeAPI$")
+	public void the_article_should_be_available_from_the_MethodeAPI(String contentType) throws Throwable {
         assertThat("no body returned", theResponseEntityForSuccessfulRequest, notNullValue());
 	}
-
-    @Then("^the list should be available from the MethodeAPI$")
-    public void the_list_should_be_available_from_the_MethodeAPI() throws Throwable {
-        assertThat("no body returned", theResponseEntityForSuccessfulRequest, notNullValue());
-    }
 	
-	@Then("^the article should not be available from the MethodeAPI$")
-	public void the_article_should_not_be_available_from_the_MethodeAPI() throws Throwable {
+	@Then("^the (article|list) should not be available from the MethodeAPI$")
+	public void the_content_should_not_be_available_from_the_MethodeAPI(String contentType) throws Throwable {
         assertThat("didn't get 404 not found", theResponseForNotFoundRequest.statusCode(), equalTo(404));
 	}
-
-    @Then("^the list should not be available from the MethodeAPI$")
-    public void the_list_should_not_be_available_from_the_MethodeAPI() throws Throwable {
-        assertThat("didn't get 404 not found", theResponseForNotFoundRequest.statusCode(), equalTo(404));
-    }
 	
 	@Then("^the article should have the expected metadata$")
 	public void the_article_should_have_the_expected_metadata() throws Throwable {
-		assertThat("uuid didn't match", from(theResponseEntityForSuccessfulRequest).getString("uuid"), equalTo(uuidForArticleInMethode.toString()));
-
-        String significantXmlSource = Xml.removeInsignificantXml(from(theResponseEntityForSuccessfulRequest).getString("attributes"), INSIGNIFICANT_XPATHS);
-        String expectedSignificantXmlSource = Xml.removeInsignificantXml(theExpectedArticle.getAttributes(), INSIGNIFICANT_XPATHS);
-
-        System.out.println("significantXmlSource=" + significantXmlSource);
-        
-        assertThat("significant XML in attributes differed", significantXmlSource, equalTo(expectedSignificantXmlSource));
+        checkMetadataForContent(uuidForArticleInMethode, theExpectedArticle);
 	}
 
     @Then("^the list should have the expected metadata$")
     public void the_list_should_have_the_expected_metadata() throws Throwable {
-        assertThat("uuid didn't match", from(theResponseEntityForSuccessfulRequest).getString("uuid"), equalTo(uuidForListInMethode.toString()));
+        checkMetadataForContent(uuidForListInMethode, theExpectedList);
+    }
+
+    private void checkMetadataForContent(UUID uuid, EomFile eomFile) throws Exception {
+        assertThat("uuid didn't match", from(theResponseEntityForSuccessfulRequest).getString("uuid"), equalTo(uuid.toString()));
 
         String significantXmlSource = Xml.removeInsignificantXml(from(theResponseEntityForSuccessfulRequest).getString("attributes"), INSIGNIFICANT_XPATHS);
-        String expectedSignificantXmlSource = Xml.removeInsignificantXml(theExpectedList.getAttributes(), INSIGNIFICANT_XPATHS);
+        String expectedSignificantXmlSource = Xml.removeInsignificantXml(eomFile.getAttributes(), INSIGNIFICANT_XPATHS);
 
         System.out.println("significantXmlSource=" + significantXmlSource);
 
