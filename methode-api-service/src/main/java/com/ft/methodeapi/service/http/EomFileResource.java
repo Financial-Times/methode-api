@@ -42,8 +42,7 @@ public class EomFileResource {
         try {
             return methodeContentRepository.findFileByUuid(uuid);
         } catch(MethodeException | SystemException ex) {
-            ServerError.ServerErrorBuilder builder = ServerError.status(503).error("error accessing upstream system");
-            throw builder.exception(ex);
+            throw ServerError.status(503).error("error accessing upstream system").exception(ex);
         }
     }
 
