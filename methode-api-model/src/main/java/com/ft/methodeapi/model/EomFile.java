@@ -1,9 +1,12 @@
 package com.ft.methodeapi.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
+
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EomFile {
@@ -27,21 +30,25 @@ public class EomFile {
 	private final String workflowStatus;
 	private final String systemAttributes;
 	private final String usageTickets;
-
-    public EomFile(@JsonProperty("uuid") String uuid,
-				   @JsonProperty("type") String type,
-				   @JsonProperty("value") byte[] bytes,
-				   @JsonProperty("attributes") String attributes,
-				   @JsonProperty("workflowStatus") String workflowStatus,
-				   @JsonProperty("systemAttributes") String systemAttributes,
-                   @JsonProperty("usageTickets") String usageTickets) {
+    private final List<LinkedObject> linkedObjects;
+    
+    public EomFile(
+            @JsonProperty("uuid") String uuid,
+            @JsonProperty("type") String type,
+            @JsonProperty("value") byte[] value,
+            @JsonProperty("attributes") String attributes,
+            @JsonProperty("workflowStatus") String workflowStatus,
+            @JsonProperty("systemAttributes") String systemAttributes,
+            @JsonProperty("usageTickets") String usageTickets,
+            @JsonProperty("linkedObjects") List<LinkedObject> linkedObjects) {
         this.uuid = uuid;
         this.type = type;
-        this.value = bytes;
+        this.value = value;
         this.attributes = attributes;
-		this.workflowStatus = workflowStatus;
-		this.systemAttributes = systemAttributes;
-		this.usageTickets = usageTickets;
+        this.workflowStatus = workflowStatus;
+        this.systemAttributes = systemAttributes;
+        this.usageTickets = usageTickets;
+        this.linkedObjects = linkedObjects;
     }
 
     public String getUuid() {
@@ -72,8 +79,13 @@ public class EomFile {
     public String getUsageTickets() {
         return usageTickets;
     }
+    
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public List<LinkedObject> getLinkedObjects() {
+        return linkedObjects;
+    }
 
-	public static class Builder {
+    public static class Builder {
         private String uuid;
         private String type;
         private byte[] value;
@@ -81,6 +93,7 @@ public class EomFile {
 		private String workflowStatus;
 		private String systemAttributes;
 		private String usageTickets;
+        private List<LinkedObject> linkedObjects = null;
 
         public Builder withUuid(String uuid) {
             this.uuid = uuid;
@@ -118,18 +131,24 @@ public class EomFile {
             return this;
         }
 
+        private Builder withLinkedObjects(List<LinkedObject> linkedObjects) {
+            this.linkedObjects = linkedObjects;
+            return this;
+        }
+
         public Builder withValuesFrom(EomFile eomFile) {
-        	return withUuid(eomFile.getUuid())
-        			.withType(eomFile.getType())
-        			.withValue(eomFile.getValue())
-        			.withAttributes(eomFile.getAttributes())
-					.withWorkflowStatus(eomFile.getWorkflowStatus())
-					.withSystemAttributes(eomFile.getSystemAttributes())
-                    .withUsageTickets(eomFile.getUsageTickets());
+            return withUuid(eomFile.getUuid())
+                    .withType(eomFile.getType())
+                    .withValue(eomFile.getValue())
+                    .withAttributes(eomFile.getAttributes())
+                    .withWorkflowStatus(eomFile.getWorkflowStatus())
+                    .withSystemAttributes(eomFile.getSystemAttributes())
+                    .withUsageTickets(eomFile.getUsageTickets())
+                    .withLinkedObjects(eomFile.getLinkedObjects());
         }
 
         public EomFile build() {
-            return new EomFile(uuid, type, value, attributes, workflowStatus, systemAttributes, usageTickets);
+            return new EomFile(uuid, type, value, attributes, workflowStatus, systemAttributes, usageTickets, linkedObjects);
         }
     }
 }

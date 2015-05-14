@@ -1,0 +1,10 @@
+<!DOCTYPE ObjectMetadata SYSTEM "/SysConfig/Classify/FTDWC2/classify.dtd">
+<ObjectMetadata><FTcom><DIFTcomWebType>digitalList</DIFTcomWebType></FTcom><Lists><Title>Home-UK Top Stories Edit</Title>
+    <DisplayHint>Standard</DisplayHint></Lists><OutputChannels><DIFTcom><DIFTcomECPositionInText>Default</DIFTcomECPositionInText>
+    <DIFTcomHideECLevel1>False</DIFTcomHideECLevel1><DIFTcomHideECLevel2>False</DIFTcomHideECLevel2><DIFTcomHideECLevel3>False</DIFTcomHideECLevel3>
+    <DIFTcomDiscussion>True</DIFTcomDiscussion><DIFTcomArticleImage>Primary size</DIFTcomArticleImage></DIFTcom></OutputChannels>
+    <EditorialNotes><WordCount>0</WordCount></EditorialNotes>
+    <EditorialDisplayIndexing><DILeadCompanies/>
+        <DIHeadlineCopy/><DIFTNPSections/>
+    </EditorialDisplayIndexing>
+</ObjectMetadata>
