@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="/SysConfig/Rules/ftpsi/Lists/listContainer.css"?>
+<dwc channel="FTcom">
+    <title>Home-UK Top Stories</title>
+    <table>
+        <tr>
+            <td valign="100%" maxItems="10" partPageName="zone1" styleSheet="digitalList" />
+        </tr>
+    </table>
+</dwc>

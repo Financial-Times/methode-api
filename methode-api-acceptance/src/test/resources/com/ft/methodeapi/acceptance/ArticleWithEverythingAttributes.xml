@@ -80,7 +80,7 @@
         <Sources>
             
         <Source title="Financial Times"><SourceCode>FT</SourceCode><SourceDescriptor>Financial Times</SourceDescriptor><SourceOnlineInclusion>True</SourceOnlineInclusion><SourceCanBeSyndicated>True</SourceCanBeSyndicated></Source></Sources>
-        <WordCount>2502</WordCount>
+        <WordCount>2497</WordCount>
         <CreationDate>20131018133645</CreationDate>
         <EmbargoDate/>
         <ExpiryDate>20131018133645</ExpiryDate>

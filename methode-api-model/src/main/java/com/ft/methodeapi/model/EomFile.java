@@ -31,18 +31,6 @@ public class EomFile {
 	private final String systemAttributes;
 	private final String usageTickets;
     private final List<LinkedObject> linkedObjects;
-
-//    public EomFile(@JsonProperty("uuid") String uuid,
-//                   @JsonProperty("type") String type,
-//                   @JsonProperty("value") byte[] value,
-//                   @JsonProperty("attributes") String attributes,
-//                   @JsonProperty("workflowStatus") String workflowStatus,
-//                   @JsonProperty("systemAttributes") String systemAttributes,
-//                   @JsonProperty("usageTickets") String usageTickets,
-//                   @JsonProperty("linkedObjects")List<LinkedObject> linkedObjects) {
-//
-//        this(uuid, type, value, attributes, workflowStatus, systemAttributes, usageTickets, linkedObjects);
-//    }
     
     public EomFile(
             @JsonProperty("uuid") String uuid,
@@ -105,7 +93,7 @@ public class EomFile {
 		private String workflowStatus;
 		private String systemAttributes;
 		private String usageTickets;
-        private List<LinkedObject> linkedLinkedObjects = null;
+        private List<LinkedObject> linkedObjects = null;
 
         public Builder withUuid(String uuid) {
             this.uuid = uuid;
@@ -143,8 +131,8 @@ public class EomFile {
             return this;
         }
 
-        private Builder withLinkedObjects(List<LinkedObject> linkedLinkedObjects) {
-            this.linkedLinkedObjects = linkedLinkedObjects;
+        private Builder withLinkedObjects(List<LinkedObject> linkedObjects) {
+            this.linkedObjects = linkedObjects;
             return this;
         }
 
@@ -160,7 +148,7 @@ public class EomFile {
         }
 
         public EomFile build() {
-            return new EomFile(uuid, type, value, attributes, workflowStatus, systemAttributes, usageTickets, linkedLinkedObjects);
+            return new EomFile(uuid, type, value, attributes, workflowStatus, systemAttributes, usageTickets, linkedObjects);
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.ft.methodeapi.acceptance;
 
-import com.ft.methodeapi.model.LinkedObject;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 

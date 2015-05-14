@@ -20,6 +20,7 @@ public class MethodeContent {
     public static final String MARK_DELETED_FALSE = "<DIFTcomMarkDeleted>False</DIFTcomMarkDeleted>";
     public static final String WEB_REVISE = "Stories/WebRevise";
     public static final String WEB_READY = "Stories/WebReady";
+    public static final String CLEARED = "AdLayers/Cleared";
     public static final String WEB_CHANNEL = "FTcom";
     public static final String NEWSPAPER_CHANNEL = "Financial Times";
     public static final String METHODE_DATE_FORMAT = "yyyyMMddHHmmss";
@@ -33,22 +34,19 @@ public class MethodeContent {
             "<summary>t text text text text text text text text text text text text text\n" +
             " text text text text te...</summary><wordCount>417</wordCount></props>";
 
-    //    private String typeName;
     private String articleXml;
     private String attributesXml;
     private String workflowStatus;
     private String systemAttributes;
     private List<LinkedObject> linkedObjects;
 
-    public MethodeContent( String articleXml, String attributesXml, String workflowStatus, String systemAttributes, List linkedObjects) {
+    public MethodeContent( String articleXml, String attributesXml, String workflowStatus, String systemAttributes, List<LinkedObject> linkedObjects) {
         this.articleXml = articleXml;
         this.attributesXml = attributesXml;
         this.workflowStatus = workflowStatus;
         this.systemAttributes = systemAttributes;
         this.linkedObjects = linkedObjects;
     }
-
-//    public String getTypeName() { return typeName; }
 
     public String getArticleXml() { return articleXml; }
 
@@ -62,7 +60,7 @@ public class MethodeContent {
 
     public String getSystemAttributes() { return systemAttributes; }
 
-    public List getLinkedObjects() { return linkedObjects; }
+    public List<LinkedObject> getLinkedObjects() { return linkedObjects; }
 
     public EomFile getEomFile() {
         return new EomFile("","EOM::CompoundStory",
@@ -81,7 +79,7 @@ public class MethodeContent {
                 .toString();
     }
 
-    public static Builder builder(String articleXml, String attributesXml, String workflowStatus, String systemAttributes, List linkedObjects) {
+    public static Builder builder(String articleXml, String attributesXml, String workflowStatus, String systemAttributes, List<LinkedObject> linkedObjects) {
         Builder builder = new Builder();
         builder.articleXml = articleXml;
         builder.attributesXml = attributesXml;
@@ -129,7 +127,7 @@ public class MethodeContent {
             return this;
         }
 
-        public Builder withLinkedObject(List linkedObjects) {
+        public Builder withLinkedObjects(List<LinkedObject> linkedObjects) {
             this.linkedObjects = linkedObjects;
             return this;
         }
@@ -164,6 +162,7 @@ public class MethodeContent {
         public MethodeContent build() {
             Xml.assertParseable(articleXml);
             Xml.assertParseable(attributesXml);
+
             return new MethodeContent(articleXml, attributesXml, workflowStatus, systemAttributes, linkedObjects);
         }
     }

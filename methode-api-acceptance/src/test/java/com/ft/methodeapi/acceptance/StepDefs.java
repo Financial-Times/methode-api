@@ -50,8 +50,11 @@ public class StepDefs {
     private String theResponseEntityForSuccessfulRequest;
     private UUID uuidForArticleInMethode;
     private UUID uuidForNonExistentArticle;
+    private UUID uuidForNonExistentList;
+    private UUID uuidForListInMethode;
 
     private EomFile theExpectedArticle;
+    private EomFile theExpectedList;
 
     private List<Long> requestTimings;
 
@@ -93,19 +96,56 @@ public class StepDefs {
         uuidForArticleInMethode = UUID.fromString(response.jsonPath().getString("uuid"));
 	}
 
+    @Given("^a list exists in Methode$")
+    public void a_list_exists_in_Methode() throws Throwable {
+
+        prepareTheList();
+
+        LOGGER.info("Calling Methode API: url=" + acceptanceTestConfiguration.getMethodeApiServiceUrl()
+                + " with data=" + theExpectedList);
+
+        Response response =
+            given()
+                .contentType(ContentType.JSON)
+                .request().body(theExpectedList)
+            .expect().statusCode(200)
+                .body("uuid", notNullValue())
+                .log().ifError()
+            .when()
+                .post(this.acceptanceTestConfiguration.getMethodeApiServiceUrl()).andReturn();
+
+        uuidForListInMethode = UUID.fromString(response.jsonPath().getString("uuid"));
+    }
+
 	@Given("^an article does not exist in Methode$")
 	public void an_article_does_not_exist_in_Methode() throws Throwable {
 		uuidForNonExistentArticle = UUID.randomUUID();
 	}
+
+    @Given("^a list does not exist in Methode$")
+    public void a_list_does_not_exist_in_Methode() throws Throwable {
+        uuidForNonExistentList = UUID.randomUUID();
+    }
+
 
     private void prepareTheArticle() throws IOException {
 
         String stampedHeadline = String.format("Proudly tested with robotic consistency [Build %s]", buildNo());
         theExpectedArticle = ReferenceArticles.publishedKitchenSinkArticle()
                 .withHeadline(stampedHeadline)
-                .withWorkflowStatus(MethodeContent.WEB_READY).build().getEomFile();
+                .withWorkflowStatus(MethodeContent.WEB_READY)
+                .build().getEomFile();
 
         LOGGER.debug("Test article headline={}, articleXml={}, attributeXml={}",stampedHeadline, theExpectedArticle.getValue(),theExpectedArticle.getAttributes());
+    }
+
+    private void prepareTheList() throws IOException {
+
+        theExpectedList = ReferenceLists.publishedList()
+                .withWorkflowStatus(MethodeContent.CLEARED)
+                .build().getEomFile();
+
+        LOGGER.debug("articleXml={}, attributeXml={}, linkedObjects={}",theExpectedList.getValue(),theExpectedList.getAttributes(), theExpectedList.getLinkedObjects());
     }
 
     private String buildNo() {
@@ -127,6 +167,21 @@ public class StepDefs {
 		theResponseEntityForSuccessfulRequest = theResponse.asString();
 	}
 
+    @When("^I attempt to access the list$")
+    public void i_attempt_to_access_the_list() throws Throwable {
+        String url = acceptanceTestConfiguration.getMethodeApiServiceUrl() + uuidForListInMethode.toString();
+        LOGGER.info("Calling Methode API: url=" + url);
+        Response theResponse =
+            given()
+                .contentType(ContentType.JSON)
+            .expect().statusCode(200)
+                .log().ifError()
+            .when()
+                .get(url);
+
+        theResponseEntityForSuccessfulRequest = theResponse.asString();
+    }
+
     @When("^(\\d+) users access the article a total of (\\d+) times$")
     public void i_attempt_to_access_the_article_count_times(int users, int count) throws Throwable {
         final String url = acceptanceTestConfiguration.getMethodeApiServiceUrl() + uuidForArticleInMethode.toString();
@@ -143,12 +198,12 @@ public class StepDefs {
                 public Long call() throws Exception {
                     long startTime = System.currentTimeMillis();
                     Response theResponse =
-                            given()
-                                    .contentType(ContentType.JSON)
-                                    .expect().statusCode(200)
-                                    .log().ifError()
-                                    .when()
-                                    .get(url);
+                        given()
+                            .contentType(ContentType.JSON)
+                        .expect().statusCode(200)
+                            .log().ifError()
+                        .when()
+                            .get(url);
 
                     theResponseEntityForSuccessfulRequest = theResponse.asString();
 
@@ -166,6 +221,44 @@ public class StepDefs {
 
     }
 
+    @When("^(\\d+) users access the list a total of (\\d+) times$")
+    public void i_attempt_to_access_the_list_count_times(int users, int count) throws Throwable {
+        final String url = acceptanceTestConfiguration.getMethodeApiServiceUrl() + uuidForListInMethode.toString();
+        LOGGER.info("Calling Methode API: url=" + url);
+
+        ExecutorService userPool = Executors.newFixedThreadPool(users);
+        List<Future<Long>> futureTimings = new ArrayList<>(count);
+
+        for(int i=0; i<count; i++) {
+
+            futureTimings.add(userPool.submit(new Callable<Long>() {
+
+                @Override
+                public Long call() throws Exception {
+                    long startTime = System.currentTimeMillis();
+                    Response theResponse =
+                        given()
+                            .contentType(ContentType.JSON)
+                        .expect().statusCode(200)
+                            .log().ifError()
+                        .when()
+                            .get(url);
+
+                    theResponseEntityForSuccessfulRequest = theResponse.asString();
+
+                    return System.currentTimeMillis() - startTime;
+                }
+            }));
+
+        }
+
+        for(Future<Long> timing : futureTimings) {
+            requestTimings.add(timing.get());
+        }
+
+        userPool.shutdown();
+
+    }
 
     @When("^I attempt to access the non-existent article$")
 	public void i_attempt_to_access_the_non_existent_article() throws Throwable {
@@ -176,16 +269,36 @@ public class StepDefs {
 				.contentType(ContentType.JSON)
 			.get(url);
 	}
+
+    @When("^I attempt to access the non-existent list$")
+    public void i_attempt_to_access_the_non_existent_list() throws Throwable {
+        String url = acceptanceTestConfiguration.getMethodeApiServiceUrl() + uuidForNonExistentList.toString();
+        LOGGER.info("Calling Methode API: url=" + url);
+        theResponseForNotFoundRequest =
+            given()
+                .contentType(ContentType.JSON)
+            .get(url);
+    }
 	
 	@Then("^the article should be available from the MethodeAPI$")
 	public void the_article_should_be_available_from_the_MethodeAPI() throws Throwable {
         assertThat("no body returned", theResponseEntityForSuccessfulRequest, notNullValue());
 	}
+
+    @Then("^the list should be available from the MethodeAPI$")
+    public void the_list_should_be_available_from_the_MethodeAPI() throws Throwable {
+        assertThat("no body returned", theResponseEntityForSuccessfulRequest, notNullValue());
+    }
 	
 	@Then("^the article should not be available from the MethodeAPI$")
 	public void the_article_should_not_be_available_from_the_MethodeAPI() throws Throwable {
         assertThat("didn't get 404 not found", theResponseForNotFoundRequest.statusCode(), equalTo(404));
 	}
+
+    @Then("^the list should not be available from the MethodeAPI$")
+    public void the_list_should_not_be_available_from_the_MethodeAPI() throws Throwable {
+        assertThat("didn't get 404 not found", theResponseForNotFoundRequest.statusCode(), equalTo(404));
+    }
 	
 	@Then("^the article should have the expected metadata$")
 	public void the_article_should_have_the_expected_metadata() throws Throwable {
@@ -199,15 +312,39 @@ public class StepDefs {
         assertThat("significant XML in attributes differed", significantXmlSource, equalTo(expectedSignificantXmlSource));
 	}
 
+    @Then("^the list should have the expected metadata$")
+    public void the_list_should_have_the_expected_metadata() throws Throwable {
+        assertThat("uuid didn't match", from(theResponseEntityForSuccessfulRequest).getString("uuid"), equalTo(uuidForListInMethode.toString()));
+
+        String significantXmlSource = Xml.removeInsignificantXml(from(theResponseEntityForSuccessfulRequest).getString("attributes"), INSIGNIFICANT_XPATHS);
+        String expectedSignificantXmlSource = Xml.removeInsignificantXml(theExpectedList.getAttributes(), INSIGNIFICANT_XPATHS);
+
+        System.out.println("significantXmlSource=" + significantXmlSource);
+
+        assertThat("significant XML in attributes differed", significantXmlSource, equalTo(expectedSignificantXmlSource));
+    }
+
 	@Then("^the article should have the expected workflow status$")
 	public void the_article_should_have_the_expected_wokflow_status() throws Throwable {
 		assertThat("workflow statuses didn't match", from(theResponseEntityForSuccessfulRequest).getString("workflowStatus"), equalTo(theExpectedArticle.getWorkflowStatus()));
 	}
+
+    @Then("^the list should have the expected workflow status$")
+    public void the_list_should_have_the_expected_wokflow_status() throws Throwable {
+        assertThat("workflow statuses didn't match", from(theResponseEntityForSuccessfulRequest).getString("workflowStatus"), equalTo(theExpectedList.getWorkflowStatus()));
+    }
+
     @Then("^the article should have the expected content$")
 	public void the_article_should_have_the_expected_content() throws Throwable {
         byte[] retreivedContent =  from(theResponseEntityForSuccessfulRequest).getObject("", EomFile.class).getValue();
         assertThat("bytes in file differed", retreivedContent, equalTo(theExpectedArticle.getValue()));
 	}
+
+    @Then("^the list should have the expected content$")
+    public void the_list_should_have_the_expected_content() throws Throwable {
+        byte[] retreivedContent =  from(theResponseEntityForSuccessfulRequest).getObject("", EomFile.class).getValue();
+        assertThat("bytes in file differed", retreivedContent, equalTo(theExpectedList.getValue()));
+    }
 
 
     @Then("^it is returned within (\\d+)ms at least (\\d+)% of the time$")
