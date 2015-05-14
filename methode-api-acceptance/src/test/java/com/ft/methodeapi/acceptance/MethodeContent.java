@@ -3,7 +3,7 @@ package com.ft.methodeapi.acceptance;
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodeapi.model.LinkedObject;
 import com.google.common.base.Charsets;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 
 import java.text.DateFormat;
@@ -70,7 +70,7 @@ public class MethodeContent {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this.getClass())
+        return MoreObjects.toStringHelper(this.getClass())
                 .add("articleXml", articleXml)
                 .add("attributesXml", attributesXml)
                 .add("workflowStatus", workflowStatus)

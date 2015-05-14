@@ -14,7 +14,7 @@ public class ReferenceArticles {
     private static final List exampleListTemplate = null;
 
     public static MethodeContent.Builder publishedKitchenSinkArticle() {
-        return MethodeContent.builder(exampleArticleXmlTemplate, exampleAttributesXml, MethodeContent.WEB_READY, exampleWebChannelXml, exampleListTemplate ).published();
+        return MethodeContent.builder(exampleArticleXmlTemplate, exampleAttributesXml, MethodeContent.WEB_READY, exampleWebChannelXml, exampleListTemplate).published();
     }
 
     private static String readFromFile(String resourceName) {
