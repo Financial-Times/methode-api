@@ -26,7 +26,7 @@ Feature: Requests for content
 
 @Smoke
   Scenario: An Image can be successfully retrieved
-    Given a image exists in Methode
+    Given an image exists in Methode
     When I attempt to access the image
     Then the image should be available from the MethodeAPI
     And the image should have the expected metadata

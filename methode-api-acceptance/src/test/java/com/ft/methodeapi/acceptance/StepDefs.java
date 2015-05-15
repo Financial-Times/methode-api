@@ -1,5 +1,7 @@
 package com.ft.methodeapi.acceptance;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.methodeapi.SetUpHelper;
 import com.ft.methodeapi.model.EomFile;
 import com.google.common.base.MoreObjects;
@@ -56,6 +58,7 @@ public class StepDefs {
 
     private EomFile theExpectedArticle;
     private EomFile theExpectedList;
+    private EomFile theExpectedImage;
 
     private List<Long> requestTimings;
 
@@ -118,6 +121,27 @@ public class StepDefs {
         uuidForListInMethode = UUID.fromString(response.jsonPath().getString("uuid"));
     }
 
+    @Given("^an image exists in Methode$")
+    public void a_image_exists_in_Methode() throws Throwable {
+
+        prepareTheList();
+
+        LOGGER.info("Calling Methode API: url=" + acceptanceTestConfiguration.getMethodeApiServiceUrl()
+                + " with data=" + theExpectedList);
+
+        Response response =
+                given()
+                        .contentType(ContentType.JSON)
+                        .request().body(theExpectedList)
+                        .expect().statusCode(200)
+                        .body("uuid", notNullValue())
+                        .log().ifError()
+                        .when()
+                        .post(this.acceptanceTestConfiguration.getMethodeApiServiceUrl()).andReturn();
+
+        uuidForListInMethode = UUID.fromString(response.jsonPath().getString("uuid"));
+    }
+
 	@Given("^an? (article|list) does not exist in Methode$")
 	public void content_does_not_exist_in_Methode(String contentType) throws Throwable {
 		uuidForNonExistentContent = UUID.randomUUID();
@@ -141,6 +165,40 @@ public class StepDefs {
                 .build().getEomFile();
 
         LOGGER.debug("articleXml={}, attributeXml={}, linkedObjects={}",theExpectedList.getValue(),theExpectedList.getAttributes(), theExpectedList.getLinkedObjects());
+    }
+
+    private void prepareTheImage() throws IOException {
+
+            theExpectedImage = new MasterImage().buildImage();
+            LOGGER.debug("Calling Methode API: url=" + acceptanceTestConfiguration.getMethodeApiServiceUrl()
+                    + " with data=" + theExpectedImage.getUuid());
+
+            postImageInMethodeWithRetries();
+
+            LOGGER.debug("Published image written to Methode, uuid={}", imageUuid);
+        }
+
+    private void postImageInMethodeWithRetries() throws Throwable {
+        final String serializedImage = new ObjectMapper().writeValueAsString(image);
+        repeat(new Trial() {
+            @Override
+            public boolean execute() throws JsonProcessingException {
+                ClientResponse response = Client.create()
+                        .resource(methodeApiServiceUrl)
+                        .entity(serializedImage)
+                        .type(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .post(ClientResponse.class);
+
+                responseFromAPIJson = response.getEntity(String.class);
+                if (response.getClientResponseStatus().getStatusCode() != 200) {
+                    return false;
+                }
+                imageUuid = getFieldFromJsonResponse("uuid");
+                return true;
+
+            }
+        }, "Check if Methode Api works as expected: url=" + methodeApiServiceUrl);
     }
 
     private String buildNo() {
