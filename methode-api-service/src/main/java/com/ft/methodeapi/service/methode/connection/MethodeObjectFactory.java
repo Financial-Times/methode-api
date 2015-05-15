@@ -73,5 +73,10 @@ public interface MethodeObjectFactory {
     String getName();
 
     String getDescription();
+    
+    /** Gets the IP address to which the object factory will connect.
+     *  @return the IP address
+     */
+    String getMethodeIP();
 
 }

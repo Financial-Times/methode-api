@@ -3,6 +3,7 @@ package com.ft.methodeapi.service.methode.connection;
 import EOM.FileSystemAdmin;
 import EOM.Repository;
 import EOM.Session;
+
 import com.ft.methodeapi.service.methode.MethodeException;
 import com.ft.timer.FTTimer;
 import com.ft.timer.RunningTimer;
@@ -11,10 +12,12 @@ import com.yammer.dropwizard.lifecycle.Managed;
 import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.Gauge;
 import com.yammer.metrics.core.HealthCheck;
+
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NamingContextExt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import stormpot.Config;
 import stormpot.LifecycledResizablePool;
 import stormpot.PoolException;
@@ -198,5 +201,10 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
     @Override
     public String getName() {
         return implementation.getName();
+    }
+
+    @Override
+    public String getMethodeIP() {
+        return implementation.getMethodeIP();
     }
 }
