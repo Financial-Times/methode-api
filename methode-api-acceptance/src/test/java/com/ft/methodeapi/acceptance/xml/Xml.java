@@ -1,4 +1,4 @@
-package com.ft.methodeapi.acceptance;
+package com.ft.methodeapi.acceptance.xml;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

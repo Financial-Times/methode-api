@@ -5,7 +5,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.ft.methodeapi.acceptance.ApiConfig;
 import com.ft.methodeapi.acceptance.MethodeContent;
 import com.ft.methodeapi.acceptance.ReferenceArticles;
-import com.ft.methodeapi.acceptance.Xml;
+import com.ft.methodeapi.acceptance.xml.Xml;
 import com.ft.methodeapi.model.EomFile;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
