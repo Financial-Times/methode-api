@@ -62,7 +62,7 @@ public class EomFileResource {
         final StringBuilder fileName = new StringBuilder("test-file-").append(System.currentTimeMillis());
         if ("Image".equals(eomFile.getType())) {
             fileName.append(".jpg");
-        } else if ("Lists".equals(eomFile.getType())) {
+        } else if ("EOM::WebContainer".equals(eomFile.getType())) {
             fileName.append(".dwc");
         } else {
             fileName.append(".xml");
