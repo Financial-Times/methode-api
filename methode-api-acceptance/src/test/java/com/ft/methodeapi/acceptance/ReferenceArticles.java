@@ -1,5 +1,6 @@
 package com.ft.methodeapi.acceptance;
 
+import com.ft.methodeapi.model.LinkedObject;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
@@ -11,7 +12,7 @@ public class ReferenceArticles {
     private static final String exampleArticleXmlTemplate = readFromFile("ArticleWithEverything.xml");
     private static final String exampleAttributesXml = readFromFile("ArticleWithEverythingAttributes.xml");
     private static final String exampleWebChannelXml = readFromFile("ArticleWithEverythingSystemAttributes.xml");
-    private static final List exampleListTemplate = null;
+    private static final List<LinkedObject> exampleListTemplate = null;
 
     public static MethodeContent.Builder publishedKitchenSinkArticle() {
         return MethodeContent.builder(exampleArticleXmlTemplate, exampleAttributesXml, MethodeContent.WEB_READY, exampleWebChannelXml, exampleListTemplate).published();
