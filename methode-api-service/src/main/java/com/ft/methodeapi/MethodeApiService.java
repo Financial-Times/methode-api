@@ -5,6 +5,7 @@ import com.ft.dropwizard.killswitchtask.KillSwitchTask;
 import com.ft.methodeapi.service.methode.MethodeContentRetrievalHealthCheck;
 
 import com.ft.methodeapi.service.methode.connection.MethodeObjectFactoryBuilder;
+import com.ft.methodeapi.service.methode.monitoring.AsynchronousHeathCheck;
 import com.ft.methodeapi.service.methode.monitoring.GaugeRangeHealthCheck;
 import com.ft.methodeapi.service.methode.monitoring.ThreadsByClassGauge;
 import com.yammer.dropwizard.lifecycle.Managed;
@@ -27,6 +28,7 @@ import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MethodeApiService extends Service<MethodeApiConfiguration> {
 
@@ -65,18 +67,22 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
         Metrics.newGauge(jacorbThreadGauge.getMetricName(),jacorbThreadGauge);
         environment.addHealthCheck(new GaugeRangeHealthCheck<>("Jacorb Threads",jacorbThreadGauge,1,900));
 
-
-
-        environment.addHealthCheck(new MethodePingHealthCheck(methodeObjectFactory, configuration.getMethodeConnectionConfiguration().getMaxPingMillis()));
-        environment.addHealthCheck(new MethodePingHealthCheck(testMethodeObjectFactory, configuration.getMethodeTestConnectionConfiguration().getMaxPingMillis()));
-
-        environment.addHealthCheck(new MethodeContentRetrievalHealthCheck(methodeContentRepository));
+        environment.addHealthCheck(asynchronous( new MethodePingHealthCheck(methodeObjectFactory, configuration.getMethodeConnectionConfiguration().getMaxPingMillis()),environment));
+        environment.addHealthCheck(asynchronous( new MethodePingHealthCheck(testMethodeObjectFactory, configuration.getMethodeTestConnectionConfiguration().getMaxPingMillis()),environment));
+        environment.addHealthCheck(asynchronous( new MethodeContentRetrievalHealthCheck(methodeContentRepository),environment));
 
         environment.addProvider(new RuntimeExceptionMapper());
 		environment.addFilter(new TransactionIdFilter(), "/eom-file/*");
         environment.addFilter(new TransactionIdFilter(), "/asset-type/*");
 
         environment.addTask(new KillSwitchTask());
+    }
+
+    private HealthCheck asynchronous(HealthCheck healthCheck, Environment environment) {
+        return new AsynchronousHeathCheck(healthCheck,
+                environment.managedScheduledExecutorService("health-%d",1),
+                1, TimeUnit.MINUTES
+                );
     }
 
     private int countPoolingConnections(MethodeObjectFactory...  factories) {
