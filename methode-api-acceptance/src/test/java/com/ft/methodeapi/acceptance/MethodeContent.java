@@ -44,11 +44,12 @@ public class MethodeContent {
 
     private MethodeContent(String articleXml, String contentType, String attributesXml, String workflowStatus, String systemAttributes, List<LinkedObject> linkedObjects) {
         this.articleXml = articleXml;
+        this.contentType = contentType;
         this.attributesXml = attributesXml;
         this.workflowStatus = workflowStatus;
         this.systemAttributes = systemAttributes;
         this.linkedObjects = linkedObjects;
-        this.contentType = contentType;
+
     }
 
     public String getArticleXml() { return articleXml; }
@@ -74,7 +75,7 @@ public class MethodeContent {
                 .add("attributesXml", attributesXml)
                 .add("workflowStatus", workflowStatus)
                 .add("systemAttributes", systemAttributes)
-                .add("linkedObjects", linkedObjects)
+//                .add("linkedObjects", linkedObjects)
                 .toString();
     }
 
@@ -151,12 +152,7 @@ public class MethodeContent {
             return deleted().build();
         }
 
-        public abstract MethodeContent build(); //{
-//            Xml.assertParseable(articleXml);
-//            Xml.assertParseable(attributesXml);
-//
-//            return new MethodeContent(articleXml, "EOM::CompoundStory", attributesXml, workflowStatus, systemAttributes, linkedObjects);
-//        }
+        public abstract MethodeContent build();
     }
 
     public static class ListBuilder extends ContentBuilder<ListBuilder> {
@@ -180,6 +176,23 @@ public class MethodeContent {
     public static class ArticleBuilder extends ContentBuilder<ArticleBuilder> {
 
         public ArticleBuilder withHeadline(String expectedPublishedArticleHeadline) {
+            attributesXml = attributesXml.replace(HEADLINE_FROM_TEST_FILE, expectedPublishedArticleHeadline);
+            articleXml = articleXml.replace(HEADLINE_FROM_TEST_FILE, expectedPublishedArticleHeadline);
+            return this;
+        }
+
+        @Override
+        public MethodeContent build() {
+            Xml.assertParseable(articleXml);
+            Xml.assertParseable(attributesXml);
+
+            return new MethodeContent(articleXml, "EOM::CompoundStory", attributesXml, workflowStatus, systemAttributes, null);
+        }
+    }
+
+    public static class ImageBuilder extends ContentBuilder<ImageBuilder> {
+
+        public ImageBuilder withHeadline(String expectedPublishedArticleHeadline) {
             attributesXml = attributesXml.replace(HEADLINE_FROM_TEST_FILE, expectedPublishedArticleHeadline);
             articleXml = articleXml.replace(HEADLINE_FROM_TEST_FILE, expectedPublishedArticleHeadline);
             return this;

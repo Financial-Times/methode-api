@@ -57,7 +57,6 @@ public class StepDefs {
 
     private EomFile theExpectedArticle;
     private EomFile theExpectedList;
-    private EomFile theExpectedImage;
 
     private List<Long> requestTimings;
 
@@ -120,27 +119,6 @@ public class StepDefs {
         uuidForListInMethode = UUID.fromString(response.jsonPath().getString("uuid"));
     }
 
-//    @Given("^an image exists in Methode$")
-//    public void an_image_exists_in_Methode() throws Throwable {
-//
-//        prepareTheImage();
-//
-//        LOGGER.info("Calling Methode API: url=" + acceptanceTestConfiguration.getMethodeApiServiceUrl()
-//                + " with data=" + theExpectedList);
-//
-//        Response response =
-//                given()
-//                        .contentType(ContentType.JSON)
-//                        .request().body(theExpectedList)
-//                        .expect().statusCode(200)
-//                        .body("uuid", notNullValue())
-//                        .log().ifError()
-//                        .when()
-//                        .post(this.acceptanceTestConfiguration.getMethodeApiServiceUrl()).andReturn();
-//
-//        uuidForListInMethode = UUID.fromString(response.jsonPath().getString("uuid"));
-//    }
-
 	@Given("^an? (article|list) does not exist in Methode$")
 	public void content_does_not_exist_in_Methode(String contentType) throws Throwable {
 		uuidForNonExistentContent = UUID.randomUUID();
@@ -165,40 +143,6 @@ public class StepDefs {
 
         LOGGER.debug("articleXml={}, attributeXml={}, linkedObjects={}",theExpectedList.getValue(),theExpectedList.getAttributes(), theExpectedList.getLinkedObjects());
     }
-
-//    private void prepareTheImage() throws IOException {
-//
-//            theExpectedImage = new MasterImage().buildImage();
-//            LOGGER.debug("Calling Methode API: url=" + acceptanceTestConfiguration.getMethodeApiServiceUrl()
-//                    + " with data=" + theExpectedImage.getUuid());
-//
-//            postImageInMethodeWithRetries();
-//
-//            LOGGER.debug("Published image written to Methode, uuid={}", imageUuid);
-//        }
-//
-//    private void postImageInMethodeWithRetries() throws Throwable {
-//        final String serializedImage = new ObjectMapper().writeValueAsString(image);
-//        repeat(new Trial() {
-//            @Override
-//            public boolean execute() throws JsonProcessingException {
-//                ClientResponse response = Client.create()
-//                        .resource(methodeApiServiceUrl)
-//                        .entity(serializedImage)
-//                        .type(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON)
-//                        .post(ClientResponse.class);
-//
-//                responseFromAPIJson = response.getEntity(String.class);
-//                if (response.getClientResponseStatus().getStatusCode() != 200) {
-//                    return false;
-//                }
-//                imageUuid = getFieldFromJsonResponse("uuid");
-//                return true;
-//
-//            }
-//        }, "Check if Methode Api works as expected: url=" + methodeApiServiceUrl);
-//    }
 
     private String buildNo() {
         return MoreObjects.firstNonNull(System.getProperty("BUILD_NUMBER"), "LOCAL BUILD");
@@ -325,15 +269,6 @@ public class StepDefs {
         byte[] retreivedContent =  from(theResponseEntityForSuccessfulRequest).getObject("", EomFile.class).getValue();
         assertThat("bytes in file differed", retreivedContent, equalTo(theExpectedList.getValue()));
     }
-
-//    @Then("^the article should have the expected filetype extension$")
-//    public void the_article_should_have_the_expected_filetype_extension() throws Throwable {
-//        String fileType =
-//        assertThat("extension suffix didn't match file-type", );
-//    }
-//
-//    private void checkFileExtensionForContent(EomFileResource eomFileResource) throws Exception {
-//    }
 
     @Then("^it is returned within (\\d+)ms at least (\\d+)% of the time$")
     public void it_is_returned_within_MAX_ms_at_least_PERCENT_of_the_time(long max, double percent) {

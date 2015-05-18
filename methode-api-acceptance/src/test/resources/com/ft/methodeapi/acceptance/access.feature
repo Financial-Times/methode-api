@@ -12,7 +12,7 @@ Feature: Requests for content
     And the article should have the expected metadata
     And the article should have the expected content
 	And the article should have the expected workflow status
-#    And the article should have the expected filename extension
+    And the article should have the expected filename extension
 
 @Smoke
   Scenario: An List can be successfully retrieved
@@ -22,17 +22,17 @@ Feature: Requests for content
     And the list should have the expected metadata
     And the list should have the expected content
     And the list should have the expected workflow status
-#    And the list should have the expected filename extension
+    And the list should have the expected filename extension
 
-#@Smoke
-#  Scenario: An Image can be successfully retrieved
-#    Given an image exists in Methode
-#    When I attempt to access the image
-#    Then the image should be available from the MethodeAPI
-#    And the image should have the expected metadata
-#    And the image should have the expected content
-#    And the image should have the expected workflow status
-#    And the image should have the expected filename extension
+@Smoke
+  Scenario: An Image can be successfully retrieved
+    Given an image exists in Methode
+    When I attempt to access the image
+    Then the image should be available from the MethodeAPI
+    And the image should have the expected metadata
+    And the image should have the expected content
+    And the image should have the expected workflow status
+    And the image should have the expected filename extension
 
   Scenario: An article that doesn't exist is not found
     Given an article does not exist in Methode
@@ -44,10 +44,10 @@ Feature: Requests for content
     When I attempt to access the non-existent list
     Then the list should not be available from the MethodeAPI
 
-#  Scenario: An image that doesn't exist is not found
-#    Given a image does not exist in Methode
-#    When I attempt to access the non-existent image
-#    Then the image should not be available from the MethodeAPI
+  Scenario: An image that doesn't exist is not found
+    Given a image does not exist in Methode
+    When I attempt to access the non-existent image
+    Then the image should not be available from the MethodeAPI
 
 @Performance 
   Scenario: Should return within 2s 99% of the time
@@ -61,8 +61,8 @@ Feature: Requests for content
     When 10 users access the list a total of 500 times
     Then it is returned within 2000ms at least 99% of the time
 
-#@Performance
-#  Scenario: Should return within 2s 99% of the time
-#    Given a image exists in Methode
-#    When 10 users access the image a total of 500 times
-#    Then it is returned within 2000ms at least 99% of the time
+@Performance
+  Scenario: Should return within 2s 99% of the time
+    Given a image exists in Methode
+    When 10 users access the image a total of 500 times
+    Then it is returned within 2000ms at least 99% of the time

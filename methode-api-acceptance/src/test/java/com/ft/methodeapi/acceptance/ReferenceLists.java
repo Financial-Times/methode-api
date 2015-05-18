@@ -18,8 +18,9 @@ public class ReferenceLists {
 
 
     public static MethodeContent.ContentBuilder publishedList() {
-        List<LinkedObject> linkedObjects = ImmutableList.of(new LinkedObject("bd527556-d7c5-11e4-849b-00144feab7de", EOM_COMPOUND_STORY_TYPE));
-//               new LinkedObject("fc2b257a-d90f-11e4-b907-00144feab7de", EOM_COMPOUND_STORY_TYPE));// TODO - set these to sensible values, add a second linkedObject
+        List<LinkedObject> linkedObjects;
+        linkedObjects = ImmutableList.of(new LinkedObject("bd527556-d7c5-11e4-849b-00144feab7de", EOM_COMPOUND_STORY_TYPE),
+                new LinkedObject("fc2b257a-d90f-11e4-b907-00144feab7de", EOM_COMPOUND_STORY_TYPE));
         return new MethodeContent.ListBuilder()
                 .withArticleXml(exampleListXmlTemplate)
                 .withAttributes(exampleAttributesXml)

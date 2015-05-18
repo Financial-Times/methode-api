@@ -61,10 +61,22 @@ public class MethodeContentBuilderTest {
 		assertThat(workflowStatus, is(MethodeContent.WEB_REVISE));
 	}
 
+	@Test
+	public void builtListShouldHaveCorrectWorkflowStatus() {
+		assertThat(ReferenceLists.publishedList().build().getWorkflowStatus(), containsString(MethodeContent.CLEARED));
+	}
+
     @Test
-    public void builtListShouldHaveCorrectWorkflowStatus() {
-        assertThat(ReferenceLists.publishedList().build().getWorkflowStatus(), containsString(MethodeContent.CLEARED));
+    public void builtListShouldHaveChangedWorkflowStatus() {
+		String workflowStatus = ReferenceLists.publishedList().withWorkflowStatus(MethodeContent.CLEARED).build().getWorkflowStatus();
+        assertThat(workflowStatus, is(MethodeContent.CLEARED));
     }
+
+	@Test
+	public void builtListCanReturnEmptyLinkedObject() {
+		String workflowStatus = ReferenceLists.publishedList().withWorkflowStatus(MethodeContent.CLEARED).build().getWorkflowStatus();
+		assertThat(workflowStatus, is(MethodeContent.CLEARED));
+	}
 
 	@Test
 	public void builtArticleShouldHaveChangedSource() {
