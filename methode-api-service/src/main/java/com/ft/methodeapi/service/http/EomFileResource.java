@@ -61,12 +61,12 @@ public class EomFileResource {
     public EomFile newTestFile(final EomFile eomFile) {
         final String type = eomFile.getType();
         final StringBuilder fileName = new StringBuilder("test-file-").append(System.currentTimeMillis());
-        if (type.equals("EOM::CompoundStory") || type.equals("EOM::MediaGallery")) {
-            fileName.append(".xml");
+        if (type.equals("EOM::WebContainer")) {
+            fileName.append(".dwc");
         } else if (type.equals("Image")) {
             fileName.append(".jpg");
         } else {
-            fileName.append(".dwc");
+            fileName.append(".xml");
         }
         try {
             EomFile newEomFile = methodeContentRepository.createNewTestFile(fileName.toString(), eomFile);
