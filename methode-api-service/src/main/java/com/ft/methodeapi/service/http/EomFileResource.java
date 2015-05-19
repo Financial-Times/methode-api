@@ -59,11 +59,14 @@ public class EomFileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public EomFile newTestFile(final EomFile eomFile) {
+        final String type = eomFile.getType();
         final StringBuilder fileName = new StringBuilder("test-file-").append(System.currentTimeMillis());
-        if (eomFile.getType().equals("Image")) {
+        if (type.equals("EOM::CompoundStory") || type.equals("EOM::MediaGallery")) {
+            fileName.append(".xml");
+        } else if (type.equals("Image")) {
             fileName.append(".jpg");
         } else {
-            fileName.append(".xml");
+            fileName.append(".dwc");
         }
         try {
             EomFile newEomFile = methodeContentRepository.createNewTestFile(fileName.toString(), eomFile);
