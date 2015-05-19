@@ -74,9 +74,9 @@ public interface MethodeObjectFactory {
 
     String getDescription();
     
-    /** Gets the IP address to which the object factory will connect.
-     *  @return the IP address
+    /** Refresh the object factory state and establish where future Methode calls will be made.
+     *  @return an identifier for the Methode location
      */
-    String getMethodeIP();
+    String refreshMethodeLocation();
 
 }

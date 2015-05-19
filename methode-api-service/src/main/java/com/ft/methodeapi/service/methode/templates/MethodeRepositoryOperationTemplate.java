@@ -51,7 +51,7 @@ public class MethodeRepositoryOperationTemplate<T> {
     public T doOperation(RepositoryCallback<T> callback) {
         TimerContext timerContext = null;
         if ((timerClass != null) && timerName != null) {
-            String metricName = String.format("%s@%s", timerName, client.getMethodeIP());
+            String metricName = String.format("%s@%s", timerName, client.refreshMethodeLocation());
             Timer opTimer = metricsRegistry.newTimer(timerClass, metricName);
             timerContext = opTimer.time();
         }

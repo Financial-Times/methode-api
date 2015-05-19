@@ -145,7 +145,7 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
         final TimerContext timerContext = createOrbTimer.time();
         try {
             if (orbInitRef == null) {
-                getMethodeIP();
+                refreshMethodeLocation();
             }
             
             String[] orbInits = {"-ORBInitRef", orbInitRef};
@@ -266,7 +266,7 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
     }
 
     @Override
-    public String getMethodeIP() {
+    public String refreshMethodeLocation() {
         LOGGER.info("getMethodeIP for hostname: {}", hostname);
         String hostIP = null;
         try {
