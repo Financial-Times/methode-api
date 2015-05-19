@@ -42,8 +42,7 @@ public class MethodeFileRepository {
 
     private static final Charset METHODE_ENCODING = Charset.forName("iso-8859-1");
     private static final Charset UTF8 = Charset.forName("UTF8");
-
-
+    
     private final MethodeObjectFactory client;
     private final MethodeObjectFactory testClient;
 
@@ -53,9 +52,9 @@ public class MethodeFileRepository {
     }
 
     public Optional<EomFile> findFileByUuid(final String uuid) {
-
-        final MethodeSessionFileOperationTemplate<Optional<EomFile>> template = new MethodeSessionFileOperationTemplate<>(client);
-
+        final MethodeSessionFileOperationTemplate<Optional<EomFile>> template =
+                new MethodeSessionFileOperationTemplate<>(client, MethodeFileRepository.class, "findFileByUuid");
+        
         MethodeSessionFileOperationTemplate.SessionFileOperationCallback<Optional<EomFile>> callback = new MethodeSessionFileOperationTemplate.SessionFileOperationCallback<Optional<EomFile>>() {
             @Override
             public Optional<EomFile> doOperation(FileSystemAdmin fileSystemAdmin, Session session) {
@@ -127,7 +126,9 @@ public class MethodeFileRepository {
         Preconditions.checkNotNull(assetIdentifiers);
         long methodStart = System.currentTimeMillis();
         try {
-            final MethodeFileSystemAdminOperationTemplate<Map<String, EomAssetType>> template = new MethodeFileSystemAdminOperationTemplate<>(client);
+            final MethodeFileSystemAdminOperationTemplate<Map<String, EomAssetType>> template =
+                    new MethodeFileSystemAdminOperationTemplate<>(client, MethodeFileRepository.class, "getAssetTypes");
+            
             return template.doOperation(new GetAssetTypeFileSystemAdminCallback(assetIdentifiers));
         } finally {
             long duration = System.currentTimeMillis() - methodStart;
@@ -146,7 +147,7 @@ public class MethodeFileRepository {
      * methods it calls), please ensure that you do not allow writing or deleting outside this folder.
      */
     public EomFile createNewTestFile(final String filename, final EomFile eomFile) {
-        final MethodeSessionOperationTemplate<EomFile> template = new MethodeSessionOperationTemplate<>(testClient);
+        final MethodeSessionOperationTemplate<EomFile> template = new MethodeSessionOperationTemplate<>(testClient, MethodeFileRepository.class, "createNewTestFile");
         final EomFile createdEomFile = template.doOperation(new CreateFileCallback(testClient, TEST_FOLDER + dateStamp(), filename, eomFile));
         return createdEomFile;
     }
@@ -164,7 +165,7 @@ public class MethodeFileRepository {
      * methods it calls), please ensure that you do not allow writing or deleting outside this folder.
      */
     public void deleteTestFileByUuid(final String uuid) {
-    	final MethodeFileSystemAdminOperationTemplate<Void> template = new MethodeFileSystemAdminOperationTemplate<>(testClient);
+    	final MethodeFileSystemAdminOperationTemplate<Void> template = new MethodeFileSystemAdminOperationTemplate<>(testClient, MethodeFileRepository.class, "deleteTestFileByUuid");
 
         template.doOperation(new MethodeFileSystemAdminOperationTemplate.FileSystemAdminCallback<Void>() {
             @Override
