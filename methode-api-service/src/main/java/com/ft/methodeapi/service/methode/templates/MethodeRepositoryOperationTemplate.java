@@ -3,10 +3,8 @@ package com.ft.methodeapi.service.methode.templates;
 import EOM.Repository;
 
 import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
-import com.yammer.metrics.Metrics;
-import com.yammer.metrics.core.MetricsRegistry;
-import com.yammer.metrics.core.Timer;
-import com.yammer.metrics.core.TimerContext;
+import com.ft.timer.FTTimer;
+import com.ft.timer.RunningTimer;
 
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NamingContextExt;
@@ -24,8 +22,6 @@ import org.omg.CosNaming.NamingContextExt;
  * @author Simon.Gibbs
  */
 public class MethodeRepositoryOperationTemplate<T> {
-    private final MetricsRegistry metricsRegistry = Metrics.defaultRegistry();
-
     private final MethodeObjectFactory client;
     private final Class<?> timerClass;
     private final String timerName;
@@ -49,11 +45,11 @@ public class MethodeRepositoryOperationTemplate<T> {
     }
     
     public T doOperation(RepositoryCallback<T> callback) {
-        TimerContext timerContext = null;
+        RunningTimer timerContext = null;
         if ((timerClass != null) && timerName != null) {
             String metricName = String.format("%s@%s", timerName, client.refreshMethodeLocation());
-            Timer opTimer = metricsRegistry.newTimer(timerClass, metricName);
-            timerContext = opTimer.time();
+            FTTimer opTimer = FTTimer.newTimer(timerClass, metricName);
+            timerContext = opTimer.start();
         }
         
         try {
