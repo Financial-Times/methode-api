@@ -5,25 +5,26 @@ import EOM.Repository;
 import EOM.Session;
 
 import com.yammer.dropwizard.util.Duration;
-import com.yammer.metrics.core.HealthCheck;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NamingContextExt;
 
 import stormpot.Slot;
 
-import java.util.List;
 import java.util.concurrent.Executors;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -149,13 +150,23 @@ public class MethodeConnectionAllocatorTest {
     // this metric is used in GaugeRangeHealthcheck
     @Test
     public void shouldCorrectlyTrackNumberOfConnectionsAwaitingDeallocation() throws Exception {
-        MethodeConnectionAllocator allocator = new MethodeConnectionAllocator(slowFailingObjectFactory, Executors.newFixedThreadPool(1), Duration.minutes(30));
-        allocator.deallocate(mock(MethodeConnection.class));
-        assertThat(allocator.getNumberOfConnectionsAwaitingDeallocation(),is(1));
+        doAnswer(new Answer<Void>() {
+            public Void answer(InvocationOnMock invocation) {
+                try {
+                    Thread.sleep(LAG);
+                } catch (InterruptedException e) {
+                    // ignore
+                }
+                return null;
+            }})
+            .when(mockMethodeObjectFactory).maybeCloseSession(mockSession);
+
+        methodeConnectionAllocator.deallocate(mock(MethodeConnection.class));
+        assertThat(methodeConnectionAllocator.getNumberOfConnectionsAwaitingDeallocation(),is(1));
 
         Thread.sleep(LAG*4);
 
-        assertThat(allocator.getNumberOfConnectionsAwaitingDeallocation(),is(0));
+        assertThat(methodeConnectionAllocator.getNumberOfConnectionsAwaitingDeallocation(),is(0));
 
     }
 
@@ -174,82 +185,4 @@ public class MethodeConnectionAllocatorTest {
     	verify(mockMethodeObjectFactory).maybeCloseRepository(mockRepository);
     	verify(mockMethodeObjectFactory).maybeCloseSession(mockSession);
 	}
-
-
-    MethodeObjectFactory slowFailingObjectFactory = new MethodeObjectFactory() {
-        @Override
-        public FileSystemAdmin createFileSystemAdmin(Session session) {
-            return null;
-        }
-
-        @Override
-        public Session createSession(Repository repository) {
-            return null;
-        }
-
-        @Override
-        public NamingContextExt createNamingService(ORB orb) {
-            return null;
-        }
-
-        @Override
-        public void maybeCloseNamingService(NamingContextExt namingService) {
-
-        }
-
-        @Override
-        public Repository createRepository(NamingContextExt namingService) {
-            return null;
-        }
-
-        @Override
-        public ORB createOrb() {
-            return null;
-        }
-
-        @Override
-        public void maybeCloseFileSystemAdmin(FileSystemAdmin fileSystemAdmin) {
-
-        }
-
-        @Override
-        public void maybeCloseSession(Session session) {
-            try {
-                Thread.sleep(LAG);
-            } catch (InterruptedException e) {
-                // ignore
-            }
-        }
-
-        @Override
-        public void maybeCloseOrb(ORB orb) {
-
-        }
-
-        @Override
-        public void maybeCloseRepository(Repository repository) {
-
-        }
-
-        @Override
-        public String getDescription() {
-            return getName();
-        }
-
-        @Override
-        public List<HealthCheck> createHealthChecks() {
-            return null;
-        }
-
-        @Override
-        public boolean isPooling() {
-            return false;
-        }
-
-        @Override
-        public String getName() {
-            return "Mock";
-        }
-    };
-
 }

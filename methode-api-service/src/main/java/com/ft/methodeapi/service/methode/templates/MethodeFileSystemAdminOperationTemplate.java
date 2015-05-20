@@ -7,13 +7,26 @@ import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate.SessionCallback;
 
 public class MethodeFileSystemAdminOperationTemplate<T> {
-	
-
-	
 	private final MethodeObjectFactory methodeObjectFactory;
+    private final Class<?> timerClass;
+    private final String timerName;
 
+    /** Constructor for untimed operations.
+     *  @param client the MethodeObjectFactory
+     */
     public MethodeFileSystemAdminOperationTemplate(MethodeObjectFactory client) {
+        this(client, null, null);
+    }
+    
+    /** Constructor for operations whose time will be recorded in DropWizard metrics.
+     *  @param client the MethodeObjectFactory
+     *  @param timerClass the class against which metrics will be recorded
+     *  @param timerName the timer name against which metrics will be recorded (partitioned by Methode IP address)
+     */
+    public MethodeFileSystemAdminOperationTemplate(MethodeObjectFactory client, Class<?> timerClass, String timerName) {
         this.methodeObjectFactory = client;
+        this.timerClass = timerClass;
+        this.timerName = timerName;
     }
 	
 	public T doOperation(final FileSystemAdminCallback<T> fileSystemAdminCallback){
@@ -24,7 +37,7 @@ public class MethodeFileSystemAdminOperationTemplate<T> {
 				FileSystemAdmin fileSystemAdmin = null;
 				try {
 					fileSystemAdmin = methodeObjectFactory.createFileSystemAdmin(session);
-					
+
 					return fileSystemAdminCallback.doOperation(fileSystemAdmin);
 				
 				} finally{
@@ -33,8 +46,9 @@ public class MethodeFileSystemAdminOperationTemplate<T> {
 			}
         };
 		
+		MethodeSessionOperationTemplate<T> template =
+		        new MethodeSessionOperationTemplate<>(methodeObjectFactory, timerClass, timerName);
 		
-		MethodeSessionOperationTemplate<T> template = new MethodeSessionOperationTemplate<>(methodeObjectFactory);
 		return template.doOperation(callback);
 	}
 	

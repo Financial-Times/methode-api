@@ -2,6 +2,7 @@ package com.ft.methodeapi.service.methode.templates;
 
 import EOM.Repository;
 import EOM.Session;
+
 import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 
 /**
@@ -14,12 +15,28 @@ import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
  */
 public class MethodeSessionOperationTemplate<T> {
 
-    protected final MethodeObjectFactory client;
+    private final MethodeObjectFactory client;
+    private final Class<?> timerClass;
+    private final String timerName;
 
+    /** Constructor for untimed operations.
+     *  @param client the MethodeObjectFactory
+     */
     public MethodeSessionOperationTemplate(MethodeObjectFactory client) {
-        this.client = client;
+        this(client, null, null);
     }
-
+    
+    /** Constructor for operations whose time will be recorded in DropWizard metrics.
+     *  @param client the MethodeObjectFactory
+     *  @param timerClass the class against which metrics will be recorded
+     *  @param timerName the timer name against which metrics will be recorded (partitioned by Methode IP address)
+     */
+    public MethodeSessionOperationTemplate(MethodeObjectFactory client, Class<?> timerClass, String timerName) {
+        this.client = client;
+        this.timerClass = timerClass;
+        this.timerName = timerName;
+    }
+    
     public T doOperation(final SessionCallback<T> callback) {
 
         final MethodeRepositoryOperationTemplate.RepositoryCallback<T> repositoryCallback = new MethodeRepositoryOperationTemplate.RepositoryCallback<T>() {
@@ -39,7 +56,7 @@ public class MethodeSessionOperationTemplate<T> {
             }
         };
 
-        final MethodeRepositoryOperationTemplate<T> template = new MethodeRepositoryOperationTemplate<>(client);
+        final MethodeRepositoryOperationTemplate<T> template = new MethodeRepositoryOperationTemplate<>(client, timerClass, timerName);
 
         return template.doOperation(repositoryCallback);
     }

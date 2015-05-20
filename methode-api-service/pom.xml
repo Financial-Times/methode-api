@@ -92,9 +92,21 @@
             <groupId>com.ft</groupId>
             <artifactId>jaxrs-build-info-resource</artifactId>
         </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>log4j-over-slf4j</artifactId>
+        <version>1.7.6</version>
+      </dependency>
         <dependency>
             <groupId>com.yammer.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
+            <exclusions>
+                <!-- block import of 1.7.4 , prefer 1.7.6 which is compatible with methode libs -->
+                <exclusion>
+                  <groupId>org.slf4j</groupId>
+                  <artifactId>log4j-over-sl4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.codehaus.woodstox</groupId>
@@ -107,6 +119,11 @@
         <dependency>
             <groupId>com.eidosmedia</groupId>
             <artifactId>eom_NOT_Unicode</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>xerces</groupId>
+          <artifactId>xercesImpl</artifactId>
+          <version>2.6.2</version>
         </dependency>
         <dependency>
             <groupId>org.jacorb</groupId>

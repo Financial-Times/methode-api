@@ -73,5 +73,10 @@ public interface MethodeObjectFactory {
     String getName();
 
     String getDescription();
+    
+    /** Refresh the object factory state and establish where future Methode calls will be made.
+     *  @return an identifier for the Methode location
+     */
+    String refreshMethodeLocation();
 
 }

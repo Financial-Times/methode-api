@@ -8,12 +8,14 @@ import EOM.RepositoryError;
 import EOM.RepositoryHelper;
 import EOM.RepositoryPackage.InvalidLogin;
 import EOM.Session;
+
 import com.ft.methodeapi.service.methode.MethodeException;
 import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.HealthCheck;
 import com.yammer.metrics.core.MetricsRegistry;
 import com.yammer.metrics.core.Timer;
 import com.yammer.metrics.core.TimerContext;
+
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CosNaming.NamingContextExt;
@@ -22,6 +24,9 @@ import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -37,7 +42,8 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
     private static final String FILE_SYSTEM_ADMIN = "FileSystemAdmin";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultMethodeObjectFactory.class);
-
+    private static final String CORBA_LOC = "NS=corbaloc:iiop:%s:%d/NameService";
+    
     private final String username;
     private final String password;
     private final String orbClass;
@@ -45,7 +51,6 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
     private final String hostname;
 	private final int port;
 	private final int connectionTimeout;
-    private final String orbInitRef;
 
     private final MetricsRegistry metricsRegistry = Metrics.defaultRegistry();
 
@@ -63,7 +68,10 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
 
     private final Timer createRepositoryTimer = metricsRegistry.newTimer(DefaultMethodeObjectFactory.class, "create-repository");
     private final Timer closeRepositoryTimer = metricsRegistry.newTimer(DefaultMethodeObjectFactory.class, "close-repository");
-
+    
+    private String orbInitRef;
+    
+    
     public DefaultMethodeObjectFactory(String name, String hostname, int port, String username, String password, int connectionTimeout, String orbClass) {
         this.name = name;
         this.hostname = hostname;
@@ -72,7 +80,7 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
         this.password = password;
 		this.connectionTimeout = connectionTimeout;
         this.orbClass = orbClass;
-        orbInitRef = String.format("NS=corbaloc:iiop:%s:%d/NameService", hostname, port);    }
+    }
 
     public DefaultMethodeObjectFactory(MethodeObjectFactoryBuilder builder) {
         this(builder.name, builder.host, builder.port, builder.username, builder.password, builder.connectionTimeout, builder.orbClass);
@@ -136,13 +144,15 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
     public ORB createOrb() {
         final TimerContext timerContext = createOrbTimer.time();
         try {
+            if (orbInitRef == null) {
+                refreshMethodeLocation();
+            }
+            
             String[] orbInits = {"-ORBInitRef", orbInitRef};
-            Properties properties = new Properties() {
-                {
-                    setProperty("org.omg.CORBA.ORBClass", orbClass);
-					setProperty("jacorb.connection.client.connect_timeout", "" + connectionTimeout);
-                }
-            };
+            Properties properties = new Properties();
+            properties.setProperty("org.omg.CORBA.ORBClass", orbClass);
+            properties.setProperty("jacorb.connection.client.connect_timeout", "" + connectionTimeout);
+            
             return ORB.init(orbInits, properties);
         } finally {
             timerContext.stop();
@@ -253,5 +263,22 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String refreshMethodeLocation() {
+        LOGGER.info("getMethodeIP for hostname: {}", hostname);
+        String hostIP = null;
+        try {
+            hostIP = InetAddress.getByName(hostname).getHostAddress();
+            LOGGER.info("MethodeAPI is calling host IP: {}", hostIP);
+            orbInitRef = String.format(CORBA_LOC, hostIP, port);
+        }
+        catch (UnknownHostException e) {
+            LOGGER.error(String.format("unable to resolve methode host %s", hostname), e);
+            orbInitRef = String.format(CORBA_LOC, hostname, port);
+        }
+        
+        return hostIP;
     }
 }
