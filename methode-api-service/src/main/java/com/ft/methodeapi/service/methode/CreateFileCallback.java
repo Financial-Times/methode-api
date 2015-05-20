@@ -4,6 +4,34 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import EOM.DuplicatedName;
+import EOM.EventAdmin;
+import EOM.File;
+import EOM.FileSystemAdmin;
+import EOM.Folder;
+import EOM.FolderHelper;
+import EOM.InvalidAttributes;
+import EOM.InvalidForContainer;
+import EOM.InvalidName;
+import EOM.InvalidPath;
+import EOM.InvalidStatus;
+import EOM.InvalidType;
+import EOM.ObjectAdmin;
+import EOM.ObjectAdminHelper;
+import EOM.ObjectLocked;
+import EOM.ObjectNotCheckedOut;
+import EOM.ObjectNotFound;
+import EOM.ObjectNotLocked;
+import EOM.ObjectType;
+import EOM.ObjectTypeAdmin;
+import EOM.ObjectTypeAdminHelper;
+import EOM.PermissionDenied;
+import EOM.RepositoryError;
+import EOM.Session;
+import EOM.TypeNotFound;
+import EOM.Utils;
+import EOM._Object;
+
 import com.eidosmedia.wa.render.EomDbHelper;
 import com.eidosmedia.wa.render.EomDbHelperFactory;
 import com.eidosmedia.wa.render.WebTypes;
@@ -11,16 +39,16 @@ import com.eidosmedia.wa.util.Dwp;
 import com.eidosmedia.wa.util.DwpLink;
 import com.eidosmedia.wa.util.EomDb;
 import com.eidosmedia.wa.util.EomDbObject;
-import com.ft.methodeapi.model.LinkedObject;
-import org.omg.CORBA.Object;
 
-import EOM.*;
 
 import com.ft.methodeapi.model.EomFile;
+import com.ft.methodeapi.model.LinkedObject;
 import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate;
 import com.google.common.collect.Lists;
+import org.omg.CORBA.Object;
 import org.omg.CORBA.UserException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

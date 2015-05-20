@@ -13,7 +13,6 @@ Feature: Requests for content
     And the article should have the expected content
 	And the article should have the expected workflow status
 
-@Testing
 @Smoke
   Scenario: An List can be successfully retrieved
     Given a list exists in Methode
