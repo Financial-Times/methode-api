@@ -1,7 +1,7 @@
 package com.ft.methodeapi.acceptance;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 public class ApiConfig {
 
@@ -29,8 +29,8 @@ public class ApiConfig {
         return adminPort;
     }
 
-    protected Objects.ToStringHelper toStringHelper() {
-        return Objects.toStringHelper(this)
+    protected MoreObjects.ToStringHelper toStringHelper() {
+        return MoreObjects.toStringHelper(this)
                 .add("host", host)
                 .add("port", port)
                 .add("adminPort", adminPort);

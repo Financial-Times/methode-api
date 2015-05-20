@@ -2,6 +2,7 @@ package com.ft.methodeapi.smoke;
 
 import com.ft.methodeapi.acceptance.MethodeContent;
 import com.ft.methodeapi.acceptance.ReferenceArticles;
+import com.ft.methodeapi.acceptance.ReferenceLists;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
@@ -58,6 +59,11 @@ public class MethodeContentBuilderTest {
 	public void builtArticleShouldHaveChangedWorkflowStatus() {
 		String workflowStatus = ReferenceArticles.publishedKitchenSinkArticle().withWorkflowStatus(MethodeContent.WEB_REVISE).build().getWorkflowStatus();
 		assertThat(workflowStatus, is(MethodeContent.WEB_REVISE));
+	}
+
+	@Test
+	public void builtListShouldHaveCorrectWorkflowStatus() {
+		assertThat(ReferenceLists.publishedList().build().getWorkflowStatus(), containsString(MethodeContent.CLEARED));
 	}
 
 	@Test

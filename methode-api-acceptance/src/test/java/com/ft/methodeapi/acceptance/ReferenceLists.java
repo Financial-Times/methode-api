@@ -16,11 +16,17 @@ public class ReferenceLists {
     private static final String exampleAttributesXml = readFromFile("ListWithEverythingAttributes.xml");
     private static final String exampleWebChannelXml = readFromFile("ListWithEverythingSystemAttributes.xml");
 
-
-    public static MethodeContent.Builder publishedList() {
-        List<LinkedObject> linkedObjects = ImmutableList.of(new LinkedObject("c1c8096c-fe43-11e4-9995-f0c8225ac851", EOM_COMPOUND_STORY_TYPE),
-                new LinkedObject("f1a24d64-fe43-11e4-9995-f0c8225ac851", EOM_COMPOUND_STORY_TYPE));// TODO - set these to sensible values, add a second linkedObject
-        return MethodeContent.builder(exampleListXmlTemplate, exampleAttributesXml, MethodeContent.CLEARED, exampleWebChannelXml, linkedObjects).published();
+    public static MethodeContent.ContentBuilder publishedList() {
+        List<LinkedObject> linkedObjects;
+        linkedObjects = ImmutableList.of(new LinkedObject("c1c8096c-fe43-11e4-9995-f0c8225ac851", EOM_COMPOUND_STORY_TYPE),
+                new LinkedObject("f1a24d64-fe43-11e4-9995-f0c8225ac851", EOM_COMPOUND_STORY_TYPE));
+        return new MethodeContent.ListBuilder()
+                .withArticleXml(exampleListXmlTemplate)
+                .withAttributes(exampleAttributesXml)
+                .withWorkflowStatus(MethodeContent.CLEARED)
+                .withChannel(exampleWebChannelXml)
+                .withLinkedObjects(linkedObjects)
+                .published();
     }
 
     private static String readFromFile(String resourceName) {

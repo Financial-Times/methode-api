@@ -1,6 +1,6 @@
 package com.ft.methodeapi.smoke;
 
-import com.ft.methodeapi.acceptance.Xml;
+import com.ft.methodeapi.acceptance.xml.Xml;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;

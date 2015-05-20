@@ -1,6 +1,7 @@
 package com.ft.methodeapi.acceptance;
 
 import com.ft.methodeapi.SetUpHelper;
+import com.ft.methodeapi.acceptance.xml.Xml;
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodeapi.model.LinkedObject;
 import com.google.common.base.MoreObjects;
@@ -277,8 +278,6 @@ public class StepDefs {
         assertThat("uuid/type of objects in list differed from expected", linkedObjects, equalTo(theExpectedList.getLinkedObjects()));
         assertThat("number of objects in list differed from expected", linkedObjects.size(), is(theExpectedList.getLinkedObjects().size()));
     }
-
-
 
     @Then("^it is returned within (\\d+)ms at least (\\d+)% of the time$")
     public void it_is_returned_within_MAX_ms_at_least_PERCENT_of_the_time(long max, double percent) {

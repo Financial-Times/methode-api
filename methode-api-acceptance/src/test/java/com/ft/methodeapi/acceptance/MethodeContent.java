@@ -1,9 +1,10 @@
 package com.ft.methodeapi.acceptance;
 
+import com.ft.methodeapi.acceptance.xml.Xml;
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodeapi.model.LinkedObject;
 import com.google.common.base.Charsets;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 
 import java.text.DateFormat;
@@ -38,39 +39,38 @@ public class MethodeContent {
     private String attributesXml;
     private String workflowStatus;
     private String systemAttributes;
+    private String contentType;
     private List<LinkedObject> linkedObjects;
 
-    public MethodeContent( String articleXml, String attributesXml, String workflowStatus, String systemAttributes, List<LinkedObject> linkedObjects) {
+    private MethodeContent(String articleXml, String contentType, String attributesXml, String workflowStatus, String systemAttributes, List<LinkedObject> linkedObjects) {
         this.articleXml = articleXml;
+        this.contentType = contentType;
         this.attributesXml = attributesXml;
         this.workflowStatus = workflowStatus;
         this.systemAttributes = systemAttributes;
         this.linkedObjects = linkedObjects;
+
     }
 
     public String getArticleXml() { return articleXml; }
 
-    public String getAttributesXml() {
-        return attributesXml;
-    }
+    public String getAttributesXml() { return attributesXml; }
 
-    public String getWorkflowStatus() {
-        return workflowStatus;
-    }
+    public String getWorkflowStatus() { return workflowStatus; }
 
     public String getSystemAttributes() { return systemAttributes; }
 
     public List<LinkedObject> getLinkedObjects() { return linkedObjects; }
 
     public EomFile getEomFile() {
-        return new EomFile("","EOM::CompoundStory",
+        return new EomFile("", contentType,
                 articleXml.getBytes(Charsets.UTF_8),
                 attributesXml, workflowStatus, systemAttributes, "usageTickets", linkedObjects);
     }
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this.getClass())
+        return MoreObjects.toStringHelper(this.getClass())
                 .add("articleXml", articleXml)
                 .add("attributesXml", attributesXml)
                 .add("workflowStatus", workflowStatus)
@@ -79,57 +79,56 @@ public class MethodeContent {
                 .toString();
     }
 
-    public static Builder builder(String articleXml, String attributesXml, String workflowStatus, String systemAttributes, List<LinkedObject> linkedObjects) {
-        Builder builder = new Builder();
-        builder.articleXml = articleXml;
-        builder.attributesXml = attributesXml;
-        builder.workflowStatus = workflowStatus;
-        builder.systemAttributes = systemAttributes;
-        builder.linkedObjects = linkedObjects;
-        return builder;
-    }
+    public static abstract class ContentBuilder <T extends ContentBuilder>  {
 
-    public static class Builder {
+        protected String articleXml;
+        protected String contentType;
+        protected String attributesXml;
+        protected String workflowStatus;
+        protected String systemAttributes = SYSTEM_ATTRIBUTES_WEB;
+        protected static final String EMBARGO_DATE = "<EmbargoDate/>";
 
-        private String articleXml;
-        private String attributesXml;
-        private String workflowStatus;
-        private String systemAttributes = SYSTEM_ATTRIBUTES_WEB;
-        private static final String EMBARGO_DATE = "<EmbargoDate/>";
-        private List<LinkedObject> linkedObjects;
+        protected ContentBuilder() { }
 
-        private Builder() { }
-
-        public Builder withHeadline(String expectedPublishedArticleHeadline) {
-            attributesXml = attributesXml.replace(HEADLINE_FROM_TEST_FILE, expectedPublishedArticleHeadline);
-            articleXml = articleXml.replace(HEADLINE_FROM_TEST_FILE, expectedPublishedArticleHeadline);
-            return this;
-        }
-
-        public Builder withWorkflowStatus(String workflowStatus) {
+        public T withWorkflowStatus(String workflowStatus) {
             this.workflowStatus = workflowStatus;
-            return this;
+            return (T) this;
         }
 
-        public Builder withSource(String source) {
+        public T withSource(String source) {
             String newSourceXml = SOURCE.replace("Financial Times", source).replace("FT", source);
             attributesXml = attributesXml.replace(SOURCE, newSourceXml);
-            return this;
+            return (T) this;
         }
 
-        public Builder withChannel(String channel) {
+        public T withChannel(String channel) {
             systemAttributes = SYSTEM_ATTRIBUTES_WEB.replace("FTcom", channel);
-            return this;
+            return (T) this;
         }
 
-        public Builder withEmbargoDate(Date embargoDate) {
+        public T withContentType (String contentType) {
+            this.contentType = contentType;
+            return (T) this;
+        }
+
+        public T withEmbargoDate(Date embargoDate) {
             attributesXml = attributesXml.replace(EMBARGO_DATE, String.format("<EmbargoDate>%s</EmbargoDate>", inMethodeFormat(embargoDate)));
-            return this;
+            return (T) this;
         }
 
-        public Builder withLinkedObjects(List<LinkedObject> linkedObjects) {
-            this.linkedObjects = linkedObjects;
-            return this;
+        public T withAttributes(String attributesXml) {
+            this.attributesXml = attributesXml;
+            return (T) this;
+        }
+
+        public T withSystemAttributes(String systemAttributes) {
+            this.systemAttributes = systemAttributes;
+            return (T) this;
+        }
+
+        public T withArticleXml(String articleXml) {
+            this.articleXml = articleXml;
+            return (T) this;
         }
 
         private String inMethodeFormat(Date date) {
@@ -141,12 +140,12 @@ public class MethodeContent {
             return methodeDateFormat.format(cal.getTime());
         }
 
-        public Builder published() {
+        public T published() {
             Preconditions.checkArgument(!this.attributesXml.contains(MARK_DELETED_TRUE), "already deleted");
-            return this;
+            return (T) this;
         }
 
-        public Builder deleted() {
+        public ContentBuilder deleted() {
             attributesXml = attributesXml.replace(MARK_DELETED_FALSE, MARK_DELETED_TRUE);
             return this;
         }
@@ -159,15 +158,42 @@ public class MethodeContent {
             return deleted().build();
         }
 
+        public abstract MethodeContent build();
+    }
+
+    public static class ListBuilder extends ContentBuilder<ListBuilder> {
+
+        private List<LinkedObject> linkedObjects;
+
+        public ListBuilder withLinkedObjects(List<LinkedObject> linkedObjects) {
+            this.linkedObjects = linkedObjects;
+            return this;
+        }
+
+        @Override
         public MethodeContent build() {
             Xml.assertParseable(articleXml);
             Xml.assertParseable(attributesXml);
 
-            return new MethodeContent(articleXml, attributesXml, workflowStatus, systemAttributes, linkedObjects);
+            return new MethodeContent(articleXml, "EOM::WebContainer", attributesXml, workflowStatus, systemAttributes, linkedObjects);
         }
     }
 
+    public static class ArticleBuilder extends ContentBuilder<ArticleBuilder> {
 
+        public ArticleBuilder withHeadline(String expectedPublishedArticleHeadline) {
+            attributesXml = attributesXml.replace(HEADLINE_FROM_TEST_FILE, expectedPublishedArticleHeadline);
+            articleXml = articleXml.replace(HEADLINE_FROM_TEST_FILE, expectedPublishedArticleHeadline);
+            return this;
+        }
 
+        @Override
+        public MethodeContent build() {
+            Xml.assertParseable(articleXml);
+            Xml.assertParseable(attributesXml);
+
+            return new MethodeContent(articleXml, "EOM::CompoundStory", attributesXml, workflowStatus, systemAttributes, null);
+        }
+    }
 }
 
