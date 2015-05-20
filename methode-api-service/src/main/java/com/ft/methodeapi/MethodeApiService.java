@@ -2,9 +2,6 @@ package com.ft.methodeapi;
 
 import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.dropwizard.killswitchtask.KillSwitchTask;
-import com.ft.methodeapi.atc.AirTrafficController;
-import com.ft.methodeapi.atc.LastKnownLocation;
-import com.ft.methodeapi.atc.WhereIsMethodeResource;
 import com.ft.methodeapi.service.methode.MethodeContentRetrievalHealthCheck;
 
 import com.ft.methodeapi.service.methode.connection.MethodeObjectFactoryBuilder;
@@ -47,17 +44,12 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
     public void run(MethodeApiConfiguration configuration, Environment environment) {
     	LOGGER.info("running with configuration: {}", configuration);
 
-        final LastKnownLocation location = new LastKnownLocation(
-                new AirTrafficController(configuration.getAtc()),
-                environment.managedScheduledExecutorService("atc-%d",1)
-        );
-
         final MethodeObjectFactory methodeObjectFactory = createMethodeObjectFactory("main", configuration.getMethodeConnectionConfiguration(),environment);
         final MethodeObjectFactory testMethodeObjectFactory = createMethodeObjectFactory("test-rw", configuration.getMethodeTestConnectionConfiguration(),environment);
 
         final MethodeFileRepository methodeContentRepository = new MethodeFileRepository(methodeObjectFactory, testMethodeObjectFactory);
 
-        environment.addResource(new EomFileResource(methodeContentRepository,location));
+        environment.addResource(new EomFileResource(methodeContentRepository));
         environment.addResource(new VersionResource(MethodeApiService.class));
         environment.addResource(new BuildInfoResource());
         environment.addResource(new GetAssetTypeResource(methodeContentRepository));
@@ -75,11 +67,10 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
 
 
 
-        environment.addHealthCheck(new MethodePingHealthCheck(location, methodeObjectFactory, configuration.getMethodeConnectionConfiguration().getMaxPingMillis()));
-        environment.addHealthCheck(new MethodePingHealthCheck(location, testMethodeObjectFactory, configuration.getMethodeTestConnectionConfiguration().getMaxPingMillis()));
-        environment.addResource(new WhereIsMethodeResource(location));
+        environment.addHealthCheck(new MethodePingHealthCheck(methodeObjectFactory, configuration.getMethodeConnectionConfiguration().getMaxPingMillis()));
+        environment.addHealthCheck(new MethodePingHealthCheck(testMethodeObjectFactory, configuration.getMethodeTestConnectionConfiguration().getMaxPingMillis()));
 
-        environment.addHealthCheck(new MethodeContentRetrievalHealthCheck(location, methodeContentRepository));
+        environment.addHealthCheck(new MethodeContentRetrievalHealthCheck(methodeContentRepository));
 
         environment.addProvider(new RuntimeExceptionMapper());
 		environment.addFilter(new TransactionIdFilter(), "/eom-file/*");

@@ -12,9 +12,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.ft.api.jaxrs.errors.ClientError;
-import com.ft.api.jaxrs.errors.LogLevel;
 import com.ft.api.jaxrs.errors.ServerError;
-import com.ft.methodeapi.atc.LastKnownLocation;
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodeapi.service.methode.ActionNotPermittedException;
 import com.ft.methodeapi.service.methode.InvalidEomFileException;
@@ -31,11 +29,9 @@ public class EomFileResource {
     private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
     private final MethodeFileRepository methodeContentRepository;
-    private final LastKnownLocation location;
 
-    public EomFileResource(MethodeFileRepository methodeContentRepository, LastKnownLocation location) {
+    public EomFileResource(MethodeFileRepository methodeContentRepository) {
         this.methodeContentRepository = methodeContentRepository;
-        this.location = location;
     }
 
     @GET
@@ -46,11 +42,7 @@ public class EomFileResource {
         try {
             return methodeContentRepository.findFileByUuid(uuid);
         } catch(MethodeException | SystemException ex) {
-            ServerError.ServerErrorBuilder builder = ServerError.status(503).error("error accessing upstream system");
-            if(!location.isActiveLocation()) {
-                builder.logLevel(LogLevel.DEBUG);
-            }
-            throw builder.exception(ex);
+            throw ServerError.status(503).error("error accessing upstream system").exception(ex);
         }
     }
 

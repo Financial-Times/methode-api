@@ -7,7 +7,6 @@ import ch.qos.logback.core.Appender;
 
 import com.ft.api.jaxrs.errors.ServerError.ServerErrorBuilder;
 import com.ft.api.util.transactionid.TransactionIdUtils;
-import com.ft.methodeapi.atc.LastKnownLocation;
 import com.ft.methodeapi.service.methode.MethodeException;
 import com.ft.methodeapi.service.methode.MethodeFileRepository;
 import com.google.common.base.Predicate;
@@ -43,8 +42,6 @@ public class EomFileGetResourceTest  extends ResourceTest {
 
     private MethodeFileRepository methodeFileRepository;
 
-    LastKnownLocation location = mock(LastKnownLocation.class);
-
     ch.qos.logback.classic.Logger logger;
     Level logLevel;
     
@@ -55,7 +52,7 @@ public class EomFileGetResourceTest  extends ResourceTest {
     @Override
     protected void setUpResources() throws Exception {
         methodeFileRepository = mock(MethodeFileRepository.class);
-        addResource(new EomFileResource(methodeFileRepository, location));
+        addResource(new EomFileResource(methodeFileRepository));
     }
 
     @SuppressWarnings("unchecked")
@@ -81,29 +78,13 @@ public class EomFileGetResourceTest  extends ResourceTest {
     }
 
     @Test
-    public void shouldLogFailureAtErrorWhenInActiveLocation() {
-        when(location.isActiveLocation()).thenReturn(true);
-
+    public void shouldLogFailureAtError() {
         when(methodeFileRepository.findFileByUuid(anyString())).thenThrow(methodeException());
 
         try {
             doSimpleGet();
         } finally {
             assertLogEvent("error accessing upstream system", Level.ERROR);
-        }
-    }
-
-
-    @Test
-    public void shouldLogFailureAtDebugWhenInPassiveLocation() {
-        when(location.isActiveLocation()).thenReturn(false);
-
-        when(methodeFileRepository.findFileByUuid(anyString())).thenThrow(methodeException());
-
-        try {
-            doSimpleGet();
-        } finally {
-            assertLogEvent("error accessing upstream system", Level.DEBUG);
         }
     }
 
