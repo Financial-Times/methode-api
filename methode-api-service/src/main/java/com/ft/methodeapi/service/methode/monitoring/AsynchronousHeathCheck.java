@@ -37,19 +37,19 @@ public class AsynchronousHeathCheck extends HealthCheck {
                 // run the check outside the synchronised block but update the value inside to ensure visibility
                 Result newResult = safeExecute();
                 synchronized (monitor) {
-                     result = newResult;
+                    result = newResult;
+                    lastUpdate = System.currentTimeMillis();
                 }
             }
 
             private Result safeExecute() {
                 try {
+                    // this has built in exception handling, but allows errors to bubble up
                     return target.execute();
                 } catch (Error error) {
                     // protect the task from being stopped, and seek human intervention
                     LOGGER.error("Caught serious issue (Java Error)",error);
                     return Result.unhealthy(error);
-                } finally {
-                    lastUpdate = System.currentTimeMillis();
                 }
             }
         },0,delay,unit);
