@@ -12,9 +12,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.ft.api.jaxrs.errors.ClientError;
-import com.ft.api.jaxrs.errors.LogLevel;
 import com.ft.api.jaxrs.errors.ServerError;
-import com.ft.methodeapi.atc.LastKnownLocation;
 import com.ft.methodeapi.model.EomFile;
 import com.ft.methodeapi.service.methode.ActionNotPermittedException;
 import com.ft.methodeapi.service.methode.InvalidEomFileException;
@@ -31,11 +29,9 @@ public class EomFileResource {
     private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
     private final MethodeFileRepository methodeContentRepository;
-    private final LastKnownLocation location;
 
-    public EomFileResource(MethodeFileRepository methodeContentRepository, LastKnownLocation location) {
+    public EomFileResource(MethodeFileRepository methodeContentRepository) {
         this.methodeContentRepository = methodeContentRepository;
-        this.location = location;
     }
 
     @GET
@@ -46,11 +42,7 @@ public class EomFileResource {
         try {
             return methodeContentRepository.findFileByUuid(uuid);
         } catch(MethodeException | SystemException ex) {
-            ServerError.ServerErrorBuilder builder = ServerError.status(503).error("error accessing upstream system");
-            if(!location.isActiveLocation()) {
-                builder.logLevel(LogLevel.DEBUG);
-            }
-            throw builder.exception(ex);
+            throw ServerError.status(503).error("error accessing upstream system").exception(ex);
         }
     }
 
@@ -59,9 +51,17 @@ public class EomFileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public EomFile newTestFile(final EomFile eomFile) {
-        final String filename = "test-file-" + System.currentTimeMillis() + ".xml";
+        final String type = eomFile.getType();
+        final StringBuilder fileName = new StringBuilder("test-file-").append(System.currentTimeMillis());
+        if (type.equals("EOM::WebContainer")) {
+            fileName.append(".dwc");
+        } else if (type.equals("Image")) {
+            fileName.append(".jpg");
+        } else {
+            fileName.append(".xml");
+        }
         try {
-            EomFile newEomFile = methodeContentRepository.createNewTestFile(filename, eomFile);
+            EomFile newEomFile = methodeContentRepository.createNewTestFile(fileName.toString(), eomFile);
             return newEomFile;
         } catch (InvalidEomFileException e) {
             throw ClientError.status(422).exception(e);
