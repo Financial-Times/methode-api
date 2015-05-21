@@ -18,7 +18,7 @@ public class ReferenceListsTest {
     public void shouldNotBorkMultibyteCharacters() {
         EomFile result = ReferenceLists.publishedList().build().getEomFile();
 
-        assertThat(result.getAttributes(),containsString("Home\u002DU\u004B \u0054op \u0053tories \u0045dit"));
+        assertThat(result.getAttributes(),containsString("U\u004B Elec\u0074ion 2\u00301\u0037"));
     }
 
 }

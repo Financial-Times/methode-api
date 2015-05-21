@@ -26,6 +26,8 @@ import java.util.concurrent.Future;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
@@ -270,6 +272,16 @@ public class StepDefs {
     public void the_list_should_have_the_expected_content() throws Throwable {
         byte[] retreivedContent =  from(theResponseEntityForSuccessfulRequest).getObject("", EomFile.class).getValue();
         assertThat("bytes in file differed", retreivedContent, equalTo(theExpectedList.getValue()));
+    }
+
+    @Then("^the article should have the expected type value$")
+    public void the_article_should_have_the_expected_type() throws Throwable {
+        assertThat("file extension didn't match expected", from(theResponseEntityForSuccessfulRequest).getString("type"), equalTo(theExpectedArticle.getType()));
+    }
+
+    @Then("^the list should have the expected type value$")
+    public void the_list_should_have_the_expected_type() throws Throwable {
+        assertThat("file extension didn't match expected", from(theResponseEntityForSuccessfulRequest).getString("type"), equalTo(theExpectedList.getType()));
     }
 
     @Then("^the list should have the expected linked items content$")

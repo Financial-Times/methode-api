@@ -51,6 +51,16 @@ public class MethodeContentBuilderTest {
     }
 
 	@Test
+	public void builtArticleShouldHaveCorrectTypeValue() {
+		assertThat(ReferenceArticles.publishedKitchenSinkArticle().build().getEomFile().getType(), containsString("EOM::CompoundStory"));
+	}
+
+	@Test
+	public void builtListShouldHaveCorrectTypeValue() {
+		assertThat(ReferenceLists.publishedList().build().getEomFile().getType(), containsString("EOM::WebContainer"));
+	}
+
+	@Test
 	public void builtArticleShouldHaveCorrectWorkflowStatus() {
 		assertThat(ReferenceArticles.publishedKitchenSinkArticle().build().getWorkflowStatus(), containsString(MethodeContent.WEB_READY));
 	}
