@@ -51,7 +51,9 @@ public class EomFile {
         this.linkedObjects = linkedObjects;
     }
 
-    public String getUuid() { return uuid; }
+    public String getUuid() {
+        return uuid;
+    }
 
     public String getType() {
         return type;

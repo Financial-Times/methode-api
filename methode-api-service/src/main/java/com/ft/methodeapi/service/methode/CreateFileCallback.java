@@ -79,13 +79,93 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
         this.eomFile = eomFile;
     }
 
-    private List<LinkedObject> createLinks(Session session, File file){
+    @Override
+    public EomFile doOperation(Session session) {
+
+        List<org.omg.CORBA.Object> forRelease = Lists.newArrayList();
+        FileSystemAdmin fileSystemAdmin = null;
+        EomDb eomDb = null;
+        try {
+            fileSystemAdmin = methodeObjectFactory.createFileSystemAdmin(session);
+
+            File file = createFile(fileSystemAdmin, session, forRelease);
+
+            List<LinkedObject> linkedObjects = null;
+
+            if(eomFile.getLinkedObjects() !=null && !eomFile.getLinkedObjects().isEmpty()) {
+
+                linkedObjects = createLinks(session, file, forRelease, eomDb);
+            }
+
+            setStatusAndFireStatusEvent(file, session, forRelease);
+
+            return new EomFile(file.get_uuid_string(), file.get_type_name(), file.read_all(),
+                    file.get_attributes(), file.get_status_name(), file.get_system_attributes(),
+                    file.get_usage_tickets(""), linkedObjects);
+
+        } catch (TypeNotFound | RepositoryError | PermissionDenied | InvalidName | InvalidForContainer | ObjectLocked
+                | DuplicatedName | ObjectNotLocked | ObjectNotCheckedOut | ObjectNotFound e) {
+            throw new MethodeException(e);
+        } catch (InvalidAttributes | InvalidType e) {
+            throw new InvalidEomFileException("cannot create requested file", e);
+        } catch (InvalidStatus invalidStatus) {
+            throw new InvalidEomFileException("Invalid workflow status.", invalidStatus);
+        } finally {
+            for (org.omg.CORBA.Object corbaObject: forRelease) {
+                corbaObject._release();
+            }
+            if(eomDb != null) {
+                eomDb.release();
+            }
+            methodeObjectFactory.maybeCloseFileSystemAdmin(fileSystemAdmin);
+        }
+    }
+
+    private File createFile(FileSystemAdmin fileSystemAdmin, Session session, List<Object> forRelease)
+            throws TypeNotFound, RepositoryError, PermissionDenied,
+            InvalidName, InvalidForContainer, ObjectLocked, DuplicatedName, InvalidType, ObjectNotLocked,
+            InvalidAttributes, ObjectNotFound, ObjectNotCheckedOut {
+
+        final ObjectTypeAdmin objectTypeAdmin = ObjectTypeAdminHelper.narrow(session.resolve_initial_references("ObjectTypeAdmin"));
+
+        final ObjectType objectType = objectTypeAdmin.get_object_type(eomFile.getType());
+
+        final Folder rootFolder = fileSystemAdmin.get_root();
+
+        final Folder folder = findOrCreateFolder(rootFolder, path);
+
+        final File file = folder.create_file(filename, objectType);
+
+        forRelease.add(objectTypeAdmin);
+        forRelease.add(objectType);
+        forRelease.add(rootFolder);
+        forRelease.add(folder);
+        forRelease.add(file);
+
+        file.write_all(eomFile.getValue());
+        file.set_attributes(eomFile.getAttributes());
+        file.set_system_attributes(eomFile.getSystemAttributes());
+        file.check_in("", false);
+        try {
+            String now = new Date().toString();
+            file.append_usage_ticket("web_publication","<dt><publishedDate>" + now + "</publishedDate></dt>", 0);
+            file.append_usage_ticket("Publisher","<dt><publishedDate>" + now + "</publishedDate></dt>", 0);
+        } catch (UserException ignored) {
+            //just carry on
+        }
+        return file;
+    }
+
+    private List<LinkedObject> createLinks(Session session, File file, List<Object> forRelease, EomDb eomDb){
         List<LinkedObject> linkedObjects = new ArrayList<>();
         try {
             EomDbHelper helper = EomDbHelperFactory.create(session);
-            EomDb eomDb = helper.getEomDb();
+            eomDb = helper.getEomDb();
             EomDbObject parentDbObject = eomDb.getEomDbObjectByUuid(file.get_uuid_string());
+            _Object parentObject = parentDbObject.getEomObject();
             WebTypes webTypes;
+
+            forRelease.add(parentObject);
             try {
                 webTypes = helper.loadWebTypes(WEB_TYPES_PATH);
             } catch (Exception e) {
@@ -94,6 +174,8 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
             for (LinkedObject child : eomFile.getLinkedObjects()) {
                 EomDbObject childDbObject = eomDb.getEomDbObjectByUuid(child.getUuid());
                 _Object childObject = childDbObject.getEomObject();
+
+                forRelease.add(childObject);
                 try {
                     LOGGER.error(childObject.get_creator());
 
@@ -121,45 +203,6 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
             throw new MethodeException("Failed to create links", e);
         }
     }
-
-    @Override
-    public EomFile doOperation(Session session) {
-    	
-    	List<org.omg.CORBA.Object> forRelease = Lists.newArrayList(); 
-    	FileSystemAdmin fileSystemAdmin = null;
-        try {   	
-        	fileSystemAdmin = methodeObjectFactory.createFileSystemAdmin(session);
-        	
-        	File file = createFile(fileSystemAdmin, session, forRelease);
-
-            List<LinkedObject> linkedObjects = null;
-
-            if(eomFile.getLinkedObjects() !=null && !eomFile.getLinkedObjects().isEmpty()) {
-
-                linkedObjects = createLinks(session, file);
-            }
-
-            setStatusAndFireStatusEvent(file, session, forRelease);
-
-            return new EomFile(file.get_uuid_string(), file.get_type_name(), file.read_all(),
-                    file.get_attributes(), file.get_status_name(), file.get_system_attributes(),
-                    file.get_usage_tickets(""), linkedObjects);
-
-		} catch (TypeNotFound | RepositoryError | PermissionDenied | InvalidName | InvalidForContainer | ObjectLocked
-				| DuplicatedName | ObjectNotLocked | ObjectNotCheckedOut | ObjectNotFound e) {
-			throw new MethodeException(e);
-		} catch (InvalidAttributes | InvalidType e) {
-			throw new InvalidEomFileException("cannot create requested file", e);
-		} catch (InvalidStatus invalidStatus) {
-			throw new InvalidEomFileException("Invalid workflow status.", invalidStatus);
-		} finally {
-			for (org.omg.CORBA.Object corbaObject: forRelease) {
-				corbaObject._release();
-			}
-            methodeObjectFactory.maybeCloseFileSystemAdmin(fileSystemAdmin);
-        }
-
-	}
     
     private void setStatusAndFireStatusEvent(File file, Session session, List<Object> forRelease) 
     		throws ObjectNotFound, RepositoryError, PermissionDenied, InvalidStatus {
@@ -171,42 +214,6 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
 		forRelease.add(oa);
 		forRelease.add(ea);
 	}
-
-	private File createFile(FileSystemAdmin fileSystemAdmin, Session session, List<Object> forRelease) 
-			throws TypeNotFound, RepositoryError, PermissionDenied, 
-    		InvalidName, InvalidForContainer, ObjectLocked, DuplicatedName, InvalidType, ObjectNotLocked, 
-    		InvalidAttributes, ObjectNotFound, ObjectNotCheckedOut {
-    	
-		final ObjectTypeAdmin objectTypeAdmin = ObjectTypeAdminHelper.narrow(session.resolve_initial_references("ObjectTypeAdmin"));
-		
-		final ObjectType objectType = objectTypeAdmin.get_object_type(eomFile.getType());
-       
-        final Folder rootFolder = fileSystemAdmin.get_root();
-        
-        final Folder folder = findOrCreateFolder(rootFolder, path);    
-
-        final File file = folder.create_file(filename, objectType);
-        
-        forRelease.add(objectTypeAdmin);
-        forRelease.add(objectType);
-        forRelease.add(rootFolder);
-        forRelease.add(folder);
-        forRelease.add(file);
-
-        file.write_all(eomFile.getValue());
-        file.set_attributes(eomFile.getAttributes());
-		file.set_system_attributes(eomFile.getSystemAttributes());
-		file.check_in("", false);
-        try {
-            String now = new Date().toString();
-            file.append_usage_ticket("web_publication","<dt><publishedDate>" + now + "</publishedDate></dt>", 0);
-            file.append_usage_ticket("Publisher","<dt><publishedDate>" + now + "</publishedDate></dt>", 0);
-        } catch (UserException ignored) {
-            //just carry on
-        }
-        return file;
-
-    }
 
     private Folder findOrCreateFolder(final Folder rootFolder, final String path) throws RepositoryError, PermissionDenied, InvalidName, InvalidForContainer, ObjectLocked, DuplicatedName, ObjectNotLocked {
         final String[] pathSegments = Utils.stringToPath(path);
