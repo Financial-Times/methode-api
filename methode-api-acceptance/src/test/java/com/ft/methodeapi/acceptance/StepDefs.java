@@ -1,7 +1,9 @@
 package com.ft.methodeapi.acceptance;
 
 import com.ft.methodeapi.SetUpHelper;
+import com.ft.methodeapi.acceptance.xml.Xml;
 import com.ft.methodeapi.model.EomFile;
+import com.ft.methodeapi.model.LinkedObject;
 import com.google.common.base.MoreObjects;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
@@ -26,6 +28,7 @@ import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static com.jayway.restassured.path.json.JsonPath.from;
@@ -269,6 +272,22 @@ public class StepDefs {
         assertThat("bytes in file differed", retreivedContent, equalTo(theExpectedList.getValue()));
     }
 
+    @Then("^the article should have the expected type value$")
+    public void the_article_should_have_the_expected_type() throws Throwable {
+        assertThat("file extension didn't match expected", from(theResponseEntityForSuccessfulRequest).getString("type"), equalTo(theExpectedArticle.getType()));
+    }
+
+    @Then("^the list should have the expected type value$")
+    public void the_list_should_have_the_expected_type() throws Throwable {
+        assertThat("file extension didn't match expected", from(theResponseEntityForSuccessfulRequest).getString("type"), equalTo(theExpectedList.getType()));
+    }
+
+    @Then("^the list should have the expected linked items content$")
+    public void the_list_should_have_the_expected_linked_items_content() throws Throwable {
+        List<LinkedObject> linkedObjects =  from(theResponseEntityForSuccessfulRequest).getObject("", EomFile.class).getLinkedObjects();
+        assertThat("uuid/type of objects in list differed from expected", linkedObjects, equalTo(theExpectedList.getLinkedObjects()));
+        assertThat("number of objects in list differed from expected", linkedObjects.size(), is(theExpectedList.getLinkedObjects().size()));
+    }
 
     @Then("^it is returned within (\\d+)ms at least (\\d+)% of the time$")
     public void it_is_returned_within_MAX_ms_at_least_PERCENT_of_the_time(long max, double percent) {

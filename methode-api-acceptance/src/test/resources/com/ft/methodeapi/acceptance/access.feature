@@ -12,6 +12,7 @@ Feature: Requests for content
     And the article should have the expected metadata
     And the article should have the expected content
 	And the article should have the expected workflow status
+    And the article should have the expected type value
 
 @Smoke
   Scenario: An List can be successfully retrieved
@@ -20,7 +21,9 @@ Feature: Requests for content
     Then the list should be available from the MethodeAPI
     And the list should have the expected metadata
     And the list should have the expected content
+    And the list should have the expected linked items content
     And the list should have the expected workflow status
+    And the list should have the expected type value
 
   Scenario: An article that doesn't exist is not found
     Given an article does not exist in Methode

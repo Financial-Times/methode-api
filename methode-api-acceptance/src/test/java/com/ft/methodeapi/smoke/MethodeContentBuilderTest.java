@@ -2,6 +2,7 @@ package com.ft.methodeapi.smoke;
 
 import com.ft.methodeapi.acceptance.MethodeContent;
 import com.ft.methodeapi.acceptance.ReferenceArticles;
+import com.ft.methodeapi.acceptance.ReferenceLists;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
@@ -50,6 +51,16 @@ public class MethodeContentBuilderTest {
     }
 
 	@Test
+	public void builtArticleShouldHaveCorrectTypeValue() {
+		assertThat(ReferenceArticles.publishedKitchenSinkArticle().build().getEomFile().getType(), containsString("EOM::CompoundStory"));
+	}
+
+	@Test
+	public void builtListShouldHaveCorrectTypeValue() {
+		assertThat(ReferenceLists.publishedList().build().getEomFile().getType(), containsString("EOM::WebContainer"));
+	}
+
+	@Test
 	public void builtArticleShouldHaveCorrectWorkflowStatus() {
 		assertThat(ReferenceArticles.publishedKitchenSinkArticle().build().getWorkflowStatus(), containsString(MethodeContent.WEB_READY));
 	}
@@ -58,6 +69,11 @@ public class MethodeContentBuilderTest {
 	public void builtArticleShouldHaveChangedWorkflowStatus() {
 		String workflowStatus = ReferenceArticles.publishedKitchenSinkArticle().withWorkflowStatus(MethodeContent.WEB_REVISE).build().getWorkflowStatus();
 		assertThat(workflowStatus, is(MethodeContent.WEB_REVISE));
+	}
+
+	@Test
+	public void builtListShouldHaveCorrectWorkflowStatus() {
+		assertThat(ReferenceLists.publishedList().build().getWorkflowStatus(), containsString(MethodeContent.CLEARED));
 	}
 
 	@Test
