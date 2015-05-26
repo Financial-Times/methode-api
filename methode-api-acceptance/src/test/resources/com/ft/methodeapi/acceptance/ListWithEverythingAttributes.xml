@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE ObjectMetadata SYSTEM "/SysConfig/Classify/FTDWC2/classify.dtd">
-<ObjectMetadata><FTcom><DIFTcomWebType>digitalList</DIFTcomWebType>
-</FTcom>
-    <Lists><Title>UK Election 2017</Title>
+<ObjectMetadata>
+    <FTcom>
+        <DIFTcomWebType>digitalList</DIFTcomWebType>
+    </FTcom>
+    <Lists>
+        <Title>UK Election 2017</Title>
         <DisplayHint>Standard</DisplayHint>
     </Lists>
 </ObjectMetadata>

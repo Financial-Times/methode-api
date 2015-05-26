@@ -9,14 +9,14 @@ public class ReferenceArticles {
 
     private static final String exampleArticleXmlTemplate = readFromFile("ArticleWithEverything.xml");
     private static final String exampleAttributesXml = readFromFile("ArticleWithEverythingAttributes.xml");
-    private static final String exampleWebChannelXml = readFromFile("ArticleWithEverythingSystemAttributes.xml");
+    private static final String exampleSystemAttributesXml = readFromFile("ArticleWithEverythingSystemAttributes.xml");
 
     public static MethodeContent.ArticleBuilder publishedKitchenSinkArticle() {
         return new MethodeContent.ArticleBuilder()
                 .withArticleXml(exampleArticleXmlTemplate)
                 .withAttributes(exampleAttributesXml)
                 .withWorkflowStatus(MethodeContent.WEB_READY)
-                .withChannel(exampleWebChannelXml)
+                .withSystemAttributes(exampleSystemAttributesXml)
                 .published();
     }
 
