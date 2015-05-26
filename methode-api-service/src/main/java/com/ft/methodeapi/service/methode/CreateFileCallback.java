@@ -84,7 +84,6 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
 
         List<org.omg.CORBA.Object> forRelease = Lists.newArrayList();
         FileSystemAdmin fileSystemAdmin = null;
-        EomDb eomDb = null;
         try {
             fileSystemAdmin = methodeObjectFactory.createFileSystemAdmin(session);
 
@@ -94,7 +93,7 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
 
             if(eomFile.getLinkedObjects() !=null && !eomFile.getLinkedObjects().isEmpty()) {
 
-                linkedObjects = createLinks(session, file, forRelease, eomDb);
+                linkedObjects = createLinks(session, file, forRelease);
             }
 
             setStatusAndFireStatusEvent(file, session, forRelease);
@@ -113,9 +112,6 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
         } finally {
             for (org.omg.CORBA.Object corbaObject: forRelease) {
                 corbaObject._release();
-            }
-            if(eomDb != null) {
-                eomDb.release();
             }
             methodeObjectFactory.maybeCloseFileSystemAdmin(fileSystemAdmin);
         }
@@ -156,11 +152,11 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
         return file;
     }
 
-    private List<LinkedObject> createLinks(Session session, File file, List<Object> forRelease, EomDb eomDb){
+    private List<LinkedObject> createLinks(Session session, File file, List<Object> forRelease){
         List<LinkedObject> linkedObjects = new ArrayList<>();
         try {
             EomDbHelper helper = EomDbHelperFactory.create(session);
-            eomDb = helper.getEomDb();
+            EomDb eomDb = helper.getEomDb();
             EomDbObject parentDbObject = eomDb.getEomDbObjectByUuid(file.get_uuid_string());
             _Object parentObject = parentDbObject.getEomObject();
             WebTypes webTypes;
