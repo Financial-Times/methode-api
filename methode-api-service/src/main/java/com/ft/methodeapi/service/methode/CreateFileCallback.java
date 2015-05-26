@@ -160,7 +160,6 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
             EomDbObject parentDbObject = eomDb.getEomDbObjectByUuid(file.get_uuid_string());
             _Object parentObject = parentDbObject.getEomObject();
             WebTypes webTypes;
-            eomDb.release();
 
             forRelease.add(parentObject);
             try {
