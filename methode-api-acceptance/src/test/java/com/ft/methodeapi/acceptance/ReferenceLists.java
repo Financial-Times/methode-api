@@ -14,7 +14,7 @@ public class ReferenceLists {
 
     private static final String exampleListXmlTemplate = readFromFile("ListWithEverything.xml");
     private static final String exampleAttributesXml = readFromFile("ListWithEverythingAttributes.xml");
-    private static final String exampleWebChannelXml = readFromFile("ListWithEverythingSystemAttributes.xml");
+    private static final String exampleSystemAttributesXml = readFromFile("ListWithEverythingSystemAttributes.xml");
 
     public static MethodeContent.ContentBuilder publishedList() {
         List<LinkedObject> linkedObjects;
@@ -24,7 +24,7 @@ public class ReferenceLists {
                 .withArticleXml(exampleListXmlTemplate)
                 .withAttributes(exampleAttributesXml)
                 .withWorkflowStatus(MethodeContent.CLEARED)
-                .withChannel(exampleWebChannelXml)
+                .withSystemAttributes(exampleSystemAttributesXml)
                 .withLinkedObjects(linkedObjects)
                 .published();
     }

@@ -22,18 +22,9 @@ public class MethodeContent {
     public static final String WEB_REVISE = "Stories/WebRevise";
     public static final String WEB_READY = "Stories/WebReady";
     public static final String CLEARED = "AdLayers/Cleared";
-    public static final String WEB_CHANNEL = "FTcom";
-    public static final String NEWSPAPER_CHANNEL = "Financial Times";
     public static final String METHODE_DATE_FORMAT = "yyyyMMddHHmmss";
 
     private static final String SOURCE = "<Source title=\"Financial Times\"><SourceCode>FT</SourceCode><SourceDescriptor>Financial Times</SourceDescriptor>";
-    private static final String SYSTEM_ATTRIBUTES_WEB = "<props><productInfo><name>FTcom</name>\n" +
-            "<issueDate>20131219</issueDate>\n" +
-            "</productInfo>\n" +
-            "<workFolder>/FT/Companies</workFolder>\n" +
-            "<templateName>/SysConfig/Templates/FT/Base-Story.xml</templateName>\n" +
-            "<summary>t text text text text text text text text text text text text text\n" +
-            " text text text text te...</summary><wordCount>417</wordCount></props>";
 
     private String articleXml;
     private String attributesXml;
@@ -85,7 +76,7 @@ public class MethodeContent {
         protected String contentType;
         protected String attributesXml;
         protected String workflowStatus;
-        protected String systemAttributes = SYSTEM_ATTRIBUTES_WEB;
+        protected String systemAttributes;
         protected static final String EMBARGO_DATE = "<EmbargoDate/>";
 
         protected ContentBuilder() { }
@@ -98,11 +89,6 @@ public class MethodeContent {
         public T withSource(String source) {
             String newSourceXml = SOURCE.replace("Financial Times", source).replace("FT", source);
             attributesXml = attributesXml.replace(SOURCE, newSourceXml);
-            return (T) this;
-        }
-
-        public T withChannel(String channel) {
-            systemAttributes = SYSTEM_ATTRIBUTES_WEB.replace("FTcom", channel);
             return (T) this;
         }
 
