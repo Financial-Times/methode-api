@@ -69,7 +69,7 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
     private final Timer createRepositoryTimer = metricsRegistry.newTimer(DefaultMethodeObjectFactory.class, "create-repository");
     private final Timer closeRepositoryTimer = metricsRegistry.newTimer(DefaultMethodeObjectFactory.class, "close-repository");
     
-    private String orbInitRef;
+    private String hostIP;
     
     
     public DefaultMethodeObjectFactory(String name, String hostname, int port, String username, String password, int connectionTimeout, String orbClass) {
@@ -144,9 +144,7 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
     public ORB createOrb() {
         final TimerContext timerContext = createOrbTimer.time();
         try {
-            if (orbInitRef == null) {
-                refreshMethodeLocation();
-            }
+            String orbInitRef = refreshMethodeLocation();
             
             String[] orbInits = {"-ORBInitRef", orbInitRef};
             Properties properties = new Properties();
@@ -266,9 +264,14 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
     }
 
     @Override
-    public String refreshMethodeLocation() {
-        LOGGER.info("getMethodeIP for hostname: {}", hostname);
-        String hostIP = null;
+    public String getMethodeLocation() {
+        return hostIP;
+    }
+    
+    private String refreshMethodeLocation() {
+        LOGGER.info("Refresh Methode IP for hostname: {}", hostname);
+        
+        String orbInitRef = null;
         try {
             hostIP = InetAddress.getByName(hostname).getHostAddress();
             LOGGER.info("MethodeAPI is calling host IP: {}", hostIP);
@@ -279,6 +282,6 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
             orbInitRef = String.format(CORBA_LOC, hostname, port);
         }
         
-        return hostIP;
+        return orbInitRef;
     }
 }

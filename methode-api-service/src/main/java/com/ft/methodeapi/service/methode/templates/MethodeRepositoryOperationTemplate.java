@@ -46,14 +46,15 @@ public class MethodeRepositoryOperationTemplate<T> {
     
     public T doOperation(RepositoryCallback<T> callback) {
         RunningTimer timerContext = null;
-        if ((timerClass != null) && timerName != null) {
-            String metricName = String.format("%s@%s", timerName, client.refreshMethodeLocation());
-            FTTimer opTimer = FTTimer.newTimer(timerClass, metricName);
-            timerContext = opTimer.start();
-        }
         
         try {
             ORB orb = client.createOrb();
+            if ((timerClass != null) && timerName != null) {
+                String metricName = String.format("%s@%s", timerName, client.getMethodeLocation());
+                FTTimer opTimer = FTTimer.newTimer(timerClass, metricName);
+                timerContext = opTimer.start();
+            }
+            
             try {
                 return doOperationWithOrb(orb, callback);
                 
