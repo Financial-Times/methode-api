@@ -74,9 +74,9 @@ public interface MethodeObjectFactory {
 
     String getDescription();
     
-    /** Refresh the object factory state and establish where future Methode calls will be made.
+    /** Get the location to which Methode calls will be made by the most recently created ORB.
      *  @return an identifier for the Methode location
      */
-    String refreshMethodeLocation();
+    String getMethodeLocation();
 
 }

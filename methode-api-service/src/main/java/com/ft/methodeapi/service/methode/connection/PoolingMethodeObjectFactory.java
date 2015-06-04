@@ -204,7 +204,7 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
     }
 
     @Override
-    public String refreshMethodeLocation() {
-        return implementation.refreshMethodeLocation();
+    public String getMethodeLocation() {
+        return implementation.getMethodeLocation();
     }
 }

@@ -67,7 +67,7 @@ public class MethodeRepositoryOperationTemplateTest {
 
         when(mockMethodeObjectFactory.createSession(mockRepository)).thenThrow(new RuntimeException("unexpected call"));
         
-        when(mockMethodeObjectFactory.refreshMethodeLocation()).thenReturn("127.0.0.1");
+        when(mockMethodeObjectFactory.getMethodeLocation()).thenReturn("127.0.0.1");
     }
 
     @Test
@@ -137,7 +137,7 @@ public class MethodeRepositoryOperationTemplateTest {
     
     @Test
     public void thatDoOperationRecordsMetricsPerIP() {
-        when(mockMethodeObjectFactory.refreshMethodeLocation())
+        when(mockMethodeObjectFactory.getMethodeLocation())
             .thenReturn("127.0.0.1")
             .thenReturn("127.0.0.2")
             .thenReturn("127.0.0.1");
