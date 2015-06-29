@@ -5,7 +5,7 @@ import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ft.methodeapi.service.methode.MethodeConnectionConfiguration;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.yammer.dropwizard.config.Configuration;
 
 public class MethodeApiConfiguration extends Configuration {
@@ -31,8 +31,8 @@ public class MethodeApiConfiguration extends Configuration {
         return methodeTestConnectionConfiguration;
     }
     
-    protected Objects.ToStringHelper toStringHelper() {
-        return Objects.toStringHelper(this)
+    protected MoreObjects.ToStringHelper toStringHelper() {
+        return MoreObjects.toStringHelper(this)
                 .add("super", super.toString())
                 .add("methodeConnectionConfiguration", methodeConnectionConfiguration)
                 .add("methodeTestConnectionConfiguration", methodeTestConnectionConfiguration);
