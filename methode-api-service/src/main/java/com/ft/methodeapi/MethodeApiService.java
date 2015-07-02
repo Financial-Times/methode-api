@@ -48,8 +48,7 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
     	LOGGER.info("running with configuration: {}", configuration);
 
         final MethodeObjectFactory methodeObjectFactory = createMethodeObjectFactory("main", configuration.getCredentialsPath(),configuration.getMethodeConnectionConfiguration(),environment);
-        final MethodeObjectFactory testMethodeObjectFactory = createMethodeObjectFactory("test-rw", configuration.getCredentialsPath(), configuration.getMethodeTestConnectionConfiguration(),environment);
-
+        final MethodeObjectFactory testMethodeObjectFactory = createMethodeObjectFactory("test-rw", configuration.getTestCredentialsPath(), configuration.getMethodeTestConnectionConfiguration(),environment);
         final MethodeFileRepository methodeContentRepository = new MethodeFileRepository(methodeObjectFactory, testMethodeObjectFactory);
 
         environment.addResource(new EomFileResource(methodeContentRepository));
@@ -97,7 +96,6 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
 
         String userName = credentials.getProperty("methode.api.userName");
         String password = credentials.getProperty("methode.api.password");
-
         MethodeObjectFactory result = MethodeObjectFactoryBuilder.named(name)
                     .withHost(methodeConnectionConfiguration.getMethodeHostName())
                     .withPort(methodeConnectionConfiguration.getMethodePort())

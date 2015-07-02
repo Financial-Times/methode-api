@@ -1,4 +1,5 @@
-credentialsPath: test-credentials.properties
+credentialsPath: credentials.properties
+testCredentialsPath: test-credentials.properties
 
 http:
     port: 9080
@@ -7,14 +8,14 @@ http:
 methodeConnection:
   hostName: preditor-methode-01.svc.ft.com
   nsPort: 9091 #WRONG
-  userName: automate1
-  password: automate1
+#  userName: automate1
+#  password: automate1
   connectTimeout: 2000
   maxPingMillis: 500
 methodeTestConnection:
   hostName: preditor-methode-01.svc.ft.com
   nsPort: 9091 #WRONG
-  userName: dynpubtest
-  password: dynpubtest
+#  userName: dynpubtest
+#  password: dynpubtest
   connectTimeout: 2000
   maxPingMillis: 500

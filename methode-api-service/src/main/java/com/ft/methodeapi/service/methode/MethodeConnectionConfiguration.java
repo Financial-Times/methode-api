@@ -14,8 +14,8 @@ public class MethodeConnectionConfiguration {
 
     private final String methodeHostName;
     private final int methodePort;
-    private final String methodeUserName;
-    private final String methodePassword;
+//    private final String methodeUserName;
+//    private final String methodePassword;
 	private final int connectTimeout;
     private final String orbClass;
     private final String orbSingletonClass;
@@ -24,8 +24,8 @@ public class MethodeConnectionConfiguration {
 
     public MethodeConnectionConfiguration(@JsonProperty("hostName") String methodeHostName,
                                           @JsonProperty("nsPort") int methodePort,
-                                          @JsonProperty("userName") String methodeUserName,
-                                          @JsonProperty("password") String methodePassword,
+//                                          @JsonProperty("userName") String methodeUserName,
+//                                          @JsonProperty("password") String methodePassword,
                                           @JsonProperty("maxPingMillis") Optional<Integer> maxPingMillis,
 										  @JsonProperty("connectTimeout") int connectTimeout,
                                           @JsonProperty("orbClass") Optional<String> orbClass,
@@ -33,8 +33,8 @@ public class MethodeConnectionConfiguration {
                                           @JsonProperty("pool") Optional<PoolConfiguration> pool) {
         this.methodeHostName = methodeHostName;
         this.methodePort = methodePort;
-        this.methodeUserName = methodeUserName;
-        this.methodePassword = methodePassword;
+//        this.methodeUserName = methodeUserName;
+//        this.methodePassword = methodePassword;
         this.maxPingMillis = maxPingMillis.or(2000);
 		this.connectTimeout = connectTimeout;
         this.orbClass = orbClass.or("org.jacorb.orb.ORB");
@@ -52,15 +52,15 @@ public class MethodeConnectionConfiguration {
         return methodePort;
     }
 
-    @NotEmpty
-    public String getMethodeUserName() {
-        return methodeUserName;
-    }
-
-    @NotEmpty
-    public String getMethodePassword() {
-        return methodePassword;
-    }
+//    @NotEmpty
+//    public String getMethodeUserName() {
+//        return methodeUserName;
+//    }
+//
+//    @NotEmpty
+//    public String getMethodePassword() {
+//        return methodePassword;
+//    }
 
 	@Min(1)
 	public int getConnectTimeout() {
@@ -91,9 +91,9 @@ public class MethodeConnectionConfiguration {
         return MoreObjects.toStringHelper(this)
                 .add("methodeHostName", methodeHostName)
                 .add("methodePort", methodePort)
-                .add("methodeUserName", methodeUserName)
-                // OBFUSCATE PASSWORD!
-                .add("methodePassword", Strings.repeat("*",methodePassword.length()))
+//                .add("methodeUserName", methodeUserName)
+//                // OBFUSCATE PASSWORD!
+//                .add("methodePassword", Strings.repeat("*",methodePassword.length()))
                 .add("maxPingMillis", maxPingMillis)
                 .add("connectTimeout", connectTimeout)
                 .add("orbClass", orbClass)

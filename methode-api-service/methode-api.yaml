@@ -1,4 +1,5 @@
 credentialsPath: credentials.properties
+testCredentialsPath: test-credentials.properties
 
 http:
   port: 9080
