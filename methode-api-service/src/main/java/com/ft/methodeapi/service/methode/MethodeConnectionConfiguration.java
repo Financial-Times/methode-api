@@ -2,7 +2,7 @@ package com.ft.methodeapi.service.methode;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ft.methodeapi.service.methode.connection.PoolConfiguration;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.yammer.dropwizard.validation.PortRange;
@@ -88,7 +88,7 @@ public class MethodeConnectionConfiguration {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("methodeHostName", methodeHostName)
                 .add("methodePort", methodePort)
                 .add("methodeUserName", methodeUserName)

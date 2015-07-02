@@ -10,13 +10,24 @@ import com.yammer.dropwizard.config.Configuration;
 
 public class MethodeApiConfiguration extends Configuration {
 
+    private String credentialsPath;
     private final MethodeConnectionConfiguration methodeConnectionConfiguration;
     private final MethodeConnectionConfiguration methodeTestConnectionConfiguration;
 
-    public MethodeApiConfiguration(@JsonProperty("methodeConnection") MethodeConnectionConfiguration methodeConnectionConfiguration,
-                                   @JsonProperty("methodeTestConnection") MethodeConnectionConfiguration methodeTestConnectionConfiguration) {
+    public MethodeApiConfiguration(
+                                    @JsonProperty("credentialsPath")String credentialsPath,
+                                    @JsonProperty("methodeConnection") MethodeConnectionConfiguration methodeConnectionConfiguration,
+                                    @JsonProperty("methodeTestConnection") MethodeConnectionConfiguration methodeTestConnectionConfiguration) {
+        super();
+        this.credentialsPath = credentialsPath;
         this.methodeConnectionConfiguration = methodeConnectionConfiguration;
         this.methodeTestConnectionConfiguration = methodeTestConnectionConfiguration;
+    }
+
+    @Valid
+    @NotNull
+    public String getCredentialsPath() {
+        return credentialsPath;
     }
 
     @Valid

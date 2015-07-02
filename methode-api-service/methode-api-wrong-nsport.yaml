@@ -1,3 +1,5 @@
+credentialsPath: junit-credentials.properties
+
 http:
     port: 9080
     adminPort: 9081

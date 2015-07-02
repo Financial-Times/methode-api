@@ -1,3 +1,6 @@
+
+credentialsPath: /etc/methode-api-credentials.properties
+
 http:
   port: 8080
   adminPort: 8081
@@ -14,8 +17,8 @@ http:
 methodeConnection:
   hostName: <%=scope.function_hiera('methodeHostName')%>
   nsPort: <%=scope.function_hiera('methodeNameServicePort')%>
-  userName: <%=scope.function_hiera('methodeUsername')%>
-  password: <%=scope.function_hiera('methodePassword')%>
+ #userName: <%=scope.function_hiera('methodeUsername')%>
+ #password: <%=scope.function_hiera('methodePassword')%>
   connectTimeout: 2000
   maxPingMillis: 2000
   pool:

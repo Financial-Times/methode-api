@@ -1,3 +1,5 @@
+credentialsPath: credentials.properties
+
 http:
   port: 9080
   adminPort: 9081
@@ -13,8 +15,8 @@ http:
 methodeConnection:
   hostName: staging.methode.int.internal.ft.com
   nsPort: 9092
-  userName: dynpublocal
-  password: dynpublocal
+#  userName: dynpublocal
+#  password: dynpublocal
   connectTimeout: 2000
   maxPingMillis: 2000
   pool:
@@ -25,8 +27,8 @@ methodeConnection:
 methodeTestConnection:
   hostName: staging.methode.int.internal.ft.com
   nsPort: 9092
-  userName: dynpublocal-rw
-  password: dynpublocal-rw
+#  userName: dynpublocal-rw
+#  password: dynpublocal-rw
   connectTimeout: 2000
   maxPingMillis: 2000
   pool:
