@@ -96,6 +96,7 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
 
         String userName = credentials.getProperty("methode.api.userName");
         String password = credentials.getProperty("methode.api.password");
+
         MethodeObjectFactory result = MethodeObjectFactoryBuilder.named(name)
                     .withHost(methodeConnectionConfiguration.getMethodeHostName())
                     .withPort(methodeConnectionConfiguration.getMethodePort())
