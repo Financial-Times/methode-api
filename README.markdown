@@ -27,3 +27,15 @@ For all acceptance tests, run com.ft.methodeapi.acceptance.AllTests the with the
 -Dtest.methodeApi.configFile=local.yaml
 
 You can also run smoke tests with the same VM argument by running com.ft.methodeapi.acceptance.SmokeTests
+
+## Security
+The Methode API is a secure application and a username/password are required to access it. This is kept in a file named credentials.properties which is listed in `.gitignore`. This is referenced by the developer YAML file methode-api.yaml for use when debugging locally.
+So, to get set up:
+
+1. Copy `credentials.properties.template` as `credentials.properties` locally, NOTE! It must be saved to the same root location as the MethodeApiService
+1. Locate the key via secure real life channels, such as a paper copy of it, or request username/password from Methode CMS team
+1. Type the username and password into corresponding values in `credentials.properties`
+1. DO NOT OVERRIDE `.gitignore`
+1. DO NOT CHECK IN `credentials.properties`
+
+There is a separate file for test user. This file `test-credentials.properties` requires the same steps as `credentials.properties` to be applied.
