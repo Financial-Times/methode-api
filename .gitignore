@@ -7,4 +7,5 @@ target
 /bin
 /target/
 credentials.properties
+test-credentials.properties
 *~
