@@ -1,5 +1,5 @@
-credentialsPath: credentials.properties
-testCredentialsPath: test-credentials.properties
+credentialsPath: credentials.properties.template
+testCredentialsPath: test-credentials.properties.template
 
 http:
     port: 9080

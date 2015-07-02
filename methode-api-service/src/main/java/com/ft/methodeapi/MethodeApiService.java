@@ -28,6 +28,7 @@ import com.yammer.dropwizard.config.Environment;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
@@ -89,7 +90,7 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
         return result;
     }
 
-    private MethodeObjectFactory createMethodeObjectFactory(String name, String credentialsPath, MethodeConnectionConfiguration methodeConnectionConfiguration,Environment environment) throws Exception{
+    private MethodeObjectFactory createMethodeObjectFactory(String name, String credentialsPath, MethodeConnectionConfiguration methodeConnectionConfiguration,Environment environment) throws IOException{
 
         Properties credentials = new Properties();
         credentials.load(new FileReader(new File(credentialsPath)));
