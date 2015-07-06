@@ -6,4 +6,6 @@ target
 .project
 /bin
 /target/
+credentials.properties
+test-credentials.properties
 *~

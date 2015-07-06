@@ -26,7 +26,11 @@ import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 
 public class MethodeApiService extends Service<MethodeApiConfiguration> {
 
@@ -41,12 +45,11 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
     }
 
     @Override
-    public void run(MethodeApiConfiguration configuration, Environment environment) {
+    public void run(MethodeApiConfiguration configuration, Environment environment) throws Exception{
     	LOGGER.info("running with configuration: {}", configuration);
 
-        final MethodeObjectFactory methodeObjectFactory = createMethodeObjectFactory("main", configuration.getMethodeConnectionConfiguration(),environment);
-        final MethodeObjectFactory testMethodeObjectFactory = createMethodeObjectFactory("test-rw", configuration.getMethodeTestConnectionConfiguration(),environment);
-
+        final MethodeObjectFactory methodeObjectFactory = createMethodeObjectFactory("main", configuration.getCredentialsPath(),configuration.getMethodeConnectionConfiguration(),environment);
+        final MethodeObjectFactory testMethodeObjectFactory = createMethodeObjectFactory("test-rw", configuration.getTestCredentialsPath(), configuration.getMethodeTestConnectionConfiguration(),environment);
         final MethodeFileRepository methodeContentRepository = new MethodeFileRepository(methodeObjectFactory, testMethodeObjectFactory);
 
         environment.addResource(new EomFileResource(methodeContentRepository));
@@ -62,10 +65,8 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
         }
 
         ThreadsByClassGauge jacorbThreadGauge = new ThreadsByClassGauge(org.jacorb.util.threadpool.ConsumerTie.class);
-        Metrics.newGauge(jacorbThreadGauge.getMetricName(),jacorbThreadGauge);
-        environment.addHealthCheck(new GaugeRangeHealthCheck<>("Jacorb Threads",jacorbThreadGauge,1,900));
-
-
+        Metrics.newGauge(jacorbThreadGauge.getMetricName(), jacorbThreadGauge);
+        environment.addHealthCheck(new GaugeRangeHealthCheck<>("Jacorb Threads", jacorbThreadGauge, 1, 900));
 
         environment.addHealthCheck(new MethodePingHealthCheck(methodeObjectFactory, configuration.getMethodeConnectionConfiguration().getMaxPingMillis()));
         environment.addHealthCheck(new MethodePingHealthCheck(testMethodeObjectFactory, configuration.getMethodeTestConnectionConfiguration().getMaxPingMillis()));
@@ -89,17 +90,24 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
         return result;
     }
 
-    private MethodeObjectFactory createMethodeObjectFactory(String name, MethodeConnectionConfiguration methodeConnectionConfiguration,Environment environment) {
+    private MethodeObjectFactory createMethodeObjectFactory(String name, String credentialsPath, MethodeConnectionConfiguration methodeConnectionConfiguration,Environment environment) throws IOException{
+
+        Properties credentials = new Properties();
+        credentials.load(new FileReader(new File(credentialsPath)));
+
+        String userName = credentials.getProperty("methode.api.userName");
+        String password = credentials.getProperty("methode.api.password");
+
         MethodeObjectFactory result = MethodeObjectFactoryBuilder.named(name)
                     .withHost(methodeConnectionConfiguration.getMethodeHostName())
                     .withPort(methodeConnectionConfiguration.getMethodePort())
-                    .withUsername(methodeConnectionConfiguration.getMethodeUserName())
-                    .withPassword(methodeConnectionConfiguration.getMethodePassword())
+                    .withUsername(userName)
+                    .withPassword(password)
 					.withConnectionTimeout(methodeConnectionConfiguration.getConnectTimeout())
                     .withOrbClass(methodeConnectionConfiguration.getOrbClass())
                     .withOrbSingletonClass(methodeConnectionConfiguration.getOrbSingletonClass())
                     .withPooling(methodeConnectionConfiguration.getPool())
-                    .withWorkerThreadPool(environment.managedScheduledExecutorService("MOF-worker-%d",2))
+                    .withWorkerThreadPool(environment.managedScheduledExecutorService("MOF-worker-%d", 2))
                     .build();
 
         if(result instanceof Managed) {
