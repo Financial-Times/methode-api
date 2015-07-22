@@ -14,7 +14,10 @@ http:
       archivedFileCount: 5
 
 methodeConnection:
-  hostName: staging.methode.int.internal.ft.com
+  #hostName: archive.methode.test.internal.ft.com
+  hostName: ftper513-lvuk-uk-t
+  #hostName: ftcma01-uvpr-uk-t
+  #hostName: ftper514-lvuk-uk-p
   nsPort: 9092
   connectTimeout: 2000
   maxPingMillis: 2000
@@ -24,7 +27,10 @@ methodeConnection:
     methodeStaleConnectionTimeout: 30minutes
 
 methodeTestConnection:
-  hostName: staging.methode.int.internal.ft.com
+  #hostName: archive.methode.test.internal.ft.com
+  #hostName: ftper514-lvuk-uk-p #10.117.109.150
+  hostName: ftper513-lvuk-uk-t
+  #hostName: ftcma01-uvpr-uk-t
   nsPort: 9092
   connectTimeout: 2000
   maxPingMillis: 2000

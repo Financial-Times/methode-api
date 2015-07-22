@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,10 +46,11 @@ public class MethodeFileRepository {
     
     private final MethodeObjectFactory client;
     private final MethodeObjectFactory testClient;
-
+//    static private Map<String, String> mapForStuff;
     public MethodeFileRepository(MethodeObjectFactory client, MethodeObjectFactory testClient) {
         this.client = client;
         this.testClient = testClient;
+//        this.mapForStuff = new HashMap<>();
     }
 
     public Optional<EomFile> findFileByUuid(final String uuid) {
@@ -71,6 +73,11 @@ public class MethodeFileRepository {
 					final byte[] bytes = eomFile.read_all();
                     final String attributes = new String(eomFile.get_attributes().getBytes(METHODE_ENCODING), UTF8);
 					final String workflowStatus = eomFile.get_status_name();
+//                    mapForStuff.put(uuid, workflowStatus);
+//                    if (isNotInAGoodState(workflowStatus)) {
+//                        throw new MethodeException(String.format("Workflow status is %s for %s", workflowStatus, uuid));
+//                    }
+
 					final String systemAttributes = eomFile.get_system_attributes();
                     final String usageTickets = eomFile.get_usage_tickets("");
 
@@ -117,6 +124,10 @@ public class MethodeFileRepository {
 				}
 				return foundContent;
             }
+
+//            private boolean isNotInAGoodState(String workflowStatus) {
+//                return !(workflowStatus.contains("WebReady") || workflowStatus.contains("WebRevise"));
+//            }
         };
 
        return template.doOperation(callback);
@@ -205,4 +216,8 @@ public class MethodeFileRepository {
 	public String getClientRepositoryInfo() {
 		return client.getDescription();
 	}
+
+//    public Map<String, String> getMapForStuff() {
+//        return mapForStuff;
+//    }
 }
