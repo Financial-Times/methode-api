@@ -173,7 +173,7 @@ public class CreateFileCallback implements MethodeSessionOperationTemplate.Sessi
 
                 forRelease.add(childObject);
                 try {
-                    LOGGER.error(childObject.get_creator());
+                    LOGGER.debug(childObject.get_creator());
 
                     try {
                         Dwp dwp = new Dwp(eomDb, parentDbObject, webTypes);
