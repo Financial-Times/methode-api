@@ -2,8 +2,15 @@ package com.ft.methodeapi.service.methode;
 
 import static com.ft.methodeapi.service.methode.PathHelper.folderIsAncestor;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -11,15 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import EOM.File;
-import EOM.FileSystemAdmin;
-import EOM.FileSystemObject;
-import EOM.InvalidURI;
-import EOM.ObjectLocked;
-import EOM.PermissionDenied;
-import EOM.RepositoryError;
-import EOM.Session;
-import EOM.Utils;
+import EOM.*;
 
 import com.eidosmedia.wa.render.EomDbHelperFactory;
 import com.eidosmedia.wa.render.WebObject;
@@ -35,6 +34,16 @@ import com.google.common.base.Preconditions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.*;
 
 public class MethodeFileRepository {
 
@@ -68,12 +77,38 @@ public class MethodeFileRepository {
 					EOM.File eomFile = EOM.FileHelper.narrow(fso);
 
 					final String typeName = eomFile.get_type_name();
-					final byte[] bytes = eomFile.read_all();
+                    
+                    //this reads the article contents of the latest version, which may not be the published version
+					//final byte[] bytes = eomFile.read_all();
                     final String attributes = new String(eomFile.get_attributes().getBytes(METHODE_ENCODING), UTF8);
 					final String workflowStatus = eomFile.get_status_name();
 					final String systemAttributes = eomFile.get_system_attributes();
                     final String usageTickets = eomFile.get_usage_tickets("");
 
+                    // get the last modified date of the article
+                    // modified may mean just copied for moved, not necessarily changes in the article content
+                    final Instant fromUnixTimestamp = Instant.ofEpochSecond(eomFile.get_modification_time());
+                    final LocalDateTime lastModifiedLocalDateTime = LocalDateTime.ofInstant(fromUnixTimestamp, ZoneOffset.UTC);
+
+                    final LocalDateTime latestPublishdate = getLastPublishDateFromUsageTickets(usageTickets);
+                    LOGGER.info(">>> UUID: " + uuid);
+                    LOGGER.debug(">>> Last Modified   :" + lastModifiedLocalDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                    LOGGER.debug(">>> Latest Published:" + latestPublishdate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+                    if (latestPublishdate.isAfter(lastModifiedLocalDateTime) || latestPublishdate.isEqual(lastModifiedLocalDateTime)) {
+                        LOGGER.info(">>> Publish date after/equal to last modified!\n");
+                    } else {
+                        LOGGER.info(">>> Publish date before last modified date\n");
+                    }
+
+                    //replace article content with the content of the latest version
+                    //this PROBABLY is the last published version
+                    Version lastVersion = getLastVersion(eomFile);
+                    final byte[] bytes = lastVersion.read_all();
+                    LOGGER.debug("Replacing original bytes with bytes from last version:");
+                    LOGGER.debug("Original: \n" + new String(eomFile.read_all()));
+                    LOGGER.debug("Last Version: \n" + new String(bytes));
+                    
                     try {
                         List<LinkedObject> links = new ArrayList<>();
                         
@@ -205,4 +240,58 @@ public class MethodeFileRepository {
 	public String getClientRepositoryInfo() {
 		return client.getDescription();
 	}
+
+    private Version getLastVersion(File eomFile) {
+        Version lastVersion = null;
+        try {
+            lastVersion = eomFile.get_nth_version(eomFile.history().length);
+
+        } catch (Exception e) {
+            LOGGER.error("Error while getting latest version of article contents" + e.getMessage());
+        }
+        return lastVersion;
+    }
+
+    private LocalDateTime getLastPublishDateFromUsageTickets(String xml) {
+        LocalDateTime latestPublishDate = null;
+        try {
+            final NodeList publishDates = parseUsageTickets(getUsageTicketsDocument(xml));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd kk:mm:ss zzz uuuu");
+            
+            for (int i = 0; i < publishDates.getLength(); i++) {
+                Node publishDateNode = publishDates.item(i);
+                String textContent = publishDateNode.getTextContent();
+                ZonedDateTime zonedPublishDate = ZonedDateTime.parse(textContent, formatter);
+                LocalDateTime publishDate = zonedPublishDate.toLocalDateTime();
+
+                LOGGER.debug(">>> Publish date: " + zonedPublishDate.format(DateTimeFormatter.ISO_DATE_TIME));
+                
+                if (latestPublishDate == null || publishDate.isAfter(latestPublishDate)) {
+                    latestPublishDate = publishDate;
+                } else {
+                    if (publishDate.isAfter(latestPublishDate)) {
+                        latestPublishDate = publishDate;
+                    }
+                }
+            }
+
+            return latestPublishDate;
+        } catch (Exception e) {
+            LOGGER.error("Error while getting last publish date from usage tickets: " + e.getMessage());
+            return latestPublishDate;
+        }
+    }
+
+    private NodeList parseUsageTickets(Document usageTicketsDocument) throws XPathExpressionException {
+        final XPath xpath = XPathFactory.newInstance().newXPath();
+        XPathExpression xPathExpression = xpath.compile("/tl/t/dt/publishedDate");
+        return (NodeList) xPathExpression.evaluate(usageTicketsDocument, XPathConstants.NODESET);
+    }
+
+    private Document getUsageTicketsDocument(String xml) throws ParserConfigurationException, SAXException, IOException {
+        final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        final DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        return documentBuilder.parse(new InputSource(new StringReader(xml)));
+    }
+
 }
