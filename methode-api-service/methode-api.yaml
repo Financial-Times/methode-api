@@ -1,5 +1,5 @@
-credentialsPath: credentials.properties
-testCredentialsPath: test-credentials.properties
+credentialsPath: credentials-prod.properties
+testCredentialsPath: credentials-prod.properties
 
 http:
   port: 9080
@@ -14,7 +14,11 @@ http:
       archivedFileCount: 5
 
 methodeConnection:
-  hostName: staging.methode.int.internal.ft.com
+  #hostName: archive.methode.test.internal.ft.com
+  #hostName: ftper513-lvuk-uk-t
+  #hostName: ftper516-lvuk-uk-t #archive.methode.test.internal.ft.com
+  #hostName: ftcma01-uvpr-uk-t
+  hostName: 10.117.109.150
   nsPort: 9092
   connectTimeout: 2000
   maxPingMillis: 2000
@@ -24,7 +28,11 @@ methodeConnection:
     methodeStaleConnectionTimeout: 30minutes
 
 methodeTestConnection:
-  hostName: staging.methode.int.internal.ft.com
+  #hostName: archive.methode.test.internal.ft.com
+  hostName: 10.117.109.150 #10.117.109.150
+  #hostName: ftper513-lvuk-uk-t
+  #hostName: ftper516-lvuk-uk-t #archive.methode.test.internal.ft.com 
+  #hostName: ftcma01-uvpr-uk-t
   nsPort: 9092
   connectTimeout: 2000
   maxPingMillis: 2000
