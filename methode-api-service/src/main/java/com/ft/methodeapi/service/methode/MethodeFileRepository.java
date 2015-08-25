@@ -73,6 +73,7 @@ public class MethodeFileRepository {
 					final byte[] bytes = eomFile.read_all();
                     final String attributes = new String(eomFile.get_attributes().getBytes(METHODE_ENCODING), UTF8);
 					final String workflowStatus = eomFile.get_status_name();
+                    LOGGER.info("Workflow status for " + uuid + ": " + workflowStatus);
 //                    mapForStuff.put(uuid, workflowStatus);
 //                    if (isNotInAGoodState(workflowStatus)) {
 //                        throw new MethodeException(String.format("Workflow status is %s for %s", workflowStatus, uuid));
