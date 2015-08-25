@@ -131,7 +131,7 @@ public class DefaultMethodeObjectFactory implements MethodeObjectFactory {
     public Repository createRepository(NamingContextExt namingService) {
       final TimerContext timerContext = createRepositoryTimer.time();
       try {
-            return RepositoryHelper.narrow(namingService.resolve_str("EOM/Repositories/cma"));
+            return RepositoryHelper.narrow(namingService.resolve_str("EOM/Repositories/cma2"));
       } catch (org.omg.CosNaming.NamingContextPackage.InvalidName
               | CannotProceed | NotFound e) {
     	  throw new MethodeException("Failed to create repository", e);
