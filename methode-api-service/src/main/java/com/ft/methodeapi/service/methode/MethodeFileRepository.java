@@ -93,7 +93,10 @@ public class MethodeFileRepository {
                                     for (WebObject linked : linkedObjects) {
                                         links.add(new LinkedObject(
                                                 linked.getUuid(),
-                                                linked.getEomFile().get_type_name()
+                                                linked.getEomFile().get_type_name(),
+                                                linked.getEomFile().get_attributes(),
+                                                linked.getEomFile().get_status_name(),
+                                                linked.getEomFile().get_system_attributes()
                                             ));
                                     }
                                 }
