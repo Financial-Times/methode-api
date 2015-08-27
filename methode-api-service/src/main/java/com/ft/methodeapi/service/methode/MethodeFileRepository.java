@@ -110,20 +110,20 @@ public class MethodeFileRepository {
     /**
      * Accepts Methode's article or a list of articles as a WebObject and extracts linked articles if they are present.
      *
-     * @param webObject main Main article
+     * @param parentObject main Main article
      * @return list of linked articles
      * @throws Exception thrown by eidosmedia API
      */
-    private List<LinkedObject> extractLinks(WebObject webObject) throws Exception {
+    private List<LinkedObject> extractLinks(WebObject parentObject) throws Exception {
         List<LinkedObject> links = new ArrayList<>();
-        if ("EOM::WebContainer".equals(webObject.getEomFile().get_type_name())) {
-            Map<String, WebObject[]> byZone = webObject.getLinked();
+        if ("EOM::WebContainer".equals(parentObject.getEomFile().get_type_name())) {
+            Map<String, WebObject[]> byZone = parentObject.getLinked();
                 for (String zone : byZone.keySet()) {
                     WebObject[] linkedObjects = byZone.get(zone);
 
                     for (WebObject linked : linkedObjects) {
                         links.add(new LinkedObject(
-                                webObject.getUuid(),
+                                linked.getUuid(),
                                 linked.getEomFile().get_type_name(),
                                 linked.getEomFile().get_attributes(),
                                 linked.getEomFile().get_status_name(),

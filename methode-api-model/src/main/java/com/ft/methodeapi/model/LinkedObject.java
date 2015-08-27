@@ -1,6 +1,5 @@
 package com.ft.methodeapi.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
@@ -17,8 +16,6 @@ public class LinkedObject {
     private String attributes = null;
     private String systemAttributes = null;
     private String status = null;
-
-    public LinkedObject() {}
 
     public LinkedObject(String uuid, String type) {
         this.uuid = uuid;
@@ -60,11 +57,11 @@ public class LinkedObject {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("uuid", getUuid())
-                .add("type", getType())
-                .add("attributes", getAttributes())
-                .add("workflowStatus", getStatus())
-                .add("systemAttributes", getSystemAttributes())
+                .add("uuid", uuid)
+                .add("type", type)
+                .add("attributes", attributes)
+                .add("workflowStatus", status)
+                .add("systemAttributes", systemAttributes)
                 .toString();
     }
 
@@ -74,17 +71,15 @@ public class LinkedObject {
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         final LinkedObject other = (LinkedObject) obj;
-        return Objects.equal(this.getUuid(), other.getUuid())
-                && Objects.equal(this.getType(), other.getType())
-                && Objects.equal(this.getAttributes(), other.getAttributes())
-                && Objects.equal(this.getStatus(), other.getStatus())
-                && Objects.equal(this.getSystemAttributes(), other.getSystemAttributes());
+        return Objects.equal(uuid, other.uuid)
+                && Objects.equal(type, other.type)
+                && Objects.equal(attributes, other.attributes)
+                && Objects.equal(status, other.status)
+                && Objects.equal(systemAttributes, other.systemAttributes);
    }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(
-                this.getUuid(), this.getType(), this.getAttributes(), this.getStatus(), getSystemAttributes());
-
+        return Objects.hashCode(uuid, type, attributes, status, systemAttributes);
     }
 }
