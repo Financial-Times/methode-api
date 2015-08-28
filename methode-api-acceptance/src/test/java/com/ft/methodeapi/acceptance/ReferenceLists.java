@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ReferenceLists {
@@ -15,11 +16,11 @@ public class ReferenceLists {
     private static final String exampleListXmlTemplate = readFromFile("ListWithEverything.xml");
     private static final String exampleAttributesXml = readFromFile("ListWithEverythingAttributes.xml");
     private static final String exampleSystemAttributesXml = readFromFile("ListWithEverythingSystemAttributes.xml");
+    private static List<LinkedObject> linkedObjects = ImmutableList.of(new LinkedObject("c1c8096c-fe43-11e4-9995-f0c8225ac851", EOM_COMPOUND_STORY_TYPE),
+            new LinkedObject("f1a24d64-fe43-11e4-9995-f0c8225ac851", EOM_COMPOUND_STORY_TYPE));
 
     public static MethodeContent.ContentBuilder publishedList() {
-        List<LinkedObject> linkedObjects;
-        linkedObjects = ImmutableList.of(new LinkedObject("c1c8096c-fe43-11e4-9995-f0c8225ac851", EOM_COMPOUND_STORY_TYPE),
-                new LinkedObject("f1a24d64-fe43-11e4-9995-f0c8225ac851", EOM_COMPOUND_STORY_TYPE));
+
         return new MethodeContent.ListBuilder()
                 .withArticleXml(exampleListXmlTemplate)
                 .withAttributes(exampleAttributesXml)
@@ -44,5 +45,49 @@ public class ReferenceLists {
         }
 
         return bodyFromFile;
+    }
+
+    public static List<String> mapUuid(List<LinkedObject> list) {
+        List<String> uuids = new ArrayList<>();
+        for(LinkedObject linked : list) {
+            uuids.add(linked.getUuid());
+        }
+        return uuids;
+    }
+
+    public static List<String> mapType(List<LinkedObject> list) {
+        List<String> type = new ArrayList<>();
+        for(LinkedObject linked : list) {
+            type.add(linked.getType());
+        }
+        return type;
+    }
+
+    public static boolean hasStatusProperty(List<LinkedObject> list) {
+        for(LinkedObject linked : list) {
+            if(linked.getStatus()==null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean hasAttributesProperty(List<LinkedObject> list) {
+
+        for(LinkedObject linked : list) {
+            if(linked.getAttributes()==null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean hasSystemAttributesProperty(List<LinkedObject> list) {
+        for(LinkedObject linked : list) {
+            if(linked.getSystemAttributes()==null) {
+                return false;
+            }
+        }
+        return true;
     }
 }

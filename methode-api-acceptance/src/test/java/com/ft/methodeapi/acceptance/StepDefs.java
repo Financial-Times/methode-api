@@ -28,10 +28,11 @@ import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static com.jayway.restassured.path.json.JsonPath.from;
+
+import static com.ft.methodeapi.acceptance.ReferenceLists.*;
 
 public class StepDefs {
 
@@ -134,16 +135,18 @@ public class StepDefs {
                 .withWorkflowStatus(MethodeContent.WEB_READY)
                 .build().getEomFile();
 
-        LOGGER.debug("Test article headline={}, articleXml={}, attributeXml={}",stampedHeadline, theExpectedArticle.getValue(),theExpectedArticle.getAttributes());
+        LOGGER.debug("Test article headline={}, articleXml={}, attributeXml={}", stampedHeadline,
+                theExpectedArticle.getValue(), theExpectedArticle.getAttributes());
     }
 
     private void prepareTheList() throws IOException {
 
-        theExpectedList = ReferenceLists.publishedList()
+        theExpectedList = new ReferenceLists().publishedList()
                 .withWorkflowStatus(MethodeContent.CLEARED)
                 .build().getEomFile();
 
-        LOGGER.debug("articleXml={}, attributeXml={}, linkedObjects={}",theExpectedList.getValue(),theExpectedList.getAttributes(), theExpectedList.getLinkedObjects());
+        LOGGER.debug("articleXml={}, attributeXml={}, linkedObjects={}",theExpectedList.getValue(),
+                theExpectedList.getAttributes(), theExpectedList.getLinkedObjects());
     }
 
     private String buildNo() {
@@ -167,14 +170,14 @@ public class StepDefs {
 	}
 
     private String getUrlForContent(String contentType) {
-        return acceptanceTestConfiguration.getMethodeApiServiceUrl() + ("article".equals(contentType) ? uuidForArticleInMethode : uuidForListInMethode).toString();
+        return acceptanceTestConfiguration.getMethodeApiServiceUrl()
+                + ("article".equals(contentType) ? uuidForArticleInMethode : uuidForListInMethode).toString();
     }
 
     @When("^(\\d+) users access the (article|list) a total of (\\d+) times$")
     public void i_attempt_to_access_the_content_count_times(int users,String contentType, int count) throws Throwable {
         final String url = getUrlForContent(contentType);
         LOGGER.info("Calling Methode API: url=" + url);
-
         ExecutorService userPool = Executors.newFixedThreadPool(users);
         List<Future<Long>> futureTimings = new ArrayList<>(count);
 
@@ -211,7 +214,7 @@ public class StepDefs {
 
     @When("^I attempt to access the non-existent (article|list)$")
 	public void i_attempt_to_access_the_non_existent_content(String contentType) throws Throwable {
-		String url = acceptanceTestConfiguration.getMethodeApiServiceUrl() + uuidForNonExistentContent.toString();
+        String url = acceptanceTestConfiguration.getMethodeApiServiceUrl() + uuidForNonExistentContent.toString();
 		LOGGER.info("Calling Methode API: url=" + url);
 		theResponseForNotFoundRequest =
 			given()
@@ -252,12 +255,14 @@ public class StepDefs {
 
 	@Then("^the article should have the expected workflow status$")
 	public void the_article_should_have_the_expected_wokflow_status() throws Throwable {
-		assertThat("workflow statuses didn't match", from(theResponseEntityForSuccessfulRequest).getString("workflowStatus"), equalTo(theExpectedArticle.getWorkflowStatus()));
+        assertThat("workflow statuses didn't match", from(theResponseEntityForSuccessfulRequest).getString("workflowStatus"),
+                 equalTo(theExpectedArticle.getWorkflowStatus()));
 	}
 
     @Then("^the list should have the expected workflow status$")
     public void the_list_should_have_the_expected_wokflow_status() throws Throwable {
-        assertThat("workflow statuses didn't match", from(theResponseEntityForSuccessfulRequest).getString("workflowStatus"), equalTo(theExpectedList.getWorkflowStatus()));
+        assertThat("workflow statuses didn't match", from(theResponseEntityForSuccessfulRequest).getString("workflowStatus"),
+                 equalTo(theExpectedList.getWorkflowStatus()));
     }
 
     @Then("^the article should have the expected content$")
@@ -274,19 +279,27 @@ public class StepDefs {
 
     @Then("^the article should have the expected type value$")
     public void the_article_should_have_the_expected_type() throws Throwable {
-        assertThat("file extension didn't match expected", from(theResponseEntityForSuccessfulRequest).getString("type"), equalTo(theExpectedArticle.getType()));
+        assertThat("file extension didn't match expected", from(theResponseEntityForSuccessfulRequest).getString("type"),
+                   equalTo(theExpectedArticle.getType()));
     }
 
     @Then("^the list should have the expected type value$")
     public void the_list_should_have_the_expected_type() throws Throwable {
-        assertThat("file extension didn't match expected", from(theResponseEntityForSuccessfulRequest).getString("type"), equalTo(theExpectedList.getType()));
+        assertThat("file extension didn't match expected",
+                  from(theResponseEntityForSuccessfulRequest).getString("type"), equalTo(theExpectedList.getType()));
     }
 
     @Then("^the list should have the expected linked items content$")
     public void the_list_should_have_the_expected_linked_items_content() throws Throwable {
-        List<LinkedObject> linkedObjects =  from(theResponseEntityForSuccessfulRequest).getObject("", EomFile.class).getLinkedObjects();
-        assertThat("uuid/type of objects in list differed from expected", linkedObjects, equalTo(theExpectedList.getLinkedObjects()));
-        assertThat("number of objects in list differed from expected", linkedObjects.size(), is(theExpectedList.getLinkedObjects().size()));
+        EomFile webContainer = from(theResponseEntityForSuccessfulRequest)
+                .getObject("", EomFile.class);
+        List<LinkedObject> linkedObjects =  webContainer.getLinkedObjects();
+
+        assertThat("uuid of objects in list differed from expected", mapUuid(linkedObjects), equalTo(mapUuid(theExpectedList.getLinkedObjects())));
+        assertThat("type of objects in list differed from expected", mapType(linkedObjects), equalTo(mapType(theExpectedList.getLinkedObjects())));
+        assertThat("Did not find status property", hasStatusProperty(linkedObjects), equalTo(true));
+        assertThat("Did not find attributes property", hasAttributesProperty(linkedObjects), equalTo(true));
+        assertThat("Did not find systemAttributes property", hasSystemAttributesProperty(linkedObjects), equalTo(true));
     }
 
     @Then("^it is returned within (\\d+)ms at least (\\d+)% of the time$")
@@ -298,13 +311,13 @@ public class StepDefs {
             }
         }
 
-        double percentageOfFastRequests = (((double) numberOfFastRequests) / ((double) requestTimings.size())) * 100d;
+        double percentageOfFastRequests = (((double)numberOfFastRequests) / ((double)requestTimings.size())) * 100d;
 
         assertThat("Too many slow requests",percentageOfFastRequests,greaterThan(percent));
     }
 
 	private void given_service_is_running(final String url) throws Throwable {
-		LOGGER.info("Checking service is running: url=" + url);
+        LOGGER.info("Checking service is running: url=" + url);
 		expect().statusCode(200)
 			.log().ifError()
 			.when().get(url);
