@@ -32,7 +32,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static com.jayway.restassured.path.json.JsonPath.from;
 
-import static com.ft.methodeapi.acceptance.LinkedObjectsMatcher.*;
+import static com.ft.methodeapi.acceptance.LinkedObjectsVerifier.*;
 
 public class StepDefs {
 
@@ -299,7 +299,6 @@ public class StepDefs {
     @Then("^each linked item in the list should have the expected type$")
     public void each_linked_item_in_the_list_should_have_the_expected_type() {
         assertThat("type of objects in list differed from expected", mapType(theActualLinkedObjects), equalTo(mapType(theExpectedList.getLinkedObjects())));
-
     }
 
     @Then("^each linked item in the list should have the expected workflow status$")
@@ -315,7 +314,6 @@ public class StepDefs {
     @Then("^each linked item in the list should have the expected systemAttributes$")
     public void each_linked_item_in_the_list_should_have_the_expected_systemAttributes() {
         assertThat("Did not find systemAttributes property", hasSystemAttributesProperty(theActualLinkedObjects), equalTo(true));
-
     }
 
     @Then("^it is returned within (\\d+)ms at least (\\d+)% of the time$")

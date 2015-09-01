@@ -10,7 +10,7 @@ import java.util.List;
  *
  * Created by julia.fernee on 01/09/2015.
  */
-public class LinkedObjectsMatcher {
+public class LinkedObjectsVerifier {
 
         public static List<String> mapUuid(List<LinkedObject> list) {
         List<String> uuids = new ArrayList<>();
