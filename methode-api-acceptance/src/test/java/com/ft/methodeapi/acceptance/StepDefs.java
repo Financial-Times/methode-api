@@ -32,7 +32,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static com.jayway.restassured.path.json.JsonPath.from;
 
-import static com.ft.methodeapi.acceptance.ReferenceLists.*;
+import static com.ft.methodeapi.acceptance.LinkedObjectsMatcher.*;
 
 public class StepDefs {
 
@@ -60,6 +60,7 @@ public class StepDefs {
 
     private EomFile theExpectedArticle;
     private EomFile theExpectedList;
+    private List<LinkedObject> theActualLinkedObjects;
 
     private List<Long> requestTimings;
 
@@ -167,6 +168,7 @@ public class StepDefs {
 				.get(url);
 		
 		theResponseEntityForSuccessfulRequest = theResponse.asString();
+        theActualLinkedObjects = extractLinkedObjects(theResponseEntityForSuccessfulRequest);
 	}
 
     private String getUrlForContent(String contentType) {
@@ -289,17 +291,31 @@ public class StepDefs {
                   from(theResponseEntityForSuccessfulRequest).getString("type"), equalTo(theExpectedList.getType()));
     }
 
-    @Then("^the list should have the expected linked items content$")
+    @Then("^each linked item in the list should have the expected uuid$")
     public void the_list_should_have_the_expected_linked_items_content() throws Throwable {
-        EomFile webContainer = from(theResponseEntityForSuccessfulRequest)
-                .getObject("", EomFile.class);
-        List<LinkedObject> linkedObjects =  webContainer.getLinkedObjects();
+        assertThat("uuid of objects in list differed from expected", mapUuid(theActualLinkedObjects), equalTo(mapUuid(theExpectedList.getLinkedObjects())));
+    }
 
-        assertThat("uuid of objects in list differed from expected", mapUuid(linkedObjects), equalTo(mapUuid(theExpectedList.getLinkedObjects())));
-        assertThat("type of objects in list differed from expected", mapType(linkedObjects), equalTo(mapType(theExpectedList.getLinkedObjects())));
-        assertThat("Did not find status property", hasStatusProperty(linkedObjects), equalTo(true));
-        assertThat("Did not find attributes property", hasAttributesProperty(linkedObjects), equalTo(true));
-        assertThat("Did not find systemAttributes property", hasSystemAttributesProperty(linkedObjects), equalTo(true));
+    @Then("^each linked item in the list should have the expected type$")
+    public void each_linked_item_in_the_list_should_have_the_expected_type() {
+        assertThat("type of objects in list differed from expected", mapType(theActualLinkedObjects), equalTo(mapType(theExpectedList.getLinkedObjects())));
+
+    }
+
+    @Then("^each linked item in the list should have the expected workflow status$")
+    public void each_linked_item_in_the_list_should_have_the_expected_workflow_status() {
+        assertThat("Did not find status property", hasWorkflowStatusProperty(theActualLinkedObjects), equalTo(true));
+    }
+
+    @Then("^each linked item in the list should have the expected attributes$")
+    public void each_linked_item_in_the_list_should_have_the_expected_attributes() {
+        assertThat("Did not find attributes property", hasAttributesProperty(theActualLinkedObjects), equalTo(true));
+    }
+
+    @Then("^each linked item in the list should have the expected systemAttributes$")
+    public void each_linked_item_in_the_list_should_have_the_expected_systemAttributes() {
+        assertThat("Did not find systemAttributes property", hasSystemAttributesProperty(theActualLinkedObjects), equalTo(true));
+
     }
 
     @Then("^it is returned within (\\d+)ms at least (\\d+)% of the time$")
@@ -322,4 +338,11 @@ public class StepDefs {
 			.log().ifError()
 			.when().get(url);
 	}
+
+    private List<LinkedObject> extractLinkedObjects(String theResponseEntityForSuccessfulRequest) {
+        EomFile webContainer = from(theResponseEntityForSuccessfulRequest)
+                .getObject("", EomFile.class);
+        List<LinkedObject> linkedObjects =  webContainer.getLinkedObjects();
+        return linkedObjects;
+    }
 }
