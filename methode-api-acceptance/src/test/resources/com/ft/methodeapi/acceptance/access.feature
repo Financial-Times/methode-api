@@ -21,9 +21,14 @@ Feature: Requests for content
     Then the list should be available from the MethodeAPI
     And the list should have the expected metadata
     And the list should have the expected content
-    And the list should have the expected linked items content
     And the list should have the expected workflow status
     And the list should have the expected type value
+    And each linked item in the list should have the expected uuid
+    And each linked item in the list should have the expected type
+    And each linked item in the list should have the expected workflow status
+    And each linked item in the list should have the expected attributes
+    And each linked item in the list should have the expected systemAttributes
+
 
   Scenario: An article that doesn't exist is not found
     Given an article does not exist in Methode

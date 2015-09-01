@@ -13,10 +13,25 @@ public class LinkedObject {
 
     private String uuid;
     private String type;
+    private String attributes = null;
+    private String systemAttributes = null;
+    private String workflowStatus = null;
 
-    public LinkedObject(@JsonProperty("uuid") String uuid, @JsonProperty("type") String type) {
+    public LinkedObject(String uuid, String type) {
         this.uuid = uuid;
         this.type = type;
+    }
+
+    public LinkedObject(@JsonProperty("uuid")String uuid,
+                        @JsonProperty("type")String type_name,
+                        @JsonProperty("attributes")String attributes,
+                        @JsonProperty("workflowStatus") String status_name,
+                        @JsonProperty("systemAttributes") String system_attributes) {
+        this.uuid = uuid;
+        this.type = type_name;
+        this.attributes = attributes;
+        this.systemAttributes = system_attributes;
+        this.workflowStatus = status_name;
     }
 
     public String getUuid() {
@@ -27,11 +42,26 @@ public class LinkedObject {
         return type;
     }
 
+    public String getAttributes() {
+        return attributes;
+    }
+
+    public String getSystemAttributes() {
+        return systemAttributes;
+    }
+
+    public String getWorkflowStatus() {
+        return workflowStatus;
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("uuid", uuid)
                 .add("type", type)
+                .add("attributes", attributes)
+                .add("workflowStatus", workflowStatus)
+                .add("systemAttributes", systemAttributes)
                 .toString();
     }
 
@@ -41,16 +71,15 @@ public class LinkedObject {
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         final LinkedObject other = (LinkedObject) obj;
-        return Objects.equal(this.uuid, other.uuid)
-                && Objects.equal(this.type, other.type);
-
-    }
+        return Objects.equal(uuid, other.uuid)
+                && Objects.equal(type, other.type)
+                && Objects.equal(attributes, other.attributes)
+                && Objects.equal(workflowStatus, other.workflowStatus)
+                && Objects.equal(systemAttributes, other.systemAttributes);
+   }
 
     @Override
     public int hashCode() {
-
-        return Objects.hashCode(
-                this.uuid, this.type);
-
+        return Objects.hashCode(uuid, type, attributes, workflowStatus, systemAttributes);
     }
 }

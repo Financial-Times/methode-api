@@ -5,7 +5,6 @@ import static com.ft.methodeapi.service.methode.PathHelper.folderIsAncestor;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +45,9 @@ public class MethodeFileRepository {
     private final MethodeObjectFactory client;
     private final MethodeObjectFactory testClient;
 
+    private static final String TEST_FOLDER = "/FT Website Production/Z_Test/dyn_pub_test";
+    private static final String[] PATH_TO_TEST_FOLDER = Utils.stringToPath(TEST_FOLDER);
+
     public MethodeFileRepository(MethodeObjectFactory client, MethodeObjectFactory testClient) {
         this.client = client;
         this.testClient = testClient;
@@ -55,71 +57,82 @@ public class MethodeFileRepository {
         final MethodeSessionFileOperationTemplate<Optional<EomFile>> template =
                 new MethodeSessionFileOperationTemplate<>(client, MethodeFileRepository.class, "findFileByUuid");
         
-        MethodeSessionFileOperationTemplate.SessionFileOperationCallback<Optional<EomFile>> callback = new MethodeSessionFileOperationTemplate.SessionFileOperationCallback<Optional<EomFile>>() {
+        MethodeSessionFileOperationTemplate.SessionFileOperationCallback<Optional<EomFile>> callback
+                = new MethodeSessionFileOperationTemplate.SessionFileOperationCallback<Optional<EomFile>>() {
             @Override
             public Optional<EomFile> doOperation(FileSystemAdmin fileSystemAdmin, Session session) {
-				String uri = "eom:/uuids/" + uuid;
-
-				FileSystemObject fso;
-				Optional<EomFile> foundContent;
-				try {
-					fso = fileSystemAdmin.get_object_with_uri(uri);
-
-					EOM.File eomFile = EOM.FileHelper.narrow(fso);
-
-					final String typeName = eomFile.get_type_name();
-					final byte[] bytes = eomFile.read_all();
-                    final String attributes = new String(eomFile.get_attributes().getBytes(METHODE_ENCODING), UTF8);
-					final String workflowStatus = eomFile.get_status_name();
-					final String systemAttributes = eomFile.get_system_attributes();
-                    final String usageTickets = eomFile.get_usage_tickets("");
-
-                    try {
-                        List<LinkedObject> links = new ArrayList<>();
-                        
-                        try {
-                            WebObject webObject = EomDbHelperFactory.create(session).getWebObjectByUuid(uuid);
-                            
-                            if ("EOM::WebContainer".equals(typeName)) {
-                                /* zonesMap is a Map of zone name <-> another map.
-                                 * The nested map contains a "linkedObjects" key, whose value is an array of WebObject ...
-                                 * We need the links from these WebObjects. 
-                                 */
-                                @SuppressWarnings("unchecked")
-                                Collection<Map<String,Object>> zones = webObject.getZonesMap().values();
-                                
-                                for (Map zone : zones) {
-                                    WebObject[] linkedObjects = (WebObject[])zone.get("linkedObjects");
-                                    for (WebObject linked : linkedObjects) {
-                                        links.add(new LinkedObject(
-                                                linked.getUuid(),
-                                                linked.getEomFile().get_type_name()
-                                            ));
-                                    }
-                                }
-                            }
-                        } catch (Exception e) {
-                            throw new MethodeException("Failed to load zones data", e);
-                        }
-
-                        EomFile content = new EomFile(uuid, typeName, bytes, attributes, workflowStatus, systemAttributes,
-                                usageTickets, links);
-                        foundContent = Optional.of(content);
-
-                    } finally {
-                        eomFile._release();
-                    }
-
-				} catch (InvalidURI invalidURI) {
-					return Optional.absent();
-				} catch (RepositoryError | PermissionDenied e) {
-					throw new MethodeException(e);
-				}
+				Optional<EomFile> foundContent = retreiveContent(session, uuid);
 				return foundContent;
             }
         };
-
        return template.doOperation(callback);
+    }
+
+    /**
+     * Retreives articles or lists from Methode.
+     *
+     * @param session EOM session to Methode
+     * @param uuid UUID of the article or a list
+     * @return content from Methode as an optional EomFile object
+     */
+    private Optional<EomFile> retreiveContent(Session session, String uuid) {
+        EOM.File eomFile = null;
+        try {
+                WebObject webObject = EomDbHelperFactory.create(session).getWebObjectByUuid(uuid);
+                if (webObject == null) {
+                    throw new InvalidURI(String.format("uuid %s was not found", uuid));
+                }
+                eomFile = webObject.getEomFile();
+                final String typeName = eomFile.get_type_name();
+                final byte[] bytes = eomFile.read_all();
+                final String attributes = new String(eomFile.get_attributes().getBytes(METHODE_ENCODING), UTF8);
+                final String workflowStatus = eomFile.get_status_name();
+                final String systemAttributes = eomFile.get_system_attributes();
+                final String usageTickets = eomFile.get_usage_tickets("");
+
+            List<LinkedObject> links = extractLinks(webObject);
+            EomFile content = new EomFile(uuid, typeName, bytes, attributes, workflowStatus, systemAttributes,
+                        usageTickets, links);
+                Optional<EomFile>  foundContent = Optional.of(content);
+                return foundContent;
+
+        } catch (InvalidURI invalidURI) {
+                return Optional.absent();
+        } catch (RepositoryError | PermissionDenied e) {
+                throw new MethodeException(e);
+        } catch (Exception e) {
+                throw new MethodeException("Failed to read data from Mehtode", e);
+        } finally {
+                if (eomFile != null) eomFile._release();
+        }
+    }
+
+    /**
+     * Accepts Methode's article or a list of articles as a WebObject and extracts linked articles if they are present.
+     *
+     * @param parentObject main Main article
+     * @return list of linked articles
+     * @throws Exception thrown by eidosmedia API
+     */
+    private List<LinkedObject> extractLinks(WebObject parentObject) throws Exception {
+        List<LinkedObject> links = new ArrayList<>();
+        if ("EOM::WebContainer".equals(parentObject.getEomFile().get_type_name())) {
+            Map<String, WebObject[]> byZone = parentObject.getLinked();
+                for (String zone : byZone.keySet()) {
+                    WebObject[] linkedObjects = byZone.get(zone);
+
+                    for (WebObject linked : linkedObjects) {
+                        links.add(new LinkedObject(
+                                linked.getUuid(),
+                                linked.getEomFile().get_type_name(),
+                                linked.getEomFile().get_attributes(),
+                                linked.getEomFile().get_status_name(),
+                                linked.getEomFile().get_system_attributes()
+                        ));
+                }
+            }
+        }
+        return links;
     }
 
     public Map<String, EomAssetType> getAssetTypes(final Set<String> assetIdentifiers){
@@ -135,9 +148,6 @@ public class MethodeFileRepository {
             LOGGER.info("Obtained types. assetCount={}, elapsedTimeMs={}",assetIdentifiers.size(), duration);
         }
 	}
-
-    private static final String TEST_FOLDER = "/FT Website Production/Z_Test/dyn_pub_test";
-    private static final String[] PATH_TO_TEST_FOLDER = Utils.stringToPath(TEST_FOLDER);
 
     /**
      * WARNING
@@ -199,8 +209,6 @@ public class MethodeFileRepository {
             }
         });
     }
-    
-    
 
 	public String getClientRepositoryInfo() {
 		return client.getDescription();
