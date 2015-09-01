@@ -15,7 +15,7 @@ public class LinkedObject {
     private String type;
     private String attributes = null;
     private String systemAttributes = null;
-    private String status = null;
+    private String workflowStatus = null;
 
     public LinkedObject(String uuid, String type) {
         this.uuid = uuid;
@@ -31,7 +31,7 @@ public class LinkedObject {
         this.type = type_name;
         this.attributes = attributes;
         this.systemAttributes = system_attributes;
-        this.status = status_name;
+        this.workflowStatus = status_name;
     }
 
     public String getUuid() {
@@ -50,8 +50,8 @@ public class LinkedObject {
         return systemAttributes;
     }
 
-    public String getStatus() {
-        return status;
+    public String getWorkflowStatus() {
+        return workflowStatus;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class LinkedObject {
                 .add("uuid", uuid)
                 .add("type", type)
                 .add("attributes", attributes)
-                .add("workflowStatus", status)
+                .add("workflowStatus", workflowStatus)
                 .add("systemAttributes", systemAttributes)
                 .toString();
     }
@@ -74,12 +74,12 @@ public class LinkedObject {
         return Objects.equal(uuid, other.uuid)
                 && Objects.equal(type, other.type)
                 && Objects.equal(attributes, other.attributes)
-                && Objects.equal(status, other.status)
+                && Objects.equal(workflowStatus, other.workflowStatus)
                 && Objects.equal(systemAttributes, other.systemAttributes);
    }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(uuid, type, attributes, status, systemAttributes);
+        return Objects.hashCode(uuid, type, attributes, workflowStatus, systemAttributes);
     }
 }

@@ -65,7 +65,7 @@ public class ReferenceLists {
 
     public static boolean hasStatusProperty(List<LinkedObject> list) {
         for(LinkedObject linked : list) {
-            if(linked.getStatus()==null) {
+            if(linked.getWorkflowStatus()==null) {
                 return false;
             }
         }
