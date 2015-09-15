@@ -15,7 +15,8 @@ http:
 
 methodeConnection:
   #hostName: archive.methode.test.internal.ft.com
-  hostName: ftper513-lvuk-uk-t
+  hostName: archive.methode.internal.ft.com #ftper516-lvuk-uk-p
+  #hostName: ftper516-lvuk-uk-t #archive.methode.test.internal.ft.com
   #hostName: ftcma01-uvpr-uk-t
   #hostName: ftper514-lvuk-uk-p
   nsPort: 9092
@@ -29,7 +30,8 @@ methodeConnection:
 methodeTestConnection:
   #hostName: archive.methode.test.internal.ft.com
   #hostName: ftper514-lvuk-uk-p #10.117.109.150
-  hostName: ftper513-lvuk-uk-t
+  hostName: archive.methode.internal.ft.com #ftper516-lvuk-uk-p
+  #hostName: ftper516-lvuk-uk-t #archive.methode.test.internal.ft.com 
   #hostName: ftcma01-uvpr-uk-t
   nsPort: 9092
   connectTimeout: 2000
