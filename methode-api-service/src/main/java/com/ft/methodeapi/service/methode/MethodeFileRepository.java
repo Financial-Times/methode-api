@@ -195,6 +195,9 @@ public class MethodeFileRepository {
                                 usageTickets = insertPublishDateIntoUsageTickets(usageTickets, usageTicketsDocument, publishDateString);
                             } else {
                                 LOGGER.info(">>>>>>>> sandor uuid:" + uuid + ", no publishDate to extract.");
+                                // Unix epoch start time (0), means GMT: Thu, 01 Jan 1970 00:00:00 GMT
+                                publishDateString = "19700101000000";
+                                usageTickets = insertPublishDateIntoUsageTickets(usageTickets, usageTicketsDocument, publishDateString);
                             }
                         }
                     }
