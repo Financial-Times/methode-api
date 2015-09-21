@@ -183,11 +183,12 @@ public class MethodeFileRepository {
                             final Document systemAttributesDocument;
                             try {
                                 systemAttributesDocument = documentBuilder.parse(new InputSource(new StringReader(systemAttributes)));
+                                publishDateString = xpath.evaluate("/props/productInfo/issueDate", systemAttributesDocument);
+                                LOGGER.info(">>>>>>>> sandor uuid:" + uuid + ", issueDate: " + publishDateString);
                             } catch (SAXException | IOException e) {
-                                throw new RuntimeException(e);
+                                //no system attributes, ignore
                             }
-                            publishDateString = xpath.evaluate("/props/productInfo/issueDate", systemAttributesDocument);
-                            LOGGER.info(">>>>>>>> sandor uuid:" + uuid + ", issueDate: " + publishDateString);
+
                             if (publishDateString != null && !"".equals(publishDateString)) {
                                 //this publishDateString would look like yyyyMMdd
                                 //make publishDateString to look like expected parse format: yyyyMMddHHmmss
