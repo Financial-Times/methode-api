@@ -3,15 +3,21 @@ package com.ft.methodeapi.smoke;
 import com.ft.methodeapi.acceptance.MethodeContent;
 import com.ft.methodeapi.acceptance.ReferenceArticles;
 import com.ft.methodeapi.acceptance.ReferenceLists;
+import com.ft.methodeapi.model.LinkedObject;
+
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
+import java.util.UUID;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.StringContains.containsString;
@@ -25,7 +31,9 @@ import static org.junit.Assert.assertThat;
 public class MethodeContentBuilderTest {
 
     public static final String EDITED_HEADLINE = "Changed";
-
+    
+    static final List<LinkedObject> LINKED_OBJECTS = Collections.singletonList(new LinkedObject(UUID.randomUUID().toString(), "EOM::CompoundStory"));
+    
     @Test
     public void builtArticleShouldContainExampleHeadlineByDefault() {
         assertThat(ReferenceArticles.publishedKitchenSinkArticle().build().getArticleXml(),containsString(MethodeContent.HEADLINE_FROM_TEST_FILE));
@@ -57,7 +65,7 @@ public class MethodeContentBuilderTest {
 
 	@Test
 	public void builtListShouldHaveCorrectTypeValue() {
-		assertThat(ReferenceLists.publishedList().build().getEomFile().getType(), containsString("EOM::WebContainer"));
+		assertThat(ReferenceLists.publishedList(LINKED_OBJECTS).build().getEomFile().getType(), equalTo("EOM::WebContainer"));
 	}
 
 	@Test
@@ -73,7 +81,7 @@ public class MethodeContentBuilderTest {
 
 	@Test
 	public void builtListShouldHaveCorrectWorkflowStatus() {
-		assertThat(ReferenceLists.publishedList().build().getWorkflowStatus(), containsString(MethodeContent.CLEARED));
+		assertThat(ReferenceLists.publishedList(LINKED_OBJECTS).build().getWorkflowStatus(), containsString(MethodeContent.CLEARED));
 	}
 
 	@Test
