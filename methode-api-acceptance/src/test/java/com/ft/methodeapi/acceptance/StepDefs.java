@@ -7,6 +7,8 @@ import com.ft.methodeapi.model.LinkedObject;
 import com.google.common.base.MoreObjects;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
+
+import cucumber.api.Scenario;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -14,9 +16,10 @@ import cucumber.api.java.en.When;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.IOException;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -31,7 +34,6 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static com.jayway.restassured.path.json.JsonPath.from;
-
 import static com.ft.methodeapi.acceptance.LinkedObjectsVerifier.*;
 
 public class StepDefs {
@@ -49,9 +51,13 @@ public class StepDefs {
             "/ObjectMetadata/EditorialDisplayIndexing/DIMasterImgFileRef", //TODO remove once the drop and drag new promo box component makes it through Methode environments to live"/ObjectMetadata/EditorialDisplayIndexing/DIMasterImgFileRef" //TODO remove once the drop and drag new promo box component makes it through Methode environments to live
             "/ObjectMetadata/EditorialDisplayIndexing/DIFTNPSections[2]" //TODO remove once the drop and drag new promo box component makes it through Methode environments to live"/ObjectMetadata/EditorialDisplayIndexing/DIMasterImgFileRef" //TODO remove once the drop and drag new promo box component makes it through Methode environments to live
     };
-
+    
+    private static final String METHODE_ARTICLE_TYPE = "EOM::CompoundStory";
+    
     private AcceptanceTestConfiguration acceptanceTestConfiguration;
-
+    
+    private Scenario scenario;
+    
 	private Response theResponseForNotFoundRequest;
     private String theResponseEntityForSuccessfulRequest;
     private UUID uuidForArticleInMethode;
@@ -72,8 +78,9 @@ public class StepDefs {
     }
 
     @Before
-    public void setup() {
+    public void setup(Scenario scenario) {
         requestTimings = new ArrayList<>(1000);
+        this.scenario = scenario;
     }
 
 	@Given("^the MethodeAPI service is running and connected to Methode$")
@@ -100,11 +107,12 @@ public class StepDefs {
                 .post(this.acceptanceTestConfiguration.getMethodeApiServiceUrl()).andReturn();
 
         uuidForArticleInMethode = UUID.fromString(response.jsonPath().getString("uuid"));
+        scenario.write(String.format("using article: %s", uuidForArticleInMethode));
 	}
 
     @Given("^a list exists in Methode$")
     public void a_list_exists_in_Methode() throws Throwable {
-
+        an_article_exists_in_Methode();
         prepareTheList();
 
         LOGGER.info("Calling Methode API: url=" + acceptanceTestConfiguration.getMethodeApiServiceUrl()
@@ -121,6 +129,7 @@ public class StepDefs {
                 .post(this.acceptanceTestConfiguration.getMethodeApiServiceUrl()).andReturn();
 
         uuidForListInMethode = UUID.fromString(response.jsonPath().getString("uuid"));
+        scenario.write(String.format("using list: %s", uuidForListInMethode));
     }
 
 	@Given("^an? (article|list) does not exist in Methode$")
@@ -142,10 +151,12 @@ public class StepDefs {
 
     private void prepareTheList() throws IOException {
 
-        theExpectedList = new ReferenceLists().publishedList()
-                .withWorkflowStatus(MethodeContent.CLEARED)
-                .build().getEomFile();
-
+        List<LinkedObject> linkedObjects = Collections.singletonList(
+                    new LinkedObject(uuidForArticleInMethode.toString(), METHODE_ARTICLE_TYPE)
+                );
+        
+        theExpectedList = ReferenceLists.publishedList(linkedObjects)
+                            .build().getEomFile();
         LOGGER.debug("articleXml={}, attributeXml={}, linkedObjects={}",theExpectedList.getValue(),
                 theExpectedList.getAttributes(), theExpectedList.getLinkedObjects());
     }
