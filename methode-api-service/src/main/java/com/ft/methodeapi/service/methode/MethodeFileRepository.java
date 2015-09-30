@@ -67,7 +67,7 @@ public class MethodeFileRepository {
                     final String typeName = eomFile.get_type_name();
                     final byte[] bytes = eomFile.read_all();
                     final String attributes = new String(eomFile.get_attributes().getBytes(METHODE_ENCODING), UTF8);
-                    final String workflowStatus = eomFile.get_status_name();
+                    final String workflowStatus = "Stories/WebRevise";
 
                     final String systemAttributes = eomFile.get_system_attributes();
                     String usageTickets = eomFile.get_usage_tickets("");
