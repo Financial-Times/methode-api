@@ -22,29 +22,8 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.nio.charset.Charset;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,7 +31,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 
 import static com.ft.methodeapi.service.methode.PathHelper.folderIsAncestor;
 
@@ -62,18 +40,12 @@ public class MethodeFileRepository {
 
     private static final Charset METHODE_ENCODING = Charset.forName("iso-8859-1");
     private static final Charset UTF8 = Charset.forName("UTF8");
-    private static final String DATE_FORMAT = "yyyyMMddHHmmss";
     private final MethodeObjectFactory client;
     private final MethodeObjectFactory testClient;
 
     public MethodeFileRepository(MethodeObjectFactory client, MethodeObjectFactory testClient) {
         this.client = client;
         this.testClient = testClient;
-    }
-
-    private DocumentBuilder getDocumentBuilder() throws ParserConfigurationException {
-        final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        return documentBuilderFactory.newDocumentBuilder();
     }
 
     public Optional<EomFile> findFileByUuid(final String uuid) {
@@ -99,8 +71,6 @@ public class MethodeFileRepository {
 
                     final String systemAttributes = eomFile.get_system_attributes();
                     String usageTickets = eomFile.get_usage_tickets("");
-
-                    usageTickets = getModifiedUsageTicketIfPossible(systemAttributes, usageTickets);
 
                     try {
                         List<LinkedObject> links = new ArrayList<>();
@@ -154,130 +124,9 @@ public class MethodeFileRepository {
 
                 return foundContent;
             }
-
-            protected String getModifiedUsageTicketIfPossible(String systemAttributes, String usageTickets) {
-                final DocumentBuilder documentBuilder;
-                try {
-                    documentBuilder = getDocumentBuilder();
-                } catch (ParserConfigurationException e) {
-                    throw new RuntimeException(e);
-                }
-                final XPath xpath = XPathFactory.newInstance().newXPath();
-                final Document usageTicketsDocument;
-                try {
-                    usageTicketsDocument = documentBuilder.parse(new InputSource(new StringReader(usageTickets)));
-                } catch (SAXException | IOException e) {
-                    throw new RuntimeException(e);
-                }
-                try {
-                    String publishDateString = xpath.evaluate("/tl/t[tp = 'WebCopy'][count(/tl/t[tp = 'WebCopy'])]/cd", usageTicketsDocument);
-                    LOGGER.info(">>>>>>>> sandor uuid:" + uuid + ", WebCopy: " + publishDateString);
-                    if (publishDateString != null && !"".equals(publishDateString)) {
-                        usageTickets = insertPublishDateIntoUsageTickets(usageTickets, usageTicketsDocument, publishDateString);
-                    } else {
-                        publishDateString = xpath.evaluate("/tl/t[tp = 'Archive'][count(/tl/t[tp = 'Archive'])]/cd", usageTicketsDocument);
-                        LOGGER.info(">>>>>>>> sandor uuid:" + uuid + ", Archive: " + publishDateString);
-                        if (publishDateString != null && !"".equals(publishDateString)) {
-                            usageTickets = insertPublishDateIntoUsageTickets(usageTickets, usageTicketsDocument, publishDateString);
-                        } else {
-                            final Document systemAttributesDocument;
-                            try {
-                                systemAttributesDocument = documentBuilder.parse(new InputSource(new StringReader(systemAttributes)));
-                                publishDateString = xpath.evaluate("/props/productInfo/issueDate", systemAttributesDocument);
-                                LOGGER.info(">>>>>>>> sandor uuid:" + uuid + ", issueDate: " + publishDateString);
-                            } catch (SAXException | IOException e) {
-                                //no system attributes, ignore
-                            }
-
-                            if (publishDateString != null && !"".equals(publishDateString)) {
-                                //this publishDateString would look like yyyyMMdd
-                                //make publishDateString to look like expected parse format: yyyyMMddHHmmss
-                                publishDateString+="000000";
-                                usageTickets = insertPublishDateIntoUsageTickets(usageTickets, usageTicketsDocument, publishDateString);
-                            } else {
-                                LOGGER.info(">>>>>>>> sandor uuid:" + uuid + ", no publishDate to extract.");
-                                // Unix epoch start time (0), means GMT: Thu, 01 Jan 1970 00:00:00 GMT
-                                publishDateString = "19700101000000";
-                                usageTickets = insertPublishDateIntoUsageTickets(usageTickets, usageTicketsDocument, publishDateString);
-                            }
-                        }
-                    }
-
-
-                } catch (XPathExpressionException e) {
-                    throw new RuntimeException(e);
-                }
-                return usageTickets;
-            }
-
-            private String insertPublishDateIntoUsageTickets(String usageTickets, Document usageTicketsDocument, String archiveDate) {
-                Date publishDate = transformDate(uuid, archiveDate);
-                if (publishDate != null) {
-                    simulateWebPublishUsageTicket(usageTicketsDocument, archiveDate);
-                    usageTickets = serializeBody(usageTicketsDocument);
-                }
-                return usageTickets;
-            }
-
         };
 
         return template.doOperation(callback);
-    }
-
-    private String serializeBody(Document document) {
-        final DOMSource domSource = new DOMSource(document);
-        final StringWriter writer = new StringWriter();
-        final StreamResult result = new StreamResult(writer);
-        final TransformerFactory tf = TransformerFactory.newInstance();
-        try {
-            final Transformer transformer = tf.newTransformer();
-            transformer.setOutputProperty("omit-xml-declaration", "no");
-//            transformer.setOutputProperty("standalone", "yes");
-            transformer.transform(domSource, result);
-            writer.flush();
-            final String body = writer.toString();
-            return body;
-        } catch (TransformerException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void simulateWebPublishUsageTicket(Document ownerDocument, String publishDate) {
-        Element publishUsageTicket = ownerDocument.createElement("t");
-        Element id = ownerDocument.createElement("id");
-        Element tp = ownerDocument.createElement("tp");
-        Element c = ownerDocument.createElement("c");
-        Element cd = ownerDocument.createElement("cd");
-
-        id.setTextContent("111");
-        tp.setTextContent("web_publication");
-        c.setTextContent("republish_images_with_publish_date_null");
-        cd.setTextContent(publishDate);
-
-        publishUsageTicket.appendChild(id);
-        publishUsageTicket.appendChild(tp);
-        publishUsageTicket.appendChild(c);
-        publishUsageTicket.appendChild(cd);
-
-        Node first = ownerDocument.getFirstChild();
-        if (first != null) {
-            first.appendChild(publishUsageTicket);
-        } else {
-            ownerDocument.appendChild(publishUsageTicket);
-        }
-
-
-    }
-
-    private Date transformDate(final String uuid, final String dateString) {
-        final DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        try {
-            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            return dateFormat.parse(dateString);
-        } catch (ParseException ex) {
-            LOGGER.warn("Date couldn't be parsed for uuid {} and raw value '{}'.", uuid, dateString);
-        }
-        return null;
     }
 
     public Map<String, EomAssetType> getAssetTypes(final Set<String> assetIdentifiers) {
