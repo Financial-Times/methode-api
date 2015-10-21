@@ -5,7 +5,7 @@ import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.templates.MethodeRepositoryOperationTemplate;
 import com.ft.timer.FTTimer;
 import com.ft.timer.RunningTimer;
-import com.yammer.metrics.core.HealthCheck;
+import com.codahale.metrics.health.HealthCheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +19,6 @@ public class MethodePingHealthCheck extends HealthCheck {
     private final Logger LOGGER = LoggerFactory.getLogger(MethodePingHealthCheck.class);
 
     public MethodePingHealthCheck(MethodeObjectFactory objectFactory, long maxPingMillis) {
-        super(String.format("methode ping [%s]", objectFactory.getDescription()));
-
         this.methodeObjectFactory = objectFactory;
         this.maxPingMillis = maxPingMillis;
     }

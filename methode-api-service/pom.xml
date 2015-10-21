@@ -92,13 +92,13 @@
             <groupId>com.ft</groupId>
             <artifactId>jaxrs-build-info-resource</artifactId>
         </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>log4j-over-slf4j</artifactId>
-        <version>1.7.6</version>
-      </dependency>
         <dependency>
-            <groupId>com.yammer.dropwizard</groupId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <version>1.7.6</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
             <exclusions>
                 <!-- block import of 1.7.4 , prefer 1.7.6 which is compatible with methode libs -->
@@ -191,7 +191,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.yammer.dropwizard</groupId>
+            <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-testing</artifactId>
             <scope>test</scope>
         </dependency>

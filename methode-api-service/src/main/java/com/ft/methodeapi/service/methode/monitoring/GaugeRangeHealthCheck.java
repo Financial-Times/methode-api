@@ -1,7 +1,7 @@
 package com.ft.methodeapi.service.methode.monitoring;
 
-import com.yammer.metrics.core.Gauge;
-import com.yammer.metrics.core.HealthCheck;
+import com.codahale.metrics.Gauge;
+import com.codahale.metrics.health.HealthCheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,9 +18,10 @@ public class GaugeRangeHealthCheck<N extends Number, G extends Gauge<N>> extends
 
     private final Logger LOGGER = LoggerFactory.getLogger(GaugeRangeHealthCheck.class);
 
-
+    private final String name;
+    
     public GaugeRangeHealthCheck(String name, G gauge, N minValue, N maxValue) {
-        super(name);
+        this.name = name;
         this.gauge = gauge;
         this.max = maxValue.longValue();
         this.min = minValue.longValue();
@@ -29,7 +30,7 @@ public class GaugeRangeHealthCheck<N extends Number, G extends Gauge<N>> extends
     @Override
     protected Result check() throws Exception {
 
-        long snapshotValue = gauge.value().longValue();
+        long snapshotValue = gauge.getValue().longValue();
 
         if(snapshotValue > max) {
             return report("snapshot > max: " + snapshotValue + " > " + max);
@@ -45,5 +46,9 @@ public class GaugeRangeHealthCheck<N extends Number, G extends Gauge<N>> extends
     private Result report(String message) {
         LOGGER.warn(this.getName() + ": " + message); // use WARN to prevent duplicate alerts
         return Result.unhealthy(message);
+    }
+    
+    private String getName() {
+        return name;
     }
 }

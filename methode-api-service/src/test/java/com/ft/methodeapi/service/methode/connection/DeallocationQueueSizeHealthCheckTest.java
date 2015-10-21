@@ -1,6 +1,6 @@
 package com.ft.methodeapi.service.methode.connection;
 
-import com.yammer.metrics.core.Gauge;
+import com.codahale.metrics.Gauge;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -26,7 +26,7 @@ public class DeallocationQueueSizeHealthCheckTest {
     @Test
     public void shouldFailGivenLongQueue() {
 
-        when(mockGauge.value()).thenReturn(ALERT_THRESHOLD+1);
+        when(mockGauge.getValue()).thenReturn(ALERT_THRESHOLD+1);
 
         DeallocationQueueSizeHealthCheck check = new DeallocationQueueSizeHealthCheck("test",mockGauge, ALERT_THRESHOLD);
 
@@ -37,7 +37,7 @@ public class DeallocationQueueSizeHealthCheckTest {
     @Test
     public void shouldPassGivenQueueSizeUnderThreshold() {
 
-        when(mockGauge.value()).thenReturn(ALERT_THRESHOLD-1);
+        when(mockGauge.getValue()).thenReturn(ALERT_THRESHOLD-1);
 
         DeallocationQueueSizeHealthCheck check = new DeallocationQueueSizeHealthCheck("test",mockGauge, ALERT_THRESHOLD);
 
@@ -49,7 +49,7 @@ public class DeallocationQueueSizeHealthCheckTest {
     @Test
     public void shouldFailGivenQueueSizeAtThreshold() {
 
-        when(mockGauge.value()).thenReturn(ALERT_THRESHOLD);
+        when(mockGauge.getValue()).thenReturn(ALERT_THRESHOLD);
 
         DeallocationQueueSizeHealthCheck check = new DeallocationQueueSizeHealthCheck("test",mockGauge, ALERT_THRESHOLD);
 
@@ -60,7 +60,7 @@ public class DeallocationQueueSizeHealthCheckTest {
     @Test
     public void shouldPassEmptyQueue() {
 
-        when(mockGauge.value()).thenReturn(0);
+        when(mockGauge.getValue()).thenReturn(0);
 
         DeallocationQueueSizeHealthCheck check = new DeallocationQueueSizeHealthCheck("test",mockGauge, ALERT_THRESHOLD);
 

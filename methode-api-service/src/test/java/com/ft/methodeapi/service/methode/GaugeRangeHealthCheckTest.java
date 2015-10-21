@@ -1,7 +1,7 @@
 package com.ft.methodeapi.service.methode;
 
 import com.ft.methodeapi.service.methode.monitoring.GaugeRangeHealthCheck;
-import com.yammer.metrics.core.Gauge;
+import com.codahale.metrics.Gauge;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.containsString;
@@ -18,7 +18,7 @@ public class GaugeRangeHealthCheckTest {
 
     Gauge<Integer> fixedValueGauge = new Gauge<Integer>() {
         @Override
-        public Integer value() {
+        public Integer getValue() {
             return 1000;
         }
     };

@@ -3,7 +3,7 @@ package com.ft.methodeapi.service.methode;
 import EOM.Repository;
 import EOM.Session;
 import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
-import com.yammer.metrics.core.HealthCheck;
+import com.codahale.metrics.health.HealthCheck;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

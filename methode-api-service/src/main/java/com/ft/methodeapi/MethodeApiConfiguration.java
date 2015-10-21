@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ft.methodeapi.service.methode.MethodeConnectionConfiguration;
 import com.google.common.base.MoreObjects;
-import com.yammer.dropwizard.config.Configuration;
+import io.dropwizard.Configuration;
 
 public class MethodeApiConfiguration extends Configuration {
 

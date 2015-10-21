@@ -1,9 +1,10 @@
 package com.ft.methodeapi.service.methode.connection;
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ExecutorService;
 
 /**
 * MethodeObjectFactoryBuilder
@@ -21,8 +22,9 @@ public class MethodeObjectFactoryBuilder {
     String orbClass;
     String orbSingletonClass;
     Optional<PoolConfiguration> pool = Optional.absent();
-    ScheduledExecutorService executorService;
-
+    ExecutorService executorService;
+    MetricRegistry metricRegistry;
+    
     public static MethodeObjectFactoryBuilder named(String name) {
         return (new MethodeObjectFactoryBuilder()).withName(name);
     }
@@ -67,11 +69,16 @@ public class MethodeObjectFactoryBuilder {
         return this;
     }
 
-    public MethodeObjectFactoryBuilder withWorkerThreadPool(ScheduledExecutorService executorService) {
+    public MethodeObjectFactoryBuilder withWorkerThreadPool(ExecutorService executorService) {
         this.executorService = executorService;
         return this;
     }
-
+    
+    public MethodeObjectFactoryBuilder withMetricRegistry(MetricRegistry metricRegistry) {
+        this.metricRegistry = metricRegistry;
+        return this;
+    }
+    
     public MethodeObjectFactory build() {
 
         MethodeObjectFactory factory = new DefaultMethodeObjectFactory(this);
@@ -79,7 +86,7 @@ public class MethodeObjectFactoryBuilder {
 
             Preconditions.checkState(executorService!=null,"Connection pooling requires a thread pool");
 
-            factory = new PoolingMethodeObjectFactory(factory, executorService, pool.get());
+            factory = new PoolingMethodeObjectFactory(factory, executorService, pool.get(), metricRegistry);
         }
 
         return factory;

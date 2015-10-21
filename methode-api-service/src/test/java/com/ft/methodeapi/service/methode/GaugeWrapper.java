@@ -1,6 +1,6 @@
 package com.ft.methodeapi.service.methode;
 
-import com.yammer.metrics.core.Gauge;
+import com.codahale.metrics.Gauge;
 
 /**
  * <p>Wraps a gauge in order to force a known class name into the stacktrace for the test execution thread.</p>
@@ -16,12 +16,12 @@ public class GaugeWrapper<T> {
 
     Gauge<T> theGauge;
 
-    GaugeWrapper(Gauge theGauge) {
+    GaugeWrapper(Gauge<T> theGauge) {
         this.theGauge = theGauge;
     }
 
     public T queryGauge() {
-        return theGauge.value();
+        return theGauge.getValue();
     }
 
 }

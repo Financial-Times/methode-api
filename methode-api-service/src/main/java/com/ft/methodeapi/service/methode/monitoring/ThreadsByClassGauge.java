@@ -1,8 +1,7 @@
 package com.ft.methodeapi.service.methode.monitoring;
 
 import com.google.common.base.Preconditions;
-import com.yammer.metrics.core.Gauge;
-import com.yammer.metrics.core.MetricName;
+import com.codahale.metrics.Gauge;
 
 import java.util.Map;
 
@@ -11,10 +10,9 @@ import java.util.Map;
  *
  * @author Simon.Gibbs
  */
-public class ThreadsByClassGauge extends Gauge<Integer> {
+public class ThreadsByClassGauge implements Gauge<Integer> {
 
     private String drivingClassName;
-    private MetricName metricName;
 
     public ThreadsByClassGauge(Class<?> drivingClass) {
         this(drivingClass.getCanonicalName());
@@ -23,11 +21,10 @@ public class ThreadsByClassGauge extends Gauge<Integer> {
     public ThreadsByClassGauge(String drivingClassCanonicalClassName) {
         Preconditions.checkArgument(drivingClassCanonicalClassName!=null,"must have a canonical name");
         this.drivingClassName = drivingClassCanonicalClassName;
-        metricName = new MetricName(this.getClass(),drivingClassName);
     }
 
     @Override
-    public Integer value() {
+    public Integer getValue() {
         Map<Thread, StackTraceElement[]> threads = Thread.getAllStackTraces();
         int value = 0;
 
@@ -42,9 +39,5 @@ public class ThreadsByClassGauge extends Gauge<Integer> {
             }
         }
         return value;
-    }
-
-    public MetricName getMetricName() {
-        return metricName;
     }
 }

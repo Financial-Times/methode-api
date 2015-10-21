@@ -1,15 +1,16 @@
 package com.ft.methodeapi;
 
 import com.ft.api.util.transactionid.TransactionIdFilter;
-import com.ft.dropwizard.killswitchtask.KillSwitchTask;
 import com.ft.methodeapi.service.methode.MethodeContentRetrievalHealthCheck;
-
 import com.ft.methodeapi.service.methode.connection.MethodeObjectFactoryBuilder;
 import com.ft.methodeapi.service.methode.monitoring.GaugeRangeHealthCheck;
 import com.ft.methodeapi.service.methode.monitoring.ThreadsByClassGauge;
-import com.yammer.dropwizard.lifecycle.Managed;
-import com.yammer.metrics.Metrics;
-import com.yammer.metrics.core.HealthCheck;
+
+import io.dropwizard.lifecycle.Managed;
+
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.health.HealthCheck;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,17 +23,21 @@ import com.ft.methodeapi.service.http.EomFileResource;
 import com.ft.methodeapi.service.http.GetAssetTypeResource;
 import com.ft.methodeapi.service.methode.MethodeFileRepository;
 import com.ft.methodeapi.service.methode.MethodeConnectionConfiguration;
-import com.yammer.dropwizard.Service;
-import com.yammer.dropwizard.config.Bootstrap;
-import com.yammer.dropwizard.config.Environment;
+
+import io.dropwizard.Application;
+import io.dropwizard.setup.Bootstrap;
+import io.dropwizard.setup.Environment;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
 
-public class MethodeApiService extends Service<MethodeApiConfiguration> {
+import javax.servlet.DispatcherType;
+
+public class MethodeApiService extends Application<MethodeApiConfiguration> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodeApiService.class);
 	
@@ -52,32 +57,32 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
         final MethodeObjectFactory testMethodeObjectFactory = createMethodeObjectFactory("test-rw", configuration.getTestCredentialsPath(), configuration.getMethodeTestConnectionConfiguration(),environment);
         final MethodeFileRepository methodeContentRepository = new MethodeFileRepository(methodeObjectFactory, testMethodeObjectFactory);
 
-        environment.addResource(new EomFileResource(methodeContentRepository));
-        environment.addResource(new VersionResource(MethodeApiService.class));
-        environment.addResource(new BuildInfoResource());
-        environment.addResource(new GetAssetTypeResource(methodeContentRepository));
+        environment.jersey().register(new EomFileResource(methodeContentRepository));
+        environment.jersey().register(new VersionResource(MethodeApiService.class));
+        environment.jersey().register(new BuildInfoResource());
+        environment.jersey().register(new GetAssetTypeResource(methodeContentRepository));
 
         int poolingConnectionCount = countPoolingConnections(methodeObjectFactory,testMethodeObjectFactory);
         if(poolingConnectionCount>0) {
             ThreadsByClassGauge stormPotAllocatorThreadGauge = new ThreadsByClassGauge("stormpot.QAllocThread");
-            Metrics.newGauge(stormPotAllocatorThreadGauge.getMetricName(),stormPotAllocatorThreadGauge);
-            environment.addHealthCheck(new GaugeRangeHealthCheck<>("Stormpot Allocator Threads",stormPotAllocatorThreadGauge,poolingConnectionCount,poolingConnectionCount));
+            String name = MetricRegistry.name(MethodeApiService.class, "StormpotAllocatorThreads");
+            environment.metrics().register(name, stormPotAllocatorThreadGauge);
+            environment.healthChecks().register("Stormpot Allocator Threads", new GaugeRangeHealthCheck<>("Stormpot Allocator Threads",stormPotAllocatorThreadGauge,poolingConnectionCount,poolingConnectionCount));
         }
 
         ThreadsByClassGauge jacorbThreadGauge = new ThreadsByClassGauge(org.jacorb.util.threadpool.ConsumerTie.class);
-        Metrics.newGauge(jacorbThreadGauge.getMetricName(), jacorbThreadGauge);
-        environment.addHealthCheck(new GaugeRangeHealthCheck<>("Jacorb Threads", jacorbThreadGauge, 1, 900));
+        String jacorbMetricName = MetricRegistry.name(MethodeApiService.class, "JacorbThreads");
+        environment.metrics().register(jacorbMetricName, jacorbThreadGauge);
+        environment.healthChecks().register("Jacorb Threads", new GaugeRangeHealthCheck<>("Jacorb Threads", jacorbThreadGauge, 1, 900));
 
-        environment.addHealthCheck(new MethodePingHealthCheck(methodeObjectFactory, configuration.getMethodeConnectionConfiguration().getMaxPingMillis()));
-        environment.addHealthCheck(new MethodePingHealthCheck(testMethodeObjectFactory, configuration.getMethodeTestConnectionConfiguration().getMaxPingMillis()));
+        environment.healthChecks().register(String.format("methode ping [%s]", methodeObjectFactory.getDescription()), new MethodePingHealthCheck(methodeObjectFactory, configuration.getMethodeConnectionConfiguration().getMaxPingMillis()));
+        environment.healthChecks().register(String.format("methode ping [%s]", testMethodeObjectFactory.getDescription()), new MethodePingHealthCheck(testMethodeObjectFactory, configuration.getMethodeTestConnectionConfiguration().getMaxPingMillis()));
 
-        environment.addHealthCheck(new MethodeContentRetrievalHealthCheck(methodeContentRepository));
+        environment.healthChecks().register(String.format("methode content retrieval [%s]", methodeContentRepository.getClientRepositoryInfo()), new MethodeContentRetrievalHealthCheck(methodeContentRepository));
 
-        environment.addProvider(new RuntimeExceptionMapper());
-		environment.addFilter(new TransactionIdFilter(), "/eom-file/*");
-        environment.addFilter(new TransactionIdFilter(), "/asset-type/*");
-
-        environment.addTask(new KillSwitchTask());
+        environment.jersey().register(new RuntimeExceptionMapper());
+		environment.servlets().addFilter("Transaction ID Filter", new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/eom-file/*");
+        environment.servlets().addFilter("Transaction ID Filter", new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/asset-type/*");
     }
 
     private int countPoolingConnections(MethodeObjectFactory...  factories) {
@@ -107,17 +112,19 @@ public class MethodeApiService extends Service<MethodeApiConfiguration> {
                     .withOrbClass(methodeConnectionConfiguration.getOrbClass())
                     .withOrbSingletonClass(methodeConnectionConfiguration.getOrbSingletonClass())
                     .withPooling(methodeConnectionConfiguration.getPool())
-                    .withWorkerThreadPool(environment.managedScheduledExecutorService("MOF-worker-%d", 2))
+                    .withWorkerThreadPool(environment.lifecycle().executorService("MOF-worker-%d").maxThreads(2).build())
+                    .withMetricRegistry(environment.metrics())
                     .build();
 
         if(result instanceof Managed) {
-            environment.manage((Managed) result);
+            environment.lifecycle().manage((Managed) result);
         }
 
         List<HealthCheck> checks = result.createHealthChecks();
-
+        
+        int i = 0;
         for(HealthCheck check : checks) {
-            environment.addHealthCheck(check);
+            environment.healthChecks().register(/*check.getName()*/"MethodeObjectFactoryHealthCheck-" + (++i), check);
         }
 
         return result;

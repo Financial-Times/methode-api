@@ -1,6 +1,6 @@
 package com.ft.methodeapi.service.methode;
 
-import com.yammer.metrics.core.HealthCheck;
+import com.codahale.metrics.health.HealthCheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +11,6 @@ public class MethodeContentRetrievalHealthCheck extends HealthCheck {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodeContentRetrievalHealthCheck.class);
 
     public MethodeContentRetrievalHealthCheck(MethodeFileRepository methodeContentRepository) {
-        super(String.format("methode content retrieval [%s]", methodeContentRepository.getClientRepositoryInfo()));
         this.methodeContentRepository = methodeContentRepository;
     }
 

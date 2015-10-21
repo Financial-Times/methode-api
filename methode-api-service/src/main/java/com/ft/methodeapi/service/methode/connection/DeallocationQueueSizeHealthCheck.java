@@ -1,7 +1,7 @@
 package com.ft.methodeapi.service.methode.connection;
 
-import com.yammer.metrics.core.Gauge;
-import com.yammer.metrics.core.HealthCheck;
+import com.codahale.metrics.Gauge;
+import com.codahale.metrics.health.HealthCheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,12 +15,12 @@ public class DeallocationQueueSizeHealthCheck extends HealthCheck {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeallocationQueueSizeHealthCheck.class);
 
+    private final String name;
     private Gauge<Integer> deallocationQueueLength;
     private int alertThreshold;
 
-
     public DeallocationQueueSizeHealthCheck(String connectionName, Gauge<Integer> deallocationQueueLength, int alertThreshold) {
-        super(String.format("Deallocation Queue Size [connection=%s]",connectionName));
+        this.name = connectionName;
         this.deallocationQueueLength = deallocationQueueLength;
         this.alertThreshold = alertThreshold;
     }
@@ -28,7 +28,7 @@ public class DeallocationQueueSizeHealthCheck extends HealthCheck {
     @Override
     protected Result check() throws Exception {
 
-        int measurement = deallocationQueueLength.value();
+        int measurement = deallocationQueueLength.getValue();
 
         if(measurement>=alertThreshold) {
             String message = String.format("More than queue_size_threshold=%d connections await deallocation. actual_queue_size=%d",alertThreshold,measurement);
@@ -37,5 +37,9 @@ public class DeallocationQueueSizeHealthCheck extends HealthCheck {
         }
 
         return Result.healthy(String.format("queue_size_threshold=%d , actual_queue_size=%d",alertThreshold,measurement));
+    }
+    
+    private String getName() {
+        return name;
     }
 }
