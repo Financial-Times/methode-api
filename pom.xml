@@ -17,6 +17,7 @@
         <hamcrest.version>1.3</hamcrest.version>
         <jaxrs.errorhandling.version>1.1.2</jaxrs.errorhandling.version>
         <jaxrs.transaction-id-handling.version>1.9</jaxrs.transaction-id-handling.version>
+        <advanced-dropwizard-healthcheck.version>3.1.2</advanced-dropwizard-healthcheck.version>
         <cucumber.version>1.1.5</cucumber.version>
         <restassured.version>2.3.2</restassured.version>
         <stax2api.version>3.1.1</stax2api.version>
@@ -80,6 +81,11 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>methode-api-service</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ft</groupId>
+                <artifactId>advanced-dropwizard-healthcheck</artifactId>
+                <version>${advanced-dropwizard-healthcheck.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.ft</groupId>

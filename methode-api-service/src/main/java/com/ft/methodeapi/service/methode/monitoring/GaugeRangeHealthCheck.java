@@ -1,7 +1,10 @@
 package com.ft.methodeapi.service.methode.monitoring;
 
 import com.codahale.metrics.Gauge;
-import com.codahale.metrics.health.HealthCheck;
+import com.ft.methodeapi.service.methode.HealthcheckParameters;
+import com.ft.platform.dropwizard.AdvancedHealthCheck;
+import com.ft.platform.dropwizard.AdvancedResult;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,26 +13,27 @@ import org.slf4j.LoggerFactory;
  *
  * @author Simon.Gibbs
  */
-public class GaugeRangeHealthCheck<N extends Number, G extends Gauge<N>> extends HealthCheck {
+public class GaugeRangeHealthCheck<N extends Number, G extends Gauge<N>>
+        extends AdvancedHealthCheck {
 
     private final long max;
     private final long min;
     private final Gauge<N> gauge;
 
     private final Logger LOGGER = LoggerFactory.getLogger(GaugeRangeHealthCheck.class);
-
-    private final String name;
     
-    public GaugeRangeHealthCheck(String name, G gauge, N minValue, N maxValue) {
-        this.name = name;
+    private final HealthcheckParameters params;
+    
+    public GaugeRangeHealthCheck(HealthcheckParameters params, G gauge, N minValue, N maxValue) {
+        super(params.getName());
+        this.params = params;
         this.gauge = gauge;
         this.max = maxValue.longValue();
         this.min = minValue.longValue();
     }
 
     @Override
-    protected Result check() throws Exception {
-
+    protected AdvancedResult checkAdvanced() throws Exception {
         long snapshotValue = gauge.getValue().longValue();
 
         if(snapshotValue > max) {
@@ -40,15 +44,31 @@ public class GaugeRangeHealthCheck<N extends Number, G extends Gauge<N>> extends
             return report("snapshot < min: " + snapshotValue + " < " + min);
         }
 
-        return Result.healthy(min + " <= " + snapshotValue + " <= " + max);
+        return AdvancedResult.healthy(min + " <= " + snapshotValue + " <= " + max);
     }
 
-    private Result report(String message) {
+    private AdvancedResult report(String message) {
         LOGGER.warn(this.getName() + ": " + message); // use WARN to prevent duplicate alerts
-        return Result.unhealthy(message);
+        return AdvancedResult.error(this, message);
     }
-    
-    private String getName() {
-        return name;
+
+    @Override
+    protected String businessImpact() {
+        return params.getBusinessImpact();
+    }
+
+    @Override
+    protected String panicGuideUrl() {
+        return params.getPanicGuideUrl();
+    }
+
+    @Override
+    protected int severity() {
+        return params.getSeverity();
+    }
+
+    @Override
+    protected String technicalSummary() {
+        return params.getTechnicalSummary();
     }
 }

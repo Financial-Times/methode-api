@@ -93,6 +93,10 @@
             <artifactId>jaxrs-build-info-resource</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.ft</groupId>
+            <artifactId>advanced-dropwizard-healthcheck</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
             <version>1.7.6</version>

@@ -1,10 +1,13 @@
 package com.ft.methodeapi.service.methode.connection;
 
+import static com.ft.methodeapi.MethodeApiService.METHODE_API_PANIC_GUIDE;
+
 import EOM.FileSystemAdmin;
 import EOM.Repository;
 import EOM.Session;
 
 import com.codahale.metrics.MetricRegistry;
+import com.ft.methodeapi.service.methode.HealthcheckParameters;
 import com.ft.methodeapi.service.methode.MethodeException;
 import com.ft.timer.FTTimer;
 import com.ft.timer.RunningTimer;
@@ -189,8 +192,13 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
         LOGGER.info("Shutdown Complete");
     }
 
-    @Override public List<HealthCheck> createHealthChecks() {
-        HealthCheck check = new DeallocationQueueSizeHealthCheck(this.getName(),deallocationQueueLength,pool.getTargetSize());
+    @Override
+    public List<HealthCheck> createHealthChecks() {
+        HealthCheck check = new DeallocationQueueSizeHealthCheck(
+                new HealthcheckParameters(String.format("Methode connection deallocation queue (%s)", this.getName()), 3,
+                        "Methode API may eventually be unable to fulfil requests.",
+                        "Methode API may be overloaded or leaking connections.", METHODE_API_PANIC_GUIDE),
+                deallocationQueueLength,pool.getTargetSize());
         return Collections.singletonList(check);
     }
 

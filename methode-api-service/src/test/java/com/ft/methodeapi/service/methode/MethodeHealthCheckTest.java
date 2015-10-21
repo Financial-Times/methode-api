@@ -29,7 +29,10 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class MethodeHealthCheckTest {
-
+    private static final HealthcheckParameters PARAMS = new HealthcheckParameters(
+            "Test Health Check", 3, "Business Impact", "Technical Summary", "http://panic.example.org/"
+            );
+    
     @Mock
     MethodeObjectFactory mof;
 
@@ -50,9 +53,9 @@ public class MethodeHealthCheckTest {
     @Test
      public void shouldPassIfPingRespondsInstantly() throws Exception {
 
-        MethodePingHealthCheck check = new MethodePingHealthCheck(mof,100);
+        MethodePingHealthCheck check = new MethodePingHealthCheck(PARAMS, mof,100);
 
-        HealthCheck.Result result = check.check();
+        HealthCheck.Result result = check.execute();
 
         assertThat(result.isHealthy(),is(true));
     }
@@ -60,7 +63,7 @@ public class MethodeHealthCheckTest {
     @Test
     public void shouldFailIfPingRespondsSlowly() throws Exception {
 
-        MethodePingHealthCheck check = new MethodePingHealthCheck(mof,100);
+        MethodePingHealthCheck check = new MethodePingHealthCheck(PARAMS, mof,100);
 
         doAnswer(new Answer<Void>() {
             @Override
@@ -74,7 +77,7 @@ public class MethodeHealthCheckTest {
             }
         }).when(repository).ping();
 
-        HealthCheck.Result result = check.check();
+        HealthCheck.Result result = check.execute();
 
         assertThat(result.isHealthy(),is(false));
     }
@@ -82,9 +85,9 @@ public class MethodeHealthCheckTest {
     @Test
     public void shouldPassIfSearchRespondsWithoutException() throws Exception {
 
-        MethodeContentRetrievalHealthCheck check = new MethodeContentRetrievalHealthCheck(fileRepository);
+        MethodeContentRetrievalHealthCheck check = new MethodeContentRetrievalHealthCheck(PARAMS, fileRepository);
 
-        HealthCheck.Result result = check.check();
+        HealthCheck.Result result = check.execute();
 
         assertThat(result.isHealthy(),is(true));
     }
@@ -94,9 +97,9 @@ public class MethodeHealthCheckTest {
 
         when(fileRepository.findFileByUuid(anyString())).thenThrow(new RuntimeException("Synthetic Exception"));
 
-        MethodeContentRetrievalHealthCheck check = new MethodeContentRetrievalHealthCheck(fileRepository);
+        MethodeContentRetrievalHealthCheck check = new MethodeContentRetrievalHealthCheck(PARAMS, fileRepository);
 
-        HealthCheck.Result result = check.check();
+        HealthCheck.Result result = check.execute();
 
         assertThat(result.isHealthy(),is(false));
     }

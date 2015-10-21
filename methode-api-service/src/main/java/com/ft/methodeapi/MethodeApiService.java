@@ -21,8 +21,11 @@ import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.MethodePingHealthCheck;
 import com.ft.methodeapi.service.http.EomFileResource;
 import com.ft.methodeapi.service.http.GetAssetTypeResource;
+import com.ft.methodeapi.service.methode.HealthcheckParameters;
 import com.ft.methodeapi.service.methode.MethodeFileRepository;
 import com.ft.methodeapi.service.methode.MethodeConnectionConfiguration;
+import com.ft.platform.dropwizard.AdvancedHealthCheck;
+import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
 
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
@@ -38,6 +41,7 @@ import java.util.Properties;
 import javax.servlet.DispatcherType;
 
 public class MethodeApiService extends Application<MethodeApiConfiguration> {
+    public static final String METHODE_API_PANIC_GUIDE = "https://sites.google.com/a/ft.com/dynamic-publishing-team/home/methode-api";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodeApiService.class);
 	
@@ -47,6 +51,7 @@ public class MethodeApiService extends Application<MethodeApiConfiguration> {
 
     @Override
     public void initialize(Bootstrap<MethodeApiConfiguration> bootstrap) {
+        bootstrap.addBundle(new AdvancedHealthCheckBundle());
     }
 
     @Override
@@ -67,18 +72,52 @@ public class MethodeApiService extends Application<MethodeApiConfiguration> {
             ThreadsByClassGauge stormPotAllocatorThreadGauge = new ThreadsByClassGauge("stormpot.QAllocThread");
             String name = MetricRegistry.name(MethodeApiService.class, "StormpotAllocatorThreads");
             environment.metrics().register(name, stormPotAllocatorThreadGauge);
-            environment.healthChecks().register("Stormpot Allocator Threads", new GaugeRangeHealthCheck<>("Stormpot Allocator Threads",stormPotAllocatorThreadGauge,poolingConnectionCount,poolingConnectionCount));
+            environment.healthChecks().register("Stormpot Allocator Threads",
+                    new GaugeRangeHealthCheck<>(
+                            new HealthcheckParameters("Stormpot Allocator Threads", 3,
+                                    "Methode API may not be able to assign server resources to fulfil requests.",
+                                    "Allocator thread pool is outside of expected range.",
+                                    METHODE_API_PANIC_GUIDE),
+                            stormPotAllocatorThreadGauge,poolingConnectionCount,poolingConnectionCount));
         }
 
         ThreadsByClassGauge jacorbThreadGauge = new ThreadsByClassGauge(org.jacorb.util.threadpool.ConsumerTie.class);
         String jacorbMetricName = MetricRegistry.name(MethodeApiService.class, "JacorbThreads");
         environment.metrics().register(jacorbMetricName, jacorbThreadGauge);
-        environment.healthChecks().register("Jacorb Threads", new GaugeRangeHealthCheck<>("Jacorb Threads", jacorbThreadGauge, 1, 900));
+        environment.healthChecks().register("Jacorb Threads",
+                new GaugeRangeHealthCheck<>(
+                        new HealthcheckParameters("Jacorb Threads", 3,
+                                "Methode API may not be able to assign server resources to fulfil requests.",
+                                "Jacorb thread pool is outside of expected range.",
+                                METHODE_API_PANIC_GUIDE),
+                        jacorbThreadGauge, 1, 900));
 
-        environment.healthChecks().register(String.format("methode ping [%s]", methodeObjectFactory.getDescription()), new MethodePingHealthCheck(methodeObjectFactory, configuration.getMethodeConnectionConfiguration().getMaxPingMillis()));
-        environment.healthChecks().register(String.format("methode ping [%s]", testMethodeObjectFactory.getDescription()), new MethodePingHealthCheck(testMethodeObjectFactory, configuration.getMethodeTestConnectionConfiguration().getMaxPingMillis()));
-
-        environment.healthChecks().register(String.format("methode content retrieval [%s]", methodeContentRepository.getClientRepositoryInfo()), new MethodeContentRetrievalHealthCheck(methodeContentRepository));
+        String readHealthcheckName = "Methode Ping (read connection)";
+        environment.healthChecks().register(readHealthcheckName,
+                new MethodePingHealthCheck(
+                        new HealthcheckParameters(readHealthcheckName, 3,
+                                "Methode API cannot read information from the Methode servers.",
+                                String.format("Methode API cannot ping the Methode repository at [%s].", methodeObjectFactory.getDescription()),
+                                METHODE_API_PANIC_GUIDE), 
+                        methodeObjectFactory, configuration.getMethodeConnectionConfiguration().getMaxPingMillis()));
+        
+        String testWriteHealthcheckName = "Methode Ping (test write connection)";
+        environment.healthChecks().register(testWriteHealthcheckName,
+                new MethodePingHealthCheck(
+                        new HealthcheckParameters(testWriteHealthcheckName, 3,
+                                "Methode API cannot write test information to the Methode server.",
+                                String.format("Methode API cannot ping the Methode repository at [%s].", testMethodeObjectFactory.getDescription()),
+                                METHODE_API_PANIC_GUIDE),
+                                testMethodeObjectFactory, configuration.getMethodeTestConnectionConfiguration().getMaxPingMillis()));
+        
+        String contentHealthcheckName = "Methode content retrieval";
+        environment.healthChecks().register(contentHealthcheckName,
+                new MethodeContentRetrievalHealthCheck(
+                        new HealthcheckParameters(contentHealthcheckName, 3,
+                                "Methode API cannot read information from the Methode server.",
+                                String.format("Methode API cannot make a findFileByUuid() call to the Methode repository at [%s].", methodeContentRepository.getClientRepositoryInfo()),
+                                METHODE_API_PANIC_GUIDE), 
+                        methodeContentRepository));
 
         environment.jersey().register(new RuntimeExceptionMapper());
 		environment.servlets().addFilter("Transaction ID Filter", new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/eom-file/*");
@@ -124,10 +163,13 @@ public class MethodeApiService extends Application<MethodeApiConfiguration> {
         
         int i = 0;
         for(HealthCheck check : checks) {
-            environment.healthChecks().register(/*check.getName()*/"MethodeObjectFactoryHealthCheck-" + (++i), check);
+            String healthCheckName =
+                    (check instanceof AdvancedHealthCheck) ? ((AdvancedHealthCheck)check).getName()
+                                                           : "MethodeObjectFactoryHealthCheck-" + (++i);
+                    
+            environment.healthChecks().register(healthCheckName, check);
         }
 
         return result;
-
     }
 }
