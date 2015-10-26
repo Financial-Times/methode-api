@@ -1,6 +1,6 @@
 package com.ft.methodeapi.service.methode.connection;
 
-import static com.ft.methodeapi.MethodeApiService.METHODE_API_PANIC_GUIDE;
+import static com.ft.methodeapi.MethodeApiApplication.METHODE_API_PANIC_GUIDE;
 
 import EOM.FileSystemAdmin;
 import EOM.Repository;

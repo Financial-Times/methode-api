@@ -40,13 +40,13 @@ import java.util.Properties;
 
 import javax.servlet.DispatcherType;
 
-public class MethodeApiService extends Application<MethodeApiConfiguration> {
+public class MethodeApiApplication extends Application<MethodeApiConfiguration> {
     public static final String METHODE_API_PANIC_GUIDE = "https://sites.google.com/a/ft.com/dynamic-publishing-team/home/methode-api";
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(MethodeApiService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(MethodeApiApplication.class);
 	
 	public static void main(String[] args) throws Exception {
-        new MethodeApiService().run(args);
+        new MethodeApiApplication().run(args);
     }
 
     @Override
@@ -63,14 +63,14 @@ public class MethodeApiService extends Application<MethodeApiConfiguration> {
         final MethodeFileRepository methodeContentRepository = new MethodeFileRepository(methodeObjectFactory, testMethodeObjectFactory);
 
         environment.jersey().register(new EomFileResource(methodeContentRepository));
-        environment.jersey().register(new VersionResource(MethodeApiService.class));
+        environment.jersey().register(new VersionResource(MethodeApiApplication.class));
         environment.jersey().register(new BuildInfoResource());
         environment.jersey().register(new GetAssetTypeResource(methodeContentRepository));
 
         int poolingConnectionCount = countPoolingConnections(methodeObjectFactory,testMethodeObjectFactory);
         if(poolingConnectionCount>0) {
             ThreadsByClassGauge stormPotAllocatorThreadGauge = new ThreadsByClassGauge("stormpot.QAllocThread");
-            String name = MetricRegistry.name(MethodeApiService.class, "StormpotAllocatorThreads");
+            String name = MetricRegistry.name(MethodeApiApplication.class, "StormpotAllocatorThreads");
             environment.metrics().register(name, stormPotAllocatorThreadGauge);
             environment.healthChecks().register("Stormpot Allocator Threads",
                     new GaugeRangeHealthCheck<>(
@@ -82,7 +82,7 @@ public class MethodeApiService extends Application<MethodeApiConfiguration> {
         }
 
         ThreadsByClassGauge jacorbThreadGauge = new ThreadsByClassGauge(org.jacorb.util.threadpool.ConsumerTie.class);
-        String jacorbMetricName = MetricRegistry.name(MethodeApiService.class, "JacorbThreads");
+        String jacorbMetricName = MetricRegistry.name(MethodeApiApplication.class, "JacorbThreads");
         environment.metrics().register(jacorbMetricName, jacorbThreadGauge);
         environment.healthChecks().register("Jacorb Threads",
                 new GaugeRangeHealthCheck<>(

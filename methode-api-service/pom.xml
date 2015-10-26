@@ -44,7 +44,7 @@
                                         implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.ft.methodeapi.MethodeApiService</mainClass>
+                                    <mainClass>com.ft.methodeapi.MethodeApiApplication</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

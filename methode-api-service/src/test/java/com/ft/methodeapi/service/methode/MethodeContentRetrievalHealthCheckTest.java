@@ -1,7 +1,7 @@
 package com.ft.methodeapi.service.methode;
 
 import com.ft.methodeapi.MethodeApiConfiguration;
-import com.ft.methodeapi.MethodeApiService;
+import com.ft.methodeapi.MethodeApiApplication;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import io.dropwizard.testing.junit.DropwizardAppRule;
@@ -18,7 +18,7 @@ import static org.junit.Assert.assertThat;
 public class MethodeContentRetrievalHealthCheckTest {
 
 	@ClassRule
-	public static final DropwizardAppRule<MethodeApiConfiguration> serviceRule = new DropwizardAppRule<>(MethodeApiService.class, "methode-api-wrong-nsport.yaml");
+	public static final DropwizardAppRule<MethodeApiConfiguration> serviceRule = new DropwizardAppRule<>(MethodeApiApplication.class, "methode-api-wrong-nsport.yaml");
 
 	@Test
 	public void shouldTimeOutWhenInvalidPort() {
