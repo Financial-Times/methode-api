@@ -6,19 +6,23 @@ import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
 
 import com.ft.api.jaxrs.errors.ServerError.ServerErrorBuilder;
+import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.methodeapi.service.methode.MethodeException;
 import com.ft.methodeapi.service.methode.MethodeFileRepository;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.sun.jersey.api.client.ClientResponse;
+
+import io.dropwizard.testing.junit.ResourceTestRule;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import javax.ws.rs.WebApplicationException;
 
 import java.util.List;
 import java.util.UUID;
@@ -37,16 +41,20 @@ import static org.mockito.Mockito.atLeastOnce;
  * @author Simon.Gibbs
  */
 public class EomFileGetResourceTest {
-    private MethodeFileRepository methodeFileRepository = mock(MethodeFileRepository.class);
-    private EomFileResource eomFileResource = new EomFileResource(methodeFileRepository);
+    private final MethodeFileRepository methodeFileRepository = mock(MethodeFileRepository.class);
     
+    @Rule
+    public final ResourceTestRule resources = ResourceTestRule.builder()
+            .addResource(new EomFileResource(methodeFileRepository))
+            .build();
+
     ch.qos.logback.classic.Logger logger;
     Level logLevel;
     
     Appender<ILoggingEvent> mockAppender;
 
     private String uuid;
-    
+
     @SuppressWarnings("unchecked")
     @Before
     public void setupMockAppender() {
@@ -69,15 +77,20 @@ public class EomFileGetResourceTest {
         }
     }
 
-    @Test(expected = WebApplicationException.class)
+    @Test
     public void shouldLogFailureAtError() {
         when(methodeFileRepository.findFileByUuid(anyString())).thenThrow(methodeException());
 
         try {
-            eomFileResource.getByUuid(uuid);
+            doSimpleGet();
         } finally {
             assertLogEvent("error accessing upstream system", Level.ERROR);
         }
+    }
+
+    private void doSimpleGet() {
+        final ClientResponse clientResponse = resources.client().resource("/eom-file/").path(uuid).header(TransactionIdUtils.TRANSACTION_ID_HEADER, "tid_test").get(ClientResponse.class);
+        clientResponse.getEntity(String.class);
     }
 
     private void assertLogEvent(final String keyPhrase, Level level) {
