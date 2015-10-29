@@ -1,19 +1,63 @@
+  applicationConnectors:
+    - type: http
+      port: 8080
+
+  adminConnectors:
+      - type: http
+        port: 8081
+
+  requestLog:
+    appenders:
+
+      - type: file
+
+        # The file to which current statements will be logged.
+        currentLogFilename: /var/log/apps/methode-api-dw-access.log
+
+        # When the log file rotates, the archived log will be renamed to this and gzipped. The
+        # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
+        # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
+        archivedLogFilenamePattern: /var/log/apps/methode-api-dw-access-%d.log.gz
+
+        # The number of archived files to keep.
+        archivedFileCount: 5
+
+        # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
+        timeZone: UTC
+
+logging:
+  level: INFO
+
+  loggers:
+    io.dropwizard: DEBUG
+    "com.sun.jersey.spi.container.ContainerResponse": OFF
+    "com.ft.methodeapi.service.methode.connection.MethodeConnectionAllocator" : DEBUG
+    "com.ft.methodeapi.service.methode.connection.PoolingMethodeObjectFactory" : DEBUG
+    "com.ft.methodeapi.service.methode.connection.SelfCleaningPool" : DEBUG
+
+  appenders:
+    - type: file
+      logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m [%thread]%n%xEx"
+      # Do not write log statements below this threshold to the file.
+      threshold: ALL
+
+      # The file to which current statements will be logged.
+      currentLogFilename: /var/log/apps/methode-api-dw-app.log
+
+      # When the log file rotates, the archived log will be renamed to this and gzipped. The
+      # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
+      # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
+      archivedLogFilenamePattern: /var/log/apps/methode-api-dw-app-%d.log.gz
+
+      # The number of archived files to keep.
+      archivedFileCount: 5
+
+      # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
+      timeZone: UTC
+
 credentialsPath: /etc/methode-api-credentials.properties
 testCredentialsPath: /etc/methode-api-test-credentials.properties
 
-http:
-  port: 8080
-  adminPort: 8081
-  requestLog:
-    file:
-      enabled: true
-      timeZone: UTC
-      currentLogFilename: /var/log/apps/methode-api-dw-access.log
-      archive: true
-      archivedLogFilenamePattern: /var/log/apps/methode-api-dw-access-%d.log.gz
-      archivedFileCount: 5
-    console:
-      enabled: false
 methodeConnection:
   hostName: <%=scope.function_hiera('methodeHostName')%>
   nsPort: <%=scope.function_hiera('methodeNameServicePort')%>
@@ -31,19 +75,3 @@ methodeTestConnection:
     size: 2
     timeout: 4000ms
 
-logging:
-  file:
-    threshold: INFO
-    enabled: true
-    timeZone: UTC
-    currentLogFilename: /var/log/apps/methode-api-dw-app.log
-    archive: true
-    archivedLogFilenamePattern: /var/log/apps/methode-api-dw-app-%d.log.gz
-    archivedFileCount: 5
-    logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m [%thread]%n%xEx"
-  console:
-    enabled: false
-  loggers:
-    "com.sun.jersey.spi.container.ContainerResponse": OFF
-    "com.ft.methodeapi.service.methode.connection.MethodeConnectionAllocator" : DEBUG
-    "com.ft.methodeapi.service.methode.connection.PoolingMethodeObjectFactory" : DEBUG

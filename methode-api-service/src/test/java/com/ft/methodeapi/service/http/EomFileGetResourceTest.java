@@ -12,10 +12,12 @@ import com.ft.methodeapi.service.methode.MethodeFileRepository;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.sun.jersey.api.client.ClientResponse;
-import com.yammer.dropwizard.testing.ResourceTest;
+
+import io.dropwizard.testing.junit.ResourceTestRule;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.slf4j.LoggerFactory;
@@ -38,9 +40,13 @@ import static org.mockito.Mockito.atLeastOnce;
  *
  * @author Simon.Gibbs
  */
-public class EomFileGetResourceTest  extends ResourceTest {
-
-    private MethodeFileRepository methodeFileRepository;
+public class EomFileGetResourceTest {
+    private final MethodeFileRepository methodeFileRepository = mock(MethodeFileRepository.class);
+    
+    @Rule
+    public final ResourceTestRule resources = ResourceTestRule.builder()
+            .addResource(new EomFileResource(methodeFileRepository))
+            .build();
 
     ch.qos.logback.classic.Logger logger;
     Level logLevel;
@@ -48,12 +54,6 @@ public class EomFileGetResourceTest  extends ResourceTest {
     Appender<ILoggingEvent> mockAppender;
 
     private String uuid;
-    
-    @Override
-    protected void setUpResources() throws Exception {
-        methodeFileRepository = mock(MethodeFileRepository.class);
-        addResource(new EomFileResource(methodeFileRepository));
-    }
 
     @SuppressWarnings("unchecked")
     @Before
@@ -89,7 +89,7 @@ public class EomFileGetResourceTest  extends ResourceTest {
     }
 
     private void doSimpleGet() {
-        final ClientResponse clientResponse = client().resource("/eom-file/").path(uuid).header(TransactionIdUtils.TRANSACTION_ID_HEADER, "tid_test").get(ClientResponse.class);
+        final ClientResponse clientResponse = resources.client().resource("/eom-file/").path(uuid).header(TransactionIdUtils.TRANSACTION_ID_HEADER, "tid_test").get(ClientResponse.class);
         clientResponse.getEntity(String.class);
     }
 

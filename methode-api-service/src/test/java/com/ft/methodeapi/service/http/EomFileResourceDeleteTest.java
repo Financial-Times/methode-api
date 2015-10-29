@@ -13,18 +13,19 @@ import com.ft.methodeapi.service.methode.ActionNotPermittedException;
 import com.ft.methodeapi.service.methode.MethodeFileRepository;
 import com.ft.methodeapi.service.methode.NotFoundException;
 import com.sun.jersey.api.client.ClientResponse;
-import com.yammer.dropwizard.testing.ResourceTest;
+
+import io.dropwizard.testing.junit.ResourceTestRule;
+
+import org.junit.Rule;
 import org.junit.Test;
 
-public class EomFileResourceDeleteTest extends ResourceTest {
-
-    private MethodeFileRepository methodeFileRepository;
-
-    @Override
-    protected void setUpResources() throws Exception {
-        methodeFileRepository = mock(MethodeFileRepository.class);
-        addResource(new EomFileResource(methodeFileRepository));
-    }
+public class EomFileResourceDeleteTest {
+    private final MethodeFileRepository methodeFileRepository = mock(MethodeFileRepository.class);
+    
+    @Rule
+    public final ResourceTestRule resources = ResourceTestRule.builder()
+            .addResource(new EomFileResource(methodeFileRepository))
+            .build();
 
     @Test
     public void deleteShouldReturn404WhenNotFound() {
@@ -32,7 +33,7 @@ public class EomFileResourceDeleteTest extends ResourceTest {
         final String uuid = UUID.randomUUID().toString();
         doThrow(new NotFoundException(uuid)).when(methodeFileRepository).deleteTestFileByUuid(uuid);
 
-        final ClientResponse clientResponse = client().resource("/eom-file/").path(uuid).header(TransactionIdUtils.TRANSACTION_ID_HEADER, "tid_test").delete(ClientResponse.class);
+        final ClientResponse clientResponse = resources.client().resource("/eom-file/").path(uuid).header(TransactionIdUtils.TRANSACTION_ID_HEADER, "tid_test").delete(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
     }
@@ -44,7 +45,7 @@ public class EomFileResourceDeleteTest extends ResourceTest {
         final String uuid = UUID.randomUUID().toString();
         doThrow(new ActionNotPermittedException("synthetic permission error")).when(methodeFileRepository).deleteTestFileByUuid(uuid);
 
-        final ClientResponse clientResponse = client().resource("/eom-file/").path(uuid).header(TransactionIdUtils.TRANSACTION_ID_HEADER, "tid_test").delete(ClientResponse.class);
+        final ClientResponse clientResponse = resources.client().resource("/eom-file/").path(uuid).header(TransactionIdUtils.TRANSACTION_ID_HEADER, "tid_test").delete(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(403)));
     }

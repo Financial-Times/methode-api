@@ -5,7 +5,7 @@ Methode API is a Dropwizard application which allows for obtaining assets from M
 This application will connect to a running Methode instance - its resolution depends on your DNS settings.
 
 ## Running
-In order to run the project, please run com.ft.methodeapi.MethodeApiService with the following program parameters:
+In order to run the project, please run com.ft.methodeapi.MethodeApiApplication with the following program parameters:
 server methode-api.yaml
 
 Please make sure you are running it in the correct working directory (methode-api-service).
@@ -32,7 +32,7 @@ You can also run smoke tests with the same VM argument by running com.ft.methode
 The Methode API is a secure application and a username/password are required to access it. This is kept in a file named credentials.properties which is listed in `.gitignore`. This is referenced by the developer YAML file methode-api.yaml for use when debugging locally.
 So, to get set up:
 
-1. Copy `credentials.properties.template` as `credentials.properties` locally, NOTE! It must be saved to the same root location as the MethodeApiService
+1. Copy `credentials.properties.template` as `credentials.properties` locally, NOTE! It must be saved to the same root location as the MethodeApiApplication
 1. Locate the key via secure real life channels, such as a paper copy of it, or request username/password from Methode CMS team
 1. Type the username and password into corresponding values in `credentials.properties`
 1. DO NOT OVERRIDE `.gitignore`

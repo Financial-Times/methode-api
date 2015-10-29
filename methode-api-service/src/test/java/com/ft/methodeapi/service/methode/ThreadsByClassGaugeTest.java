@@ -31,7 +31,7 @@ public class ThreadsByClassGaugeTest {
     public void shouldNotReportTheCurrentThreadIfAKnownDoesNotMatches() {
 
         final ThreadsByClassGauge gauge = new ThreadsByClassGauge(GaugeWrapper.class);
-        assertThat(gauge.value(),is(0));
+        assertThat(gauge.getValue(),is(0));
 
     }
 

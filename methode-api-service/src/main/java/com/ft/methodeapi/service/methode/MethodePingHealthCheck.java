@@ -1,15 +1,19 @@
 package com.ft.methodeapi.service.methode;
 
 import EOM.Repository;
+
 import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.templates.MethodeRepositoryOperationTemplate;
+import com.ft.platform.dropwizard.AdvancedHealthCheck;
+import com.ft.platform.dropwizard.AdvancedResult;
 import com.ft.timer.FTTimer;
 import com.ft.timer.RunningTimer;
-import com.yammer.metrics.core.HealthCheck;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MethodePingHealthCheck extends HealthCheck {
+public class MethodePingHealthCheck
+        extends AdvancedHealthCheck {
 
     private static final FTTimer pingTime = FTTimer.newTimer(MethodePingHealthCheck.class,"ping");
 
@@ -17,16 +21,18 @@ public class MethodePingHealthCheck extends HealthCheck {
     private final long maxPingMillis;
 
     private final Logger LOGGER = LoggerFactory.getLogger(MethodePingHealthCheck.class);
-
-    public MethodePingHealthCheck(MethodeObjectFactory objectFactory, long maxPingMillis) {
-        super(String.format("methode ping [%s]", objectFactory.getDescription()));
-
+    
+    private final HealthcheckParameters params;
+    
+    public MethodePingHealthCheck(HealthcheckParameters params, MethodeObjectFactory objectFactory, long maxPingMillis) {
+        super(params.getName());
+        this.params = params;
         this.methodeObjectFactory = objectFactory;
         this.maxPingMillis = maxPingMillis;
     }
 
     @Override
-    protected Result check() throws Exception {
+    protected AdvancedResult checkAdvanced() throws Exception {
 
         final RunningTimer timer = pingTime.start();
         new MethodeRepositoryOperationTemplate<>(methodeObjectFactory).doOperation(new MethodeRepositoryOperationTemplate.RepositoryCallback<Object>() {
@@ -50,14 +56,34 @@ public class MethodePingHealthCheck extends HealthCheck {
 
         long durationMillis = timer.value().get();
 
-        Result result;
+        AdvancedResult result;
         if (durationMillis > maxPingMillis) {
             String message = String.format("ping took too long %dms, max allowed is %dms", durationMillis, maxPingMillis);
             LOGGER.warn(message); // use WARN to prevent duplicate alerts
-            result = Result.unhealthy(message);
+            result = AdvancedResult.error(this, message);
         } else {
-            result = Result.healthy("ping took %dms, within max allowed %dms", durationMillis, maxPingMillis);
+            result = AdvancedResult.healthy(String.format("ping took %dms, within max allowed %dms", durationMillis, maxPingMillis));
         }
         return result;
+    }
+
+    @Override
+    protected String businessImpact() {
+        return params.getBusinessImpact();
+    }
+
+    @Override
+    protected String panicGuideUrl() {
+        return params.getPanicGuideUrl();
+    }
+
+    @Override
+    protected int severity() {
+        return params.getSeverity();
+    }
+
+    @Override
+    protected String technicalSummary() {
+        return params.getTechnicalSummary();
     }
 }

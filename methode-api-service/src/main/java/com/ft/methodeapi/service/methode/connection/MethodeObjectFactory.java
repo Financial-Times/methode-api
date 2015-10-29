@@ -3,7 +3,7 @@ package com.ft.methodeapi.service.methode.connection;
 import EOM.FileSystemAdmin;
 import EOM.Repository;
 import EOM.Session;
-import com.yammer.metrics.core.HealthCheck;
+import com.codahale.metrics.health.HealthCheck;
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NamingContextExt;
 

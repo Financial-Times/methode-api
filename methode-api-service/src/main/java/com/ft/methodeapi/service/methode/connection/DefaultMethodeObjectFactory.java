@@ -11,7 +11,7 @@ import EOM.Session;
 
 import com.ft.methodeapi.service.methode.MethodeException;
 import com.yammer.metrics.Metrics;
-import com.yammer.metrics.core.HealthCheck;
+import com.codahale.metrics.health.HealthCheck;
 import com.yammer.metrics.core.MetricsRegistry;
 import com.yammer.metrics.core.Timer;
 import com.yammer.metrics.core.TimerContext;

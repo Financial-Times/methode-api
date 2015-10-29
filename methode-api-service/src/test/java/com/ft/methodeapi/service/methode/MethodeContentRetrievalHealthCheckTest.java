@@ -1,10 +1,10 @@
 package com.ft.methodeapi.service.methode;
 
 import com.ft.methodeapi.MethodeApiConfiguration;
-import com.ft.methodeapi.MethodeApiService;
+import com.ft.methodeapi.MethodeApiApplication;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
-import com.yammer.dropwizard.testing.junit.DropwizardServiceRule;
+import io.dropwizard.testing.junit.DropwizardAppRule;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -18,7 +18,7 @@ import static org.junit.Assert.assertThat;
 public class MethodeContentRetrievalHealthCheckTest {
 
 	@ClassRule
-	public static final DropwizardServiceRule<MethodeApiConfiguration> serviceRule = new DropwizardServiceRule<>(MethodeApiService.class, "methode-api-wrong-nsport.yaml");
+	public static final DropwizardAppRule<MethodeApiConfiguration> serviceRule = new DropwizardAppRule<>(MethodeApiApplication.class, "methode-api-wrong-nsport.yaml");
 
 	@Test
 	public void shouldTimeOutWhenInvalidPort() {
@@ -39,6 +39,6 @@ public class MethodeContentRetrievalHealthCheckTest {
 	}
 
 	private int adminPort() {
-		return serviceRule.getConfiguration().getHttpConfiguration().getAdminPort();
+	    return serviceRule.getAdminPort();
 	}
 }

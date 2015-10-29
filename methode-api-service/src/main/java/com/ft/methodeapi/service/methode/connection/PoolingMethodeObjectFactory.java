@@ -1,17 +1,20 @@
 package com.ft.methodeapi.service.methode.connection;
 
+import static com.ft.methodeapi.MethodeApiApplication.METHODE_API_PANIC_GUIDE;
+
 import EOM.FileSystemAdmin;
 import EOM.Repository;
 import EOM.Session;
 
+import com.codahale.metrics.MetricRegistry;
+import com.ft.methodeapi.service.methode.HealthcheckParameters;
 import com.ft.methodeapi.service.methode.MethodeException;
 import com.ft.timer.FTTimer;
 import com.ft.timer.RunningTimer;
 import com.google.common.base.Preconditions;
 import com.yammer.dropwizard.lifecycle.Managed;
-import com.yammer.metrics.Metrics;
-import com.yammer.metrics.core.Gauge;
-import com.yammer.metrics.core.HealthCheck;
+import com.codahale.metrics.Gauge;
+import com.codahale.metrics.health.HealthCheck;
 
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NamingContextExt;
@@ -26,7 +29,7 @@ import stormpot.QueuePool;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -76,7 +79,7 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
 
     private final Gauge<Integer> deallocationQueueLength;
 
-    public PoolingMethodeObjectFactory(final MethodeObjectFactory implementation, ScheduledExecutorService executorService, PoolConfiguration configuration) {
+    public PoolingMethodeObjectFactory(final MethodeObjectFactory implementation, ExecutorService executorService, PoolConfiguration configuration, MetricRegistry metricRegistry) {
 
         Preconditions.checkArgument(configuration != null, "Not configured");
         Preconditions.checkArgument(implementation != null, "PoolingMethodeObjectFactory must wrap another MethodeObjectFactory");
@@ -89,9 +92,10 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
 
         final MethodeConnectionAllocator allocator = new MethodeConnectionAllocator(implementation,executorService, configuration.getMethodeStaleConnectionTimeout());
 
-        deallocationQueueLength = Metrics.newGauge(MethodeConnectionAllocator.class, "length", "deallocationQueue", new Gauge<Integer>() {
+        String name = MetricRegistry.name(MethodeConnectionAllocator.class, implementation.getName(), "length");
+        deallocationQueueLength = metricRegistry.register(name, new Gauge<Integer>() {
             @Override
-            public Integer value() {
+            public Integer getValue() {
                 return allocator.getNumberOfConnectionsAwaitingDeallocation();
             }
         });
@@ -188,8 +192,13 @@ public class PoolingMethodeObjectFactory implements MethodeObjectFactory, Manage
         LOGGER.info("Shutdown Complete");
     }
 
-    @Override public List<HealthCheck> createHealthChecks() {
-        HealthCheck check = new DeallocationQueueSizeHealthCheck(this.getName(),deallocationQueueLength,pool.getTargetSize());
+    @Override
+    public List<HealthCheck> createHealthChecks() {
+        HealthCheck check = new DeallocationQueueSizeHealthCheck(
+                new HealthcheckParameters(String.format("Methode connection deallocation queue (%s)", this.getName()), 3,
+                        "Methode API may eventually be unable to fulfil requests.",
+                        "Methode API may be overloaded or leaking connections.", METHODE_API_PANIC_GUIDE),
+                deallocationQueueLength,pool.getTargetSize());
         return Collections.singletonList(check);
     }
 
