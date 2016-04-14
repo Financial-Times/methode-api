@@ -1,4 +1,4 @@
 methodeApi:
-  host: methode-api-01-pr-uk-t.svc.ft.com
+  host: methode-api-uk-t.svc.ft.com
   port: 8080
   adminPort: 8081
