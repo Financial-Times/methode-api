@@ -60,16 +60,16 @@ credentialsPath: /etc/methode-api-credentials.properties
 testCredentialsPath: /etc/methode-api-test-credentials.properties
 
 methodeConnection:
-  hostName: <%=scope.function_hiera('methodeHostName')%>
-  nsPort: <%=scope.function_hiera('methodeNameServicePort')%>
+  hostName: <%=scope.function_hiera(['methodeHostName'])%>
+  nsPort: <%=scope.function_hiera(['methodeNameServicePort'])%>
   connectTimeout: 2000
   maxPingMillis: 2000
   pool:
     size: 10
     timeout: 1900ms
 methodeTestConnection:
-  hostName: <%=scope.function_hiera('methodeHostName')%>
-  nsPort: <%=scope.function_hiera('methodeNameServicePort')%>
+  hostName: <%=scope.function_hiera(['methodeHostName'])%>
+  nsPort: <%=scope.function_hiera(['methodeNameServicePort'])%>
   connectTimeout: 2000
   maxPingMillis: 2000
   pool:
