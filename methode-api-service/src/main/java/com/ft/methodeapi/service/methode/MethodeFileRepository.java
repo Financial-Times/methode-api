@@ -118,9 +118,11 @@ public class MethodeFileRepository {
         List<LinkedObject> links = new ArrayList<>();
         if ("EOM::WebContainer".equals(parentObject.getEomFile().get_type_name())) {
             Map<String, WebObject[]> byZone = parentObject.getLinked();
-                for (String zone : byZone.keySet()) {
-                    WebObject[] linkedObjects = byZone.get(zone);
-
+            if (byZone != null) {
+              for (String zone : byZone.keySet()) {
+                WebObject[] linkedObjects = byZone.get(zone);
+                
+                if (linkedObjects != null) {
                     for (WebObject linked : linkedObjects) {
                         links.add(new LinkedObject(
                                 linked.getUuid(),
@@ -129,7 +131,9 @@ public class MethodeFileRepository {
                                 linked.getEomFile().get_status_name(),
                                 linked.getEomFile().get_system_attributes()
                         ));
+                    }
                 }
+              }
             }
         }
         return links;
