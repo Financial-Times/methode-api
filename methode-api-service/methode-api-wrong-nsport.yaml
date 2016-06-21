@@ -67,12 +67,12 @@ credentialsPath: credentials.properties.template
 testCredentialsPath: test-credentials.properties.template
 
 methodeConnection:
-  hostName: preditor-methode-01.svc.ft.com
+  hostName: staging.methode.int.internal.ft.com
   nsPort: 9091 #WRONG
-  connectTimeout: 2000
+  connectTimeout: 1000
   maxPingMillis: 500
 methodeTestConnection:
-  hostName: preditor-methode-01.svc.ft.com
+  hostName: staging.methode.int.internal.ft.com
   nsPort: 9091 #WRONG
-  connectTimeout: 2000
+  connectTimeout: 1000
   maxPingMillis: 500

@@ -123,7 +123,14 @@ public class MethodeFileRepository {
                 WebObject[] linkedObjects = byZone.get(zone);
                 
                 if (linkedObjects != null) {
-                    for (WebObject linked : linkedObjects) {
+                    int len = linkedObjects.length;
+                    for (int i = 0; i < len; i++) {
+                        WebObject linked = linkedObjects[i];
+                        if (linked == null) {
+                            LOGGER.warn("list contains an unreadable object: {} at index: {}", parentObject.getUuid(), i + 1);
+                              continue;
+                        }
+                        
                         links.add(new LinkedObject(
                                 linked.getUuid(),
                                 linked.getEomFile().get_type_name(),
