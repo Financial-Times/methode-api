@@ -1,8 +1,10 @@
 package com.ft.methodeapi.service.methode;
 
 import static com.ft.methodeapi.service.methode.PathHelper.folderIsAncestor;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,6 +22,7 @@ import EOM.RepositoryError;
 import EOM.Session;
 import EOM.Utils;
 
+import com.eidosmedia.wa.render.EomDbHelper;
 import com.eidosmedia.wa.render.EomDbHelperFactory;
 import com.eidosmedia.wa.render.WebObject;
 import com.ft.methodeapi.model.EomAssetType;
@@ -29,6 +32,7 @@ import com.ft.methodeapi.service.methode.connection.MethodeObjectFactory;
 import com.ft.methodeapi.service.methode.templates.MethodeFileSystemAdminOperationTemplate;
 import com.ft.methodeapi.service.methode.templates.MethodeSessionFileOperationTemplate;
 import com.ft.methodeapi.service.methode.templates.MethodeSessionOperationTemplate;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
@@ -36,21 +40,54 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MethodeFileRepository {
+  private static final Logger LOGGER = LoggerFactory.getLogger(MethodeFileRepository.class);
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MethodeFileRepository.class);
+  private static final Charset METHODE_ENCODING = StandardCharsets.ISO_8859_1;
+  private static final String TEST_FOLDER = "/FT Website Production/Z_Test/dyn_pub_test";
+  private static final String[] PATH_TO_TEST_FOLDER = Utils.stringToPath(TEST_FOLDER);
+  private static final Function<Session,EomDbHelper> DEFAULT_EOMDB_SUPPLIER =
+      new Function<Session,EomDbHelper>() {
+        @Override
+        public EomDbHelper apply(Session session) {
+          return EomDbHelperFactory.create(session);
+        }
+      };
+  
+  public static class Builder {
+    private MethodeObjectFactory clientObjectFactory;
+    private MethodeObjectFactory testClientObjectFactory;
+    private Optional<Function<Session,EomDbHelper>> eomDbSupplier = Optional.absent();
 
-    private static final Charset METHODE_ENCODING = Charset.forName("iso-8859-1");
-    private static final Charset UTF8 = Charset.forName("UTF8");
+    public Builder withClientMethodeObjectFactory(MethodeObjectFactory f) {
+      this.clientObjectFactory = f;
+      return this;
+    }
+
+    public Builder withTestClientMethodeObjectFactory(MethodeObjectFactory f) {
+      this.testClientObjectFactory = f;
+      return this;
+    }
+
+    public Builder withEomDbSupplier(Function<Session, EomDbHelper> f) {
+      this.eomDbSupplier = Optional.of(f);
+      return this;
+    }
+    
+    public MethodeFileRepository build() {
+      return new MethodeFileRepository(clientObjectFactory, testClientObjectFactory,
+          eomDbSupplier.or(DEFAULT_EOMDB_SUPPLIER));
+    }
+  }
     
     private final MethodeObjectFactory client;
     private final MethodeObjectFactory testClient;
+    private final Function<Session,EomDbHelper> eomDbSupplier;
+    
 
-    private static final String TEST_FOLDER = "/FT Website Production/Z_Test/dyn_pub_test";
-    private static final String[] PATH_TO_TEST_FOLDER = Utils.stringToPath(TEST_FOLDER);
-
-    public MethodeFileRepository(MethodeObjectFactory client, MethodeObjectFactory testClient) {
+    private MethodeFileRepository(MethodeObjectFactory client, MethodeObjectFactory testClient, Function<Session, EomDbHelper> eomDbSupplier) {
         this.client = client;
         this.testClient = testClient;
+        this.eomDbSupplier = eomDbSupplier;
     }
 
     public Optional<EomFile> findFileByUuid(final String uuid) {
@@ -78,14 +115,15 @@ public class MethodeFileRepository {
     private Optional<EomFile> retreiveContent(Session session, String uuid) {
         EOM.File eomFile = null;
         try {
-                WebObject webObject = EomDbHelperFactory.create(session).getWebObjectByUuid(uuid);
+          EomDbHelper dbHelper = eomDbSupplier.apply(session);
+                WebObject webObject = dbHelper.getWebObjectByUuid(uuid);
                 if (webObject == null) {
                     throw new InvalidURI(String.format("uuid %s was not found", uuid));
                 }
                 eomFile = webObject.getEomFile();
                 final String typeName = eomFile.get_type_name();
                 final byte[] bytes = eomFile.read_all();
-                final String attributes = new String(eomFile.get_attributes().getBytes(METHODE_ENCODING), UTF8);
+                final String attributes = new String(eomFile.get_attributes().getBytes(METHODE_ENCODING), UTF_8);
                 final String workflowStatus = eomFile.get_status_name();
                 final String systemAttributes = eomFile.get_system_attributes();
                 final String usageTickets = eomFile.get_usage_tickets("");
@@ -101,7 +139,7 @@ public class MethodeFileRepository {
         } catch (RepositoryError | PermissionDenied e) {
                 throw new MethodeException(e);
         } catch (Exception e) {
-                throw new MethodeException("Failed to read data from Mehtode", e);
+                throw new MethodeException("Failed to read data from Methode", e);
         } finally {
                 if (eomFile != null) eomFile._release();
         }
