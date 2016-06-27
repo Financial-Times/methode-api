@@ -60,7 +60,10 @@ public class MethodeApiApplication extends Application<MethodeApiConfiguration> 
 
         final MethodeObjectFactory methodeObjectFactory = createMethodeObjectFactory("main", configuration.getCredentialsPath(),configuration.getMethodeConnectionConfiguration(),environment);
         final MethodeObjectFactory testMethodeObjectFactory = createMethodeObjectFactory("test-rw", configuration.getTestCredentialsPath(), configuration.getMethodeTestConnectionConfiguration(),environment);
-        final MethodeFileRepository methodeContentRepository = new MethodeFileRepository(methodeObjectFactory, testMethodeObjectFactory);
+        final MethodeFileRepository methodeContentRepository = new MethodeFileRepository.Builder()
+            .withClientMethodeObjectFactory(methodeObjectFactory)
+            .withTestClientMethodeObjectFactory(testMethodeObjectFactory)
+            .build();
 
         environment.jersey().register(new EomFileResource(methodeContentRepository));
         environment.jersey().register(new VersionResource(MethodeApiApplication.class));
